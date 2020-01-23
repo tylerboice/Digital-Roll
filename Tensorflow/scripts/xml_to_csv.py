@@ -1,4 +1,10 @@
 import os
+import sys
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import logging
+logging.getLogger('tensorflow').disabled = True
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 import glob
 import pandas as pd
 import xml.etree.ElementTree as ET

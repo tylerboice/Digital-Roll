@@ -1,162 +1,114 @@
-# Copyright 2017 The TensorFlow Authors. All Rights Reserved.
+# export_inference_graph.py
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
+LAST_CHECKPOINT = 21007
+# original file by Google:
+# https://github.com/tensorflow/models/blob/master/research/object_detection/export_inference_graph.py
 
-r"""Tool to export an object detection model for inference.
-
-Prepares an object detection tensorflow graph for inference using model
-configuration and a trained checkpoint. Outputs inference
-graph, associated checkpoint files, a frozen inference graph and a
-SavedModel (https://tensorflow.github.io/serving/serving_basic.html).
-
-The inference graph contains one of three input nodes depending on the user
-specified option.
-  * `image_tensor`: Accepts a uint8 4-D tensor of shape [None, None, None, 3]
-  * `encoded_image_string_tensor`: Accepts a 1-D string tensor of shape [None]
-    containing encoded PNG or JPEG images. Image resolutions are expected to be
-    the same if more than 1 image is provided.
-  * `tf_example`: Accepts a 1-D string tensor of shape [None] containing
-    serialized TFExample protos. Image resolutions are expected to be the same
-    if more than 1 image is provided.
-
-and the following output nodes returned by the model.postprocess(..):
-  * `num_detections`: Outputs float32 tensors of the form [batch]
-      that specifies the number of valid boxes per image in the batch.
-  * `detection_boxes`: Outputs float32 tensors of the form
-      [batch, num_boxes, 4] containing detected boxes.
-  * `detection_scores`: Outputs float32 tensors of the form
-      [batch, num_boxes] containing class scores for the detections.
-  * `detection_classes`: Outputs float32 tensors of the form
-      [batch, num_boxes] containing classes for the detections.
-  * `raw_detection_boxes`: Outputs float32 tensors of the form
-      [batch, raw_num_boxes, 4] containing detection boxes without
-      post-processing.
-  * `raw_detection_scores`: Outputs float32 tensors of the form
-      [batch, raw_num_boxes, num_classes_with_background] containing class score
-      logits for raw detection boxes.
-  * `detection_masks`: (Optional) Outputs float32 tensors of the form
-      [batch, num_boxes, mask_height, mask_width] containing predicted instance
-      masks for each box if its present in the dictionary of postprocessed
-      tensors returned by the model.
-  * detection_multiclass_scores: (Optional) Outputs float32 tensor of shape
-      [batch, num_boxes, num_classes_with_background] for containing class
-      score distribution for detected boxes including background if any.
-  * detection_features: (Optional) float32 tensor of shape
-      [batch, num_boxes, roi_height, roi_width, depth]
-  containing classifier features
-
-Notes:
- * This tool uses `use_moving_averages` from eval_config to decide which
-   weights to freeze.
-
-Example Usage:
---------------
-python export_inference_graph.py \
-    --input_type image_tensor \
-    --pipeline_config_path ../training/pipeline.config \
-    --trained_checkpoint_prefix ../training/model.ckpt-1190 \
-    --output_directory ../trained_model/
-
-The expected output would be in the directory
-path/to/exported_model_directory (which is created if it does not exist)
-with contents:
- - inference_graph.pbtxt
- - model.ckpt.data-00000-of-00001
- - model.ckpt.info
- - model.ckpt.meta
- - frozen_inference_graph.pb
- + saved_model (a directory)
-
-Config overrides (see the `config_override` flag) are text protobufs
-(also of type pipeline_pb2.TrainEvalPipelineConfig) which are used to override
-certain fields in the provided pipeline_config_path.  These are useful for
-making small changes to the inference graph that differ from the training or
-eval config.
-
-Example Usage (in which we change the second stage post-processing score
-threshold to be 0.5):
-
-python export_inference_graph \
-    --input_type image_tensor \
-    --pipeline_config_path path/to/ssd_inception_v2.config \
-    --trained_checkpoint_prefix path/to/model.ckpt \
-    --output_directory path/to/exported_model_directory \
-    --config_override " \
-            model{ \
-              faster_rcnn { \
-                second_stage_post_processing { \
-                  batch_non_max_suppression { \
-                    score_threshold: 0.5 \
-                  } \
-                } \
-              } \
-            }"
-"""
-import tensorflow as tf
+import os
+import sys
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import logging
+logging.getLogger('tensorflow').disabled = True
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 from google.protobuf import text_format
 from object_detection import exporter
 from object_detection.protos import pipeline_pb2
 
-slim = tf.contrib.slim
-flags = tf.app.flags
+# module-level variables ##############################################################################################
 
-flags.DEFINE_string('input_type', 'image_tensor', 'Type of input node. Can be '
-                    'one of [`image_tensor`, `encoded_image_string_tensor`, '
-                    '`tf_example`]')
-flags.DEFINE_string('input_shape', None,
-                    'If input_type is `image_tensor`, this can explicitly set '
-                    'the shape of this input tensor to a fixed size. The '
-                    'dimensions are to be provided as a comma-separated list '
-                    'of integers. A value of -1 can be used for unknown '
-                    'dimensions. If not specified, for an `image_tensor, the '
-                    'default shape will be partially specified as '
-                    '`[None, None, None, 3]`.')
-flags.DEFINE_string('pipeline_config_path', None,
-                    'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
-                    'file.')
-flags.DEFINE_string('trained_checkpoint_prefix', None,
-                    'Path to trained checkpoint, typically of the form '
-                    'path/to/model.ckpt')
-flags.DEFINE_string('output_directory', None, 'Path to write outputs.')
-flags.DEFINE_string('config_override', '',
-                    'pipeline_pb2.TrainEvalPipelineConfig '
-                    'text proto to override pipeline_config_path.')
-flags.DEFINE_boolean('write_inference_graph', False,
-                     'If true, writes inference graph to disk.')
-tf.app.flags.mark_flag_as_required('pipeline_config_path')
-tf.app.flags.mark_flag_as_required('trained_checkpoint_prefix')
-tf.app.flags.mark_flag_as_required('output_directory')
-FLAGS = flags.FLAGS
+# INPUT_TYPE can be "image_tensor", "encoded_image_string_tensor", or "tf_example"
+INPUT_TYPE = "image_tensor"
 
+# If INPUT_TYPE is "image_tensor", INPUT_SHAPE can explicitly set.  The shape of this input tensor to a fixed size.
+# The dimensions are to be provided as a comma-separated list of integers. A value of -1 can be used for unknown dimensions.
+# If not specified, for an image_tensor, the default shape will be partially specified as [None, None, None, 3]
+INPUT_SHAPE = None
 
+# the location of the big config file
+PIPELINE_CONFIG_LOC =  os.getcwd() + "/../training/" + "pipeline.config"
+
+# the final checkpoint result of the training process
+TRAINED_CHECKPOINT_PREFIX_LOC = os.getcwd() +  "/../training/model.ckpt-" + str(LAST_CHECKPOINT)
+
+# the output directory to place the inference graph data, note that it's ok if this directory does not already exist
+# because the call to export_inference_graph() below will create this directory if it does not exist already
+OUTPUT_DIR = os.getcwd() + "/../trained_model/"
+
+#######################################################################################################################
 def main(_):
-  pipeline_config = pipeline_pb2.TrainEvalPipelineConfig()
-  with tf.gfile.GFile(FLAGS.pipeline_config_path, 'r') as f:
-    text_format.Merge(f.read(), pipeline_config)
-  text_format.Merge(FLAGS.config_override, pipeline_config)
-  if FLAGS.input_shape:
-    input_shape = [
-        int(dim) if dim != '-1' else None
-        for dim in FLAGS.input_shape.split(',')
-    ]
-  else:
-    input_shape = None
-  exporter.export_inference_graph(
-      FLAGS.input_type, pipeline_config, FLAGS.trained_checkpoint_prefix,
-      FLAGS.output_directory, input_shape=input_shape,
-      write_inference_graph=FLAGS.write_inference_graph)
+    print("starting script . . .")
 
+    if not checkIfNecessaryPathsAndFilesExist():
+        return
+    # end if
 
+    print("calling TrainEvalPipelineConfig() . . .")
+    trainEvalPipelineConfig = pipeline_pb2.TrainEvalPipelineConfig()
+
+    print("checking and merging " + os.path.basename(PIPELINE_CONFIG_LOC) + " into trainEvalPipelineConfig . . .")
+    with tf.gfile.GFile(PIPELINE_CONFIG_LOC, 'r') as f:
+        text_format.Merge(f.read(), trainEvalPipelineConfig)
+    # end with
+
+    print("calculating input shape . . .")
+    if INPUT_SHAPE:
+        input_shape = [ int(dim) if dim != '-1' else None for dim in INPUT_SHAPE.split(',') ]
+    else:
+        input_shape = None
+    # end if
+
+    print("calling export_inference_graph() . . .")
+    exporter.export_inference_graph(INPUT_TYPE, trainEvalPipelineConfig, TRAINED_CHECKPOINT_PREFIX_LOC, OUTPUT_DIR, input_shape)
+
+    print("done !!")
+# end main
+
+#######################################################################################################################
+def checkIfNecessaryPathsAndFilesExist():
+    if not os.path.exists(PIPELINE_CONFIG_LOC):
+        print('ERROR: PIPELINE_CONFIG_LOC "' + PIPELINE_CONFIG_LOC + '" does not seem to exist')
+        return False
+    # end if
+
+    # TRAINED_CHECKPOINT_PREFIX_LOC is a special case because there is no actual file with this name.
+    # i.e. if TRAINED_CHECKPOINT_PREFIX_LOC is:
+    # "C:\Users\cdahms\Documents\TensorFlow_Tut_3_Object_Detection_Walk-through\training_data\training_data\model.ckpt-500"
+    # this exact file does not exist, but there should be 3 files including this name, which would be:
+    # "model.ckpt-500.data-00000-of-00001"
+    # "model.ckpt-500.index"
+    # "model.ckpt-500.meta"
+    # therefore it's necessary to verify that the stated directory exists and then check if there are at least three files
+    # in the stated directory that START with the stated name
+
+    # break out the directory location and the file prefix
+    trainedCkptPrefixPath, filePrefix = os.path.split(TRAINED_CHECKPOINT_PREFIX_LOC)
+
+    # return false if the directory does not exist
+    if not os.path.exists(trainedCkptPrefixPath):
+        print('ERROR: directory "' + trainedCkptPrefixPath + '" does not seem to exist')
+        print('was the training completed successfully?')
+        return False
+    # end if
+
+    # count how many files in the stated directory start with the stated prefix
+    numFilesThatStartWithPrefix = 0
+    for fileName in os.listdir(trainedCkptPrefixPath):
+        if fileName.startswith(filePrefix):
+            numFilesThatStartWithPrefix += 1
+        # end if
+    # end if
+
+    # if less than 3 files start with the stated prefix, return false
+    if numFilesThatStartWithPrefix < 3:
+        print('ERROR: 3 files statring with "' + filePrefix + '" do not seem to be present in the directory "' + trainedCkptPrefixPath + '"')
+        print('was the training completed successfully?')
+    # end if
+
+    # if we get here the necessary directories and files are present, so return True
+    return True
+# end function
+
+#######################################################################################################################
 if __name__ == '__main__':
-  tf.app.run()
+    tf.app.run()
