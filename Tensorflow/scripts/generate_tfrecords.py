@@ -172,21 +172,45 @@ def createTfExample(singleFileData, path):
 #######################################################################################################################
 def classAsTextToClassAsInt(classAsText):
 
-    # ToDo: If you have more than one classification, add an if statement for each
-    # ToDo: i.e. if you have 3 classes, you would have 3 if statements and then the else
+	if classAsText == 'd4-1':
+		 return 1
+	elif classAsText == 'd4-2':
+		 return 2
+	elif classAsText == 'd4-3':
+		 return 3
+	elif classAsText == 'd4-4':
+		 return 4
+	elif classAsText == 'd6-1':
+		 return 5
+	elif classAsText == 'd6-2':
+		 return 6
+	elif classAsText == 'd6-3':
+		 return 7
+	elif classAsText == 'd6-4':
+		 return 8
+	elif classAsText == 'd6-5':
+		 return 9
+	elif classAsText == 'd6-6':
+		 return 10
+	elif classAsText == 'd8-1':
+		 return 11
+	elif classAsText == 'd8-2':
+		 return 12
+	elif classAsText == 'd8-3':
+		 return 13
+	elif classAsText == 'd8-4':
+		 return 14
+	elif classAsText == 'd8-5':
+		 return 15
+	elif classAsText == 'd8-6':
+		 return 16
+	elif classAsText == 'd8-7':
+		 return 17
+	elif classAsText == 'd8-8':
+		 return 18
+	else: 
+		return -1 
 
-    if classAsText == 'd4':
-        return 1
-    elif classAsText == 'd6':
-        return 2
-    elif classAsText == 'd8':
-        return 3
-    else:
-        print("error in class_text_to_int(), row_label could not be identified")
-        return -1
-    # end if
-# end function
 
-#######################################################################################################################
 if __name__ == '__main__':
-    main()
+	main()

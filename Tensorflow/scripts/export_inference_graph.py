@@ -1,6 +1,5 @@
 # export_inference_graph.py
-#
-LAST_CHECKPOINT = 21007
+
 # original file by Google:
 # https://github.com/tensorflow/models/blob/master/research/object_detection/export_inference_graph.py
 
@@ -15,6 +14,18 @@ from google.protobuf import text_format
 from object_detection import exporter
 from object_detection.protos import pipeline_pb2
 
+last_checkpoint = 0
+
+for file in os.listdir('../training'):
+       if 'model.ckpt-' and 'meta' in file:
+           current = file.split('-')[1]
+           current = current.split('.')[0]
+           if last_checkpoint < int(current):
+               last_checkpoint = int(current)
+
+if last_checkpoint == 0:
+    print("\n\n\nNo checkpoint found")
+    exit()
 # module-level variables ##############################################################################################
 
 # INPUT_TYPE can be "image_tensor", "encoded_image_string_tensor", or "tf_example"
@@ -25,15 +36,16 @@ INPUT_TYPE = "image_tensor"
 # If not specified, for an image_tensor, the default shape will be partially specified as [None, None, None, 3]
 INPUT_SHAPE = None
 
+
 # the location of the big config file
-PIPELINE_CONFIG_LOC =  os.getcwd() + "/../training/" + "pipeline.config"
+PIPELINE_CONFIG_LOC =  os.getcwd() + "/../training/pre-trained_model/" + "pipeline.config"
 
 # the final checkpoint result of the training process
-TRAINED_CHECKPOINT_PREFIX_LOC = os.getcwd() +  "/../training/model.ckpt-" + str(LAST_CHECKPOINT)
+TRAINED_CHECKPOINT_PREFIX_LOC = os.getcwd() +  "/../training/model.ckpt-" + str(last_checkpoint)
 
 # the output directory to place the inference graph data, note that it's ok if this directory does not already exist
 # because the call to export_inference_graph() below will create this directory if it does not exist already
-OUTPUT_DIR = os.getcwd() + "/../trained_model/"
+OUTPUT_DIR = os.getcwd() + "/../training/trained_model/"
 
 #######################################################################################################################
 def main(_):
