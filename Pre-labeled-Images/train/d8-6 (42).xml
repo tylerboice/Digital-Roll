@@ -1,0 +1,26 @@
+<annotation>
+	<folder>images</folder>
+	<filename>d8-6 (42).jpg</filename>
+	<path>C:\Tensorflow\images\d8-6 (42).jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>576</width>
+		<height>768</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>d8-6</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>218</xmin>
+			<ymin>307</ymin>
+			<xmax>336</xmax>
+			<ymax>448</ymax>
+		</bndbox>
+	</object>
+</annotation>
