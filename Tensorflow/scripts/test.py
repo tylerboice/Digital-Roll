@@ -1,24 +1,65 @@
-# test.py
-
+# original file by Google:
+# https://github.com/tensorflow/models/blob/master/research/object_detection/export_inference_graph.py
+import cv2
+import logging
 import numpy as np
 import os
-import tensorflow as tf
-import cv2
+import shutil
+import sys
+import tensorflow.compat.v1 as tf
 
+from distutils.version import StrictVersion
+from google.protobuf import text_format
+from object_detection import exporter
+from object_detection.protos import pipeline_pb2
+from os import path
 from utils import label_map_util
 from utils import visualization_utils as vis_util
-from distutils.version import StrictVersion
 
-# module level variables ##############################################################################################
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+logging.getLogger('tensorflow').disabled = True
+tf.disable_v2_behavior()
+
+
+# module-level variables ##############################################################################################
+
+# INPUT_TYPE can be "image_tensor", "encoded_image_string_tensor", or "tf_example"
+INPUT_TYPE = "image_tensor"
+ACCESS_RIGHTS = 777
+INPUT_SHAPE = None
+
+### Directories ###
+TRAINED_MODEL_DIR = os.getcwd() + "/../training/trained_model"
+PIPELINE_CONFIG_LOC =  os.getcwd() + "/../training/pre-trained_model/" + "pipeline.config"
+TRAINED_CHECKPOINT_PREFIX_LOC = os.getcwd() +  "/../training/model.ckpt-"
 TEST_IMAGE_DIR = os.getcwd() +  "/../images/validation"
-FROZEN_INFERENCE_GRAPH_LOC = os.getcwd() + "/../training/trained_model/frozen_inference_graph.pb"
+FROZEN_INFERENCE_GRAPH_LOC = os.getcwd() + "/../training/pre-trained_model/frozen_inference_graph.pb"
 LABELS_LOC = os.getcwd() + "/../data/" + "label_map.pbtxt"
 NUM_CLASSES = 18
-#######################################################################################################################
-def main():
-    print("starting program . . .")
+
+last_checkpoint = 0
+
+for file in os.listdir('../training'):
+    if 'model.ckpt-' and 'meta' in file:
+       current = file.split('-')[1]
+       current = current.split('.')[0]
+       if last_checkpoint < int(current):
+           last_checkpoint = int(current)
+
+if last_checkpoint == 0:
+    print("\n\n\nNo checkpoint found")
+    exit()
+
+TRAINED_CHECKPOINT_PREFIX_LOC = TRAINED_CHECKPOINT_PREFIX_LOC + str(last_checkpoint)
+# the output directory to place the inference graph data, note that it's ok if this directory does not already exist
+# because the call to export_inference_graph() below will create this directory if it does not exist already
+OUTPUT_DIR = os.getcwd() + "/../training/trained_model/"
+
+def test():
 
     if not checkIfNecessaryPathsAndFilesExist():
+        print("No images in Tensorflow/images/validation:")
+        print("\tplace photos in this director if fyou want to validate the inference graph")
         return
     # end if
 
@@ -91,14 +132,84 @@ def main():
                                                                    use_normalized_coordinates=True,
                                                                    line_thickness=8)
                 cv2.imshow("image_np", image_np)
-                cv2.waitKey()
-            # end for
-        # end with
+                cv2.waitKey(0)
+#######################################################################################################################
+def main(_):
+    if path.exists(TRAINED_MODEL_DIR):
+        shutil.rmtree(TRAINED_MODEL_DIR)
+    os.mkdir(TRAINED_MODEL_DIR, ACCESS_RIGHTS)
+    print("Exporting inference graph...")
+
+    if not checkIfNecessaryPathsAndFilesExist():
+        return
+    # end if
+
+    print("calling TrainEvalPipelineConfig() . . .")
+    trainEvalPipelineConfig = pipeline_pb2.TrainEvalPipelineConfig()
+
+    print("checking and merging " + os.path.basename(PIPELINE_CONFIG_LOC) + " into trainEvalPipelineConfig . . .")
+    with tf.gfile.GFile(PIPELINE_CONFIG_LOC, 'r') as f:
+        text_format.Merge(f.read(), trainEvalPipelineConfig)
     # end with
+
+    print("calculating input shape . . .")
+    if INPUT_SHAPE:
+        input_shape = [ int(dim) if dim != '-1' else None for dim in INPUT_SHAPE.split(',') ]
+    else:
+        input_shape = None
+    # end if
+
+    print("calling export_inference_graph() . . .")
+    exporter.export_inference_graph(INPUT_TYPE, trainEvalPipelineConfig, TRAINED_CHECKPOINT_PREFIX_LOC, OUTPUT_DIR, INPUT_SHAPE)
+
+    print("Successfully exported Inference graph")
+
+    print("\nStarting testing. . .")
+    test()
+
 # end main
 
 #######################################################################################################################
 def checkIfNecessaryPathsAndFilesExist():
+    if not os.path.exists(PIPELINE_CONFIG_LOC):
+        print('ERROR: PIPELINE_CONFIG_LOC "' + PIPELINE_CONFIG_LOC + '" does not seem to exist')
+        return False
+    # end if
+
+    # TRAINED_CHECKPOINT_PREFIX_LOC is a special case because there is no actual file with this name.
+    # i.e. if TRAINED_CHECKPOINT_PREFIX_LOC is:
+    # "C:\Users\cdahms\Documents\TensorFlow_Tut_3_Object_Detection_Walk-through\training_data\training_data\model.ckpt-500"
+    # this exact file does not exist, but there should be 3 files including this name, which would be:
+    # "model.ckpt-500.data-00000-of-00001"
+    # "model.ckpt-500.index"
+    # "model.ckpt-500.meta"
+    # therefore it's necessary to verify that the stated directory exists and then check if there are at least three files
+    # in the stated directory that START with the stated name
+
+    # break out the directory location and the file prefix
+    trainedCkptPrefixPath, filePrefix = os.path.split(TRAINED_CHECKPOINT_PREFIX_LOC)
+
+    # return false if the directory does not exist
+    if not os.path.exists(trainedCkptPrefixPath):
+        print('ERROR: directory "' + trainedCkptPrefixPath + '" does not seem to exist')
+        print('was the training completed successfully?')
+        return False
+    # end if
+
+    # count how many files in the stated directory start with the stated prefix
+    numFilesThatStartWithPrefix = 0
+    for fileName in os.listdir(trainedCkptPrefixPath):
+        if fileName.startswith(filePrefix):
+            numFilesThatStartWithPrefix += 1
+        # end if
+    # end if
+
+    # if less than 3 files start with the stated prefix, return false
+    if numFilesThatStartWithPrefix < 3:
+        print('ERROR: 3 files statring with "' + filePrefix + '" do not seem to be present in the directory "' + trainedCkptPrefixPath + '"')
+        print('was the training completed successfully?')
+    # end if
+
     if not os.path.exists(TEST_IMAGE_DIR):
         print('ERROR: TEST_IMAGE_DIR "' + TEST_IMAGE_DIR + '" does not seem to exist')
         return False
@@ -117,9 +228,10 @@ def checkIfNecessaryPathsAndFilesExist():
         return False
     # end if
 
+    # if we get here the necessary directories and files are present, so return True
     return True
 # end function
 
 #######################################################################################################################
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    tf.app.run()
