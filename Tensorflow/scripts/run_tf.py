@@ -8,6 +8,7 @@ import logging
 import numpy as np
 import os
 import pandas as pd
+import random
 import shutil
 import sys
 import tensorflow.compat.v1 as tf
@@ -29,40 +30,42 @@ from utils import label_map_util
 from utils import visualization_utils as vis_util
 
 tf.disable_v2_behavior()
+os.chdir("../")
+CWD_PATH = os.getcwd() + "/"
 
 ######################## STATIC_VALUES #########################################
 ### DIRECTORIES ###
 ARCHIVED = "archived_training_sessions"
-ARCHIVED_DIR = "../training/" + ARCHIVED
-CHECKPOINT_PATH = os.getcwd() +  "/../training/model.ckpt-"
-CWD_PATH = os.getcwd()
-DATA_DIR = "../data/"
-FILES_MODEL_DIR_MUST_CONTAIN = [ "checkpoint" ,
+ARCHIVED_PATH = CWD_PATH + "training/" + ARCHIVED
+CHECKPOINT_PATH = CWD_PATH  + "training/model.ckpt-"
+DATA_PATH = "data/"
+FILES_MODEL_PATH_MUST_CONTAIN = [ "checkpoint" ,
                                  "frozen_inference_graph.pb",
                                  "model.ckpt.data-00000-of-00001",
                                  "model.ckpt.index",
                                  "model.ckpt.meta"]
-FROZEN_GRAPH_LOC =  os.getcwd() + "/../training/pre-trained_model/frozen_inference_graph.pb"
-GENERATE_REC = "run_tf.py"
-IMAGE_DIR = "../images/"
-LABEL_MAP_PATH = "../data/label_map.pbtxt"
-PRE_TRAINED_MODEL_DIR = "../training/pre-trained_model/"
-PIPELINE_PATH = PRE_TRAINED_MODEL_DIR + "pipeline.config"
+FROZEN_GRAPH_LOC =  CWD_PATH + "training/pre-trained_model/frozen_inference_graph.pb"
+GENERATE_REC = "scripts/run_tf.py"
+IMAGE_PATH = CWD_PATH + "images/"
+LABEL_MAP_PATH = CWD_PATH + "data/label_map.pbtxt"
+PIPELINE_PATH = CWD_PATH + "training/pre-trained_model/pipeline.config"
+PRE_TRAINED_MODEL_PATH = CWD_PATH + "training/pre-trained_model"
+PRE_TRAINED_CHECKPOINT_PATH = CWD_PATH + "training/pre-trained_model/model.ckpt"
 SAVED_MODEL = "saved_training_checkpoint-"
 
-TEST_CSV_PATH = DATA_DIR + 'test_labels.csv'
-TEST_FILE_PATH =  "test.py"
-TEST_IMAGE_PATH = IMAGE_DIR + "test"
-TEST_TF_RECORD_PATH = DATA_DIR + 'test.tfrecord'
+TEST_CSV_PATH = CWD_PATH + "data/test_labels.csv"
+TEST_FILE = CWD_PATH + "scripts/test.py"
+TEST_IMAGE_PATH =  IMAGE_PATH + "test/"
+TEST_TF_RECORD_PATH = CWD_PATH + "data/test.tfrecord"
 
-TRAIN_CSV_PATH = DATA_DIR + 'train_labels.csv'
-TRAIN_IMAGE_PATH = IMAGE_DIR + "train"
-TRAIN_TF_RECORD_PATH = DATA_DIR + 'train.tfrecord'
+TRAIN_CSV_PATH = CWD_PATH + "data/train_labels.csv"
+TRAIN_IMAGE_PATH = IMAGE_PATH + "train/"
+TRAIN_TF_RECORD_PATH = CWD_PATH + "data/train.tfrecord"
 
-TRAINING_DIR = "../training/"
-TRAINED_MODEL_DIR = TRAINING_DIR + "trained_model"
+TRAINING_PATH = CWD_PATH + "training/"
+TRAINED_MODEL_PATH = CWD_PATH +  "training/trained_model"
 
-VALIDATE_IMAGE_DIR = IMAGE_DIR + "validation"
+VALIDATE_IMAGE_PATH = IMAGE_PATH + "validation/"
 
 
 ### OTHER VALUES ###
@@ -72,14 +75,143 @@ GENERATE_REC_LABEL_MAP = "def classAsTextTo" + "ClassAsInt(classAsText):"
 INPUT_SHAPE = None
 INPUT_TYPE = "image_tensor"
 MAX_NUM_ARCHIVED = 5
+MIN_IMAGES = 50
 NUM_CLONES = 1
 QUOTE = '"'
-STEP_COUNT = 1000
+STEP_COUNT = 5
+VALID_IMAGE_NUM = 3
 
 #############################################################################################################################
 ############################################################################################################## XML TO CSV ###
 #############################################################################################################################
+#######################################################################################################################
+def checkIfNecessaryPathsAndFilesExist():
+    ####### IMAGE PATH #######
+    if not os.path.exists(IMAGE_PATH):
+        print("ERROR: The image directory does not exist")
+        exit()
+
+    ####### TEST IMAGE PATH #######
+    if not os.path.exists(TEST_IMAGE_PATH):
+        os.mkdir(TEST_IMAGE_PATH)
+
+    ####### TRAIN IMAGE PATH #######
+    if not os.path.exists(TRAIN_IMAGE_PATH):
+        os.mkdir(TRAIN_IMAGE_PATH)
+
+    ####### VALIDATE IMAGE PATH #######
+    if not os.path.exists(VALIDATE_IMAGE_PATH):
+            os.mkdir(VALIDATE_IMAGE_PATH)
+
+   ####### PIPELINE PATH #######
+    if not os.path.exists(PIPELINE_PATH):
+        print('ERROR: the pipeline.config file "' + PIPELINE_PATH + '" does not seem to exist')
+        exit()
+
+    ####### PRE_TRAINED MODEL #######
+    if not os.path.exists(PRE_TRAINED_MODEL_PATH):
+        print('ERROR: the model directory "' + PRE_TRAINED_MODEL_PATH + '" does not seem to exist')
+        exit()
+
+    ####### MODEL_FILES #######
+    for necessaryModelFileName in FILES_MODEL_PATH_MUST_CONTAIN:
+        if not os.path.exists(os.path.join(PRE_TRAINED_MODEL_PATH, necessaryModelFileName)):
+            print('ERROR: the model file "' + PRE_TRAINED_MODEL_PATH + "/" + necessaryModelFileName + '" does not seem to exist')
+            exit()
+
+    ####### LABEL_MAP #######
+    if not os.path.exists(LABEL_MAP_PATH):
+        print('ERROR: the label map file "' + LABEL_MAP_PATH + '" does not seem to exist')
+        exit()
+
+    return True
+
+def sort_images():
+    total_images = 0
+    file_count = 0
+    unlabelled_files = []
+    valid_images = []
+    get_valid = False
+
+    ########################################## MOVE IMAGE FILES
+    for filename in os.listdir(IMAGE_PATH):
+        if '.png' in filename or '.jpg' in filename or '.jpeg' in filename:
+            found_label = False
+            xml_version = filename.split(".")[0] + ".xml"
+            total_images += 1
+
+            # move to test
+            if total_images % 10 == 0:
+                shutil.move(IMAGE_PATH + filename, TEST_IMAGE_PATH)
+                if path.exists(IMAGE_PATH + xml_version):
+                    shutil.move(IMAGE_PATH + xml_version, TEST_IMAGE_PATH)
+                    found_label = True
+
+            # move to train
+            else:
+                shutil.move(IMAGE_PATH + filename, TRAIN_IMAGE_PATH)
+                if path.exists(IMAGE_PATH + xml_version):
+                    shutil.move(IMAGE_PATH + xml_version, TRAIN_IMAGE_PATH)
+                    found_label = True
+
+            # if image was found but label was not:
+            if found_label == False:
+                unlabelled_files.append(filename)
+
+        # file is not a folder, image or .xml then delete it
+        elif os.path.isdir(filename) and '.xml' not in filename:
+            os.remove(filename)
+
+    total_images = 0
+    train_images = 0
+    # count all image and .xml files in test
+    for filename in os.listdir(TEST_IMAGE_PATH):
+        if '.png' in filename or '.jpg' in filename or '.jpeg' in filename:
+            total_images += 1
+
+    # count all image and .xml files in train
+    for filename in os.listdir(TRAIN_IMAGE_PATH):
+        if '.png' in filename or '.jpg' in filename or '.jpeg' in filename:
+            total_images += 1
+            train_images += 1
+
+    # print total image count
+    print("\tTotal images = " + str(total_images))
+
+    # total images must be greater than pre-defined count to train on
+    if total_images < MIN_IMAGES:
+        print("\nTensorflow needs at least " + str(MIN_IMAGES) + " images to train")
+        exit()
+
+    # if files are unlabelled, print them
+    if len(unlabelled_files) != 0:
+        print("The following images do not have a label:\n\t")
+        print("\t" + unlabelled_files)
+
+    # move all files in validate to train
+    for file in os.listdir(VALIDATE_IMAGE_PATH):
+        shutil.move(VALIDATE_IMAGE_PATH + file, TRAIN_IMAGE_PATH)
+
+    # gather all valid images from train
+    while len(valid_images) < VALID_IMAGE_NUM:
+        next_valid = random.randint(1, train_images)
+        if next_valid not in valid_images:
+            valid_images.append(next_valid)
+
+    # move random valid images from train to validate
+    file_count = 0
+    for file in os.listdir(TRAIN_IMAGE_PATH):
+        if '.png' in file or '.jpg' in file or '.jpeg' in file:
+            file_count += 1
+            xml_version = file.split(".")[0] + ".xml"
+            if file_count in valid_images:
+                shutil.move(TRAIN_IMAGE_PATH + file, VALIDATE_IMAGE_PATH)
+                if path.exists(TRAIN_IMAGE_PATH + xml_version):
+                    shutil.move(TRAIN_IMAGE_PATH + xml_version, VALIDATE_IMAGE_PATH)
+
+
 def xml_to_csv(path):
+
     xml_list = []
     for xml_file in glob.glob(path + '/*.xml'):
         tree = ET.parse(xml_file)
@@ -102,9 +234,9 @@ def xml_to_csv(path):
 ################### CONVERSION_TO_CSV #####################
 def convert_to_csv():
     for directory in ['train', 'test']:
-        image_path = os.path.join(os.getcwd(), '../images/{}'.format(directory))
+        image_path = os.path.join(os.getcwd(), 'images/{}'.format(directory))
         xml_df = xml_to_csv(image_path)
-        xml_df.to_csv('../data/{}_labels.csv'.format(directory), index=None)
+        xml_df.to_csv('data/{}_labels.csv'.format(directory), index=None)
         print('\tSuccessfully converted xml to csv.')
 
 #############################################################################################################################
@@ -130,22 +262,25 @@ def update_pipeline(num_classes):
     with open(PIPELINE_PATH, "r") as f:
         for line in f.readlines():
             if 'num_classes:' in line:
-                stored_lines.append("\tnum_classes: " + num_classes + "\n")
+                stored_lines.append("    num_classes: " + num_classes + "\n")
             elif 'label_map_path:' in line:
                 stored_lines.append("\tlabel_map_path: " + QUOTE + LABEL_MAP_PATH + QUOTE + "\n")
             elif 'input_path:' in line and input_test == False:
-                stored_lines.append("\tinput_path: " + QUOTE + TRAIN_TF_RECORD_PATH  + QUOTE + "\n")
+                stored_lines.append("\t  input_path: " + QUOTE + TRAIN_TF_RECORD_PATH  + QUOTE + "\n")
                 input_test = True
             elif 'input_path:' in line and input_test == True:
-                stored_lines.append("\tinput_path: " + QUOTE + TEST_TF_RECORD_PATH + QUOTE + "\n")
+                stored_lines.append("\t  input_path: " + QUOTE + TEST_TF_RECORD_PATH + QUOTE + "\n")
             elif 'num_steps:' in line:
                 stored_lines.append("  num_steps: " + str(STEP_COUNT) + "\n")
+            elif 'fine_tune_checkpoint' in line:
+                stored_lines.append("  fine_tune_checkpoint: " + QUOTE + PRE_TRAINED_CHECKPOINT_PATH + QUOTE + "\n")
             else:
                 stored_lines.append(line)
 
     with open(PIPELINE_PATH, "w") as f:
         for line in stored_lines:
             f.write(line)
+    f.close()
 
 ########################## LABEL_MAP ############################
 def update_label_map(classifiers):
@@ -154,7 +289,7 @@ def update_label_map(classifiers):
     with open(LABEL_MAP_PATH, "w") as f:
         for classification in classifiers:
             class_counter += 1
-            f.write("item { \n\tid: " + str(class_counter) + "\n\tname: '" + classification + "'\n}\n\n")
+            f.write("item { \n\tid: " + str(class_counter) + "\n\tname: '" + classification + "'\n}\n")
 
 ########################## GENERATE_REC ############################
 def update_record_files(classifiers):
@@ -167,13 +302,14 @@ def update_record_files(classifiers):
                 stored_lines.append(GENERATE_REC_LABEL_MAP + "\n\n")
                 for classification in classifiers:
                     if class_counter == 1:
-                        stored_lines.append("\tif classAsText == '" + classification + "':\n\t\t return " + str(class_counter) + "\n")
+                        stored_lines.append("\tif classAsText == '" + classification + "':\n\t\treturn " + str(class_counter) + "\n")
                     else:
-                        stored_lines.append("\telif classAsText == '" + classification + "':\n\t\t return " + str(class_counter) + "\n")
+                        stored_lines.append("\telif classAsText == '" + classification + "':\n\t\treturn " + str(class_counter) + "\n")
                     class_counter += 1
                 change = True
+
             elif change and 'else' in line:
-                stored_lines.append('\telse:\n')
+                stored_lines.append('\telse:')
                 change = False
             elif not change:
                 stored_lines.append(line)
@@ -181,11 +317,24 @@ def update_record_files(classifiers):
     with open(GENERATE_REC, "w") as f:
         for line in stored_lines:
             f.write(line)
+    f.close()
+
+########################## TEST_FILE #############################
+    stored_lines = []
+    with open(TEST_FILE, "r") as f:
+        for line in f.readlines():
+            if 'NUM_CLASSES =' in line:
+                stored_lines.append("NUM_CLASSES = " + str(len(get_classifer_info())))
+            else:
+                stored_lines.append(line)
+
+    with open(TEST_FILE, "w") as f:
+        for line in stored_lines:
+            f.write(line)
 
 ########################## DELETE_FILES ############################
 def delete_files():
-    last_checkpoint = 0
-    os.chdir(TRAINING_DIR)
+    last_checkpoint = get_checkpoint()
     for filename in os.listdir():
         if 'model.ckpt-' and 'meta' in filename:
            current = filename.split('-')[1]
@@ -206,13 +355,23 @@ def delete_files():
         for filename in os.listdir():
             if not path.isdir(filename):
                 os.remove(filename)
-    return(last_checkpoint)
 
+########################## GET CHECKPOINT ############################
+def get_checkpoint():
+    os.chdir(TRAINING_PATH)
+    last_checkpoint = 0
+    for filename in os.listdir():
+        if 'model.ckpt-' and 'meta' in filename:
+           current = filename.split('-')[1]
+           current = current.split('.')[0]
+           if last_checkpoint < int(current):
+               last_checkpoint = int(current)
+    return last_checkpoint
 
 ########################## CREATE_ARCHIVE ############################
 def create_archive():
     path_created = False
-    os.chdir(TRAINING_DIR)
+    os.chdir(TRAINING_PATH)
     for filename in os.listdir():
         if ARCHIVED in filename:
            path_created = True
@@ -222,46 +381,37 @@ def create_archive():
 ########################## PLACE_ARCHIVE ############################
 def place_archive():
     archive_counter = 1
-    oldest_save = ARCHIVED_DIR + '/' + SAVED_MODEL + '1'
+    oldest_save = ARCHIVED_PATH + '/' + SAVED_MODEL + '1'
     print(oldest_save)
-    for file in os.listdir(ARCHIVED_DIR):
+    for file in os.listdir(ARCHIVED_PATH):
         archive_counter += 1
     if archive_counter > MAX_NUM_ARCHIVED:
         shutil.rmtree(oldest_save)
         archive_counter = 0
-        os.chdir(ARCHIVED_DIR)
+        os.chdir(ARCHIVED_PATH)
         for filename in os.listdir():
             archive_counter += 1
             os.rename(filename, SAVED_MODEL + str(archive_counter))
         archive_counter += 1
-        os.chdir('..')
-    os.mkdir( ARCHIVED_DIR + '/' + SAVED_MODEL + str(archive_counter))
-    return  ARCHIVED_DIR + '/' + SAVED_MODEL + str(archive_counter)
+    os.mkdir( ARCHIVED_PATH + '/' + SAVED_MODEL + str(archive_counter))
+    return  ARCHIVED_PATH + '/' + SAVED_MODEL + str(archive_counter)
 
 
 
 #############################################################################################################################
 ##################################################################################################### GENERATE TF RECORDS ###
 #############################################################################################################################
-
 def generate_tfrecords():
-    if not checkIfNecessaryPathsAndFilesExist():
-        return
-    # end if
 
     # write the train data .tfrecord file
     trainTfRecordFileWriteSuccessful = writeTfRecordFile(TRAIN_CSV_PATH, TRAIN_TF_RECORD_PATH, TRAIN_IMAGE_PATH)
     if trainTfRecordFileWriteSuccessful:
         print("\tSuccessfully created the training TFRecords" )
-    # end if
 
     # write the eval data .tfrecord file
     evalTfRecordFileWriteSuccessful = writeTfRecordFile(TEST_CSV_PATH, TEST_TF_RECORD_PATH, TEST_IMAGE_PATH)
     if evalTfRecordFileWriteSuccessful:
         print("\tSuccessfully created the testing TFRecords" )
-    # end if
-
-# end main
 
 ##################################################################
 def writeTfRecordFile(csvFileName, tfRecordFileName, imagesDir):
@@ -279,73 +429,8 @@ def writeTfRecordFile(csvFileName, tfRecordFileName, imagesDir):
     for singleFileData in csvFileDataList:
         tfExample = createTfExample(singleFileData, imagesDir)
         tfRecordWriter.write(tfExample.SerializeToString())
-    # end for
+
     tfRecordWriter.close()
-    return True        # return True to indicate success
-# end function
-
-#######################################################################################################################
-def checkIfNecessaryPathsAndFilesExist():
-    if not os.path.exists(TRAIN_CSV_PATH):
-        print('ERROR: TRAIN_CSV_FILE "' + TRAIN_CSV_PATH + '" does not seem to exist')
-        return False
-
-    if not os.path.exists(TRAIN_IMAGE_PATH):
-        print('ERROR: TRAIN_IMAGES_DIR "' + TRAIN_IMAGE_PATH + '" does not seem to exist')
-        return False
-
-    if not os.path.exists(TEST_CSV_PATH):
-        print('ERROR: TEST_CSV_FILE "' + TEST_CSV_PATH + '" does not seem to exist')
-        return False
-
-    if not os.path.exists(TEST_IMAGE_PATH):
-        print('ERROR: TEST_IMAGES_DIR "' + TEST_IMAGE_PATH + '" does not seem to exist')
-        return False
-
-    if not os.path.exists(PIPELINE_PATH):
-        print('ERROR: the big (pipeline).config file "' + PIPELINE_PATH + '" does not seem to exist')
-        return False
-
-    if not os.path.exists(PRE_TRAINED_MODEL_DIR):
-        print('ERROR: the model directory "' + PRE_TRAINED_MODEL_DIR + '" does not seem to exist')
-        print(missingModelMessage)
-        return False
-
-    for necessaryModelFileName in FILES_MODEL_DIR_MUST_CONTAIN:
-        if not os.path.exists(os.path.join(PRE_TRAINED_MODEL_DIR, necessaryModelFileName)):
-            print('ERROR: the model file "' + PRE_TRAINED_MODEL_DIR + "/" + necessaryModelFileName + '" does not seem to exist')
-            print(missingModelMessage)
-            return False
-
-    if not os.path.exists(TRAINING_DIR):
-        print('ERROR: TRAINING_DIR "' + TRAINING_DIR + '" does not seem to exist')
-        return False
-
-    if not os.path.exists(PIPELINE_PATH):
-        print('ERROR: PIPELINE_CONFIG_LOC "' + PIPELINE_PATH + '" does not seem to exist')
-        return False
-
-    trainedCkptPrefixPath, filePrefix = os.path.split(CHECKPOINT_PATH )
-
-    if not os.path.exists(trainedCkptPrefixPath):
-        print('ERROR: directory "' + trainedCkptPrefixPath + '" does not seem to exist')
-        print('was the training completed successfully?')
-        return False
-
-    numFilesThatStartWithPrefix = 0
-
-    for fileName in os.listdir(trainedCkptPrefixPath):
-        if fileName.startswith(filePrefix):
-            numFilesThatStartWithPrefix += 1
-
-    if not os.path.exists(VALIDATE_IMAGE_DIR):
-        print('ERROR: VALIDATE_IMAGE_DIR "' + VALIDATE_IMAGE_DIR + '" does not seem to exist')
-        return False
-
-    if not os.path.exists(LABEL_MAP_PATH):
-        print('ERROR: the label map file "' + LABEL_MAP_PATH + '" does not seem to exist')
-        return False
-
     return True
 
 #######################################################################################################################
@@ -423,55 +508,13 @@ def createTfExample(singleFileData, path):
 #######################################################################################################################
 def classAsTextToClassAsInt(classAsText):
 
-	if classAsText == 'd4-1':
-		 return 1
-	elif classAsText == 'd4-2':
-		 return 2
-	elif classAsText == 'd4-3':
-		 return 3
-	elif classAsText == 'd4-4':
-		 return 4
-	elif classAsText == 'd6-1':
-		 return 5
-	elif classAsText == 'd6-2':
-		 return 6
-	elif classAsText == 'd6-3':
-		 return 7
-	elif classAsText == 'd6-4':
-		 return 8
-	elif classAsText == 'd6-5':
-		 return 9
-	elif classAsText == 'd6-6':
-		 return 10
-	elif classAsText == 'd8-1':
-		 return 11
-	elif classAsText == 'd8-2':
-		 return 12
-	elif classAsText == 'd8-3':
-		 return 13
-	elif classAsText == 'd8-4':
-		 return 14
-	elif classAsText == 'd8-5':
-		 return 15
-	elif classAsText == 'd8-6':
-		 return 16
-	elif classAsText == 'd8-7':
-		 return 17
-	elif classAsText == 'd8-8':
-		 return 18
+	if classAsText == 'd4-3':
+		return 1
 	else:
-         return -1
-
 #############################################################################################################################
 ################################################################################################################# TESTING ###
 #############################################################################################################################
 def test():
-    if not checkIfNecessaryPathsAndFilesExist():
-        print("No images in Tensorflow/images/validation:")
-        print("\tplace photos in this director if fyou want to validate the inference graph")
-        return
-    # end if
-
     # this next comment line is necessary to avoid a false PyCharm warning
     # noinspection PyUnresolvedReferences
     if StrictVersion(tf.__version__) < StrictVersion('1.5.0'):
@@ -493,15 +536,16 @@ def test():
     # Label maps map indices to category names, so that when our convolution network predicts `5`,
     # we know that this corresponds to `airplane`.  Here we use internal utility functions,
     # but anything that returns a dictionary mapping integers to appropriate string labels would be fine
+    max_num_classes= len(get_classifer_info())
     label_map = label_map_util.load_labelmap(LABEL_MAP_PATH)
-    categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes= len(get_classifer_info()),
+    categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=max_num_classes,
                                                                 use_display_name=True)
     category_index = label_map_util.create_category_index(categories)
 
     imageFilePaths = []
-    for imageFileName in os.listdir(VALIDATE_IMAGE_DIR):
+    for imageFileName in os.listdir(VALIDATE_IMAGE_PATH):
         if imageFileName.endswith(".jpg"):
-            imageFilePaths.append(VALIDATE_IMAGE_DIR + "/" + imageFileName)
+            imageFilePaths.append(VALIDATE_IMAGE_PATH + "/" + imageFileName)
         # end if
     # end for
 
@@ -551,25 +595,36 @@ def test():
 #############################################################################################################################
 def main(self):
 
-    print("Converting labelled files to csv files...")
+    print("\nChecking directories and files...")
+    checkIfNecessaryPathsAndFilesExist()
+    print("\tAll files and directories found\n")
+
+    print("\nSorting images...")
+    sort_images()
+    print("\tSuccessfully sorted images\n")
+
+    print("\nConverting labelled files to csv files...")
     convert_to_csv()
+    print("\tSuccessfully updated files.\n")
 
-    print('\n')
-    print("Converting csv files to tensorflow records...")
-    generate_tfrecords()
-
-    print('\n')
-    print("Updating classifers and config files...")
+    print("\nUpdating classifers and config files...")
     classifiers = get_classifer_info()
     num_classes = str(len(classifiers))
     update_pipeline(num_classes)
     update_label_map(classifiers)
     update_record_files(classifiers)
-    checkpoint = str(delete_files())
+    delete_files()
+    print("\tSuccessfully updated files")
 
-    print("\tSuccessfully updated files.")
+    print("\nConverting csv files to tensorflow records...")
+    generate_tfrecords()
+    print("\tSuccessfully converted csv files into tensorflow records\n")
 
-    print("\n\nBeing Training . . .")
+
+
+    print("\tSuccessfully updated files.\n")
+
+    print("\nBeing Training . . .")
 
 #############################################################################################################################
 ################################################################################################################ TRAINING ###
@@ -577,12 +632,8 @@ def main(self):
     # show info to std out during the training process
     tf.logging.set_verbosity(tf.logging.INFO)
 
-    if not checkIfNecessaryPathsAndFilesExist():
-        return
-    # end if
-
     configs = config_util.get_configs_from_pipeline_file(PIPELINE_PATH)
-    tf.gfile.Copy(PIPELINE_PATH, os.path.join(TRAINING_DIR, 'pipeline.config'), overwrite=True)
+    tf.gfile.Copy(PIPELINE_PATH, os.path.join(TRAINING_PATH, 'pipeline.config'), overwrite=True)
 
     model_config = configs['model']
     train_config = configs['train_config']
@@ -640,19 +691,17 @@ def main(self):
     # end if
 
     trainer.train(create_input_dict_fn, model_fn, train_config, master, task, NUM_CLONES, worker_replicas,
-                  CLONE_ON_CPU, ps_tasks, worker_job_name, is_chief, TRAINING_DIR)
+                  CLONE_ON_CPU, ps_tasks, worker_job_name, is_chief, TRAINING_PATH)
 
 #############################################################################################################################
 ################################################################################################## EXPORT INFERENCE GRAPH ###
 #############################################################################################################################
-    if path.exists(TRAINED_MODEL_DIR):
-        shutil.rmtree(TRAINED_MODEL_DIR)
-    os.mkdir(TRAINED_MODEL_DIR, ACCESS_RIGHTS)
-    print("Exporting inference graph...")
+    checkpoint = get_checkpoint()
 
-    if not checkIfNecessaryPathsAndFilesExist():
-        return
-    # end if
+    if path.exists(TRAINED_MODEL_PATH):
+        shutil.rmtree(TRAINED_MODEL_PATH)
+    os.mkdir(TRAINED_MODEL_PATH, ACCESS_RIGHTS)
+    print("Exporting inference graph...")
 
     print("calling TrainEvalPipelineConfig() . . .")
     trainEvalPipelineConfig = pipeline_pb2.TrainEvalPipelineConfig()
@@ -670,7 +719,7 @@ def main(self):
     # end if
 
     print("calling export_inference_graph() . . .")
-    exporter.export_inference_graph(INPUT_TYPE, trainEvalPipelineConfig, CHECKPOINT_PATH + str(checkpoint), TRAINED_MODEL_DIR, INPUT_SHAPE)
+    exporter.export_inference_graph(INPUT_TYPE, trainEvalPipelineConfig, CHECKPOINT_PATH + str(checkpoint), TRAINED_MODEL_PATH, INPUT_SHAPE)
 
     print("Successfully exported Inference graph")
 

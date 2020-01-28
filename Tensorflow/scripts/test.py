@@ -35,8 +35,7 @@ TRAINED_CHECKPOINT_PREFIX_LOC = os.getcwd() +  "/../training/model.ckpt-"
 TEST_IMAGE_DIR = os.getcwd() +  "/../images/validation"
 FROZEN_INFERENCE_GRAPH_LOC = os.getcwd() + "/../training/pre-trained_model/frozen_inference_graph.pb"
 LABELS_LOC = os.getcwd() + "/../data/" + "label_map.pbtxt"
-NUM_CLASSES = 18
-
+NUM_CLASSES = 1
 last_checkpoint = 0
 
 for file in os.listdir('../training'):
