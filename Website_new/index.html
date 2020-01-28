@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="shortcut icon" href="images/tab_image.png" type="image/x-icon"/>
+    <link href="https://fonts.googleapid.com/css?family=Work+Sans:300">
+    <link href="css/styles.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lilita+One|Permanent+Marker|Rajdhani&display=swap" rel="stylesheet">
+    <meta charset="UT=8">
+    <link href="https://fonts.googleapis.com/css?family=Girassol&display=swap" rel="stylesheet">
+    <title>Digital Roll | Home</title>
+</head>
+
+<body>
+
+    <!-- Background image -->
+    <img src="images/background.JPEG" alt="bg" class="bg">
+
+    <!-- Logo -->
+    <div class="logo-position">
+        <img src="images/logo_white.png" alt="logo" class="logo">
+    </div>
+    
+    <!-- Links to internal pages -->
+    <div class="links">      
+      <nav>
+        <ul>  
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="documents.html">Documents</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Links to external pages -->
+    <div class=git_pos>
+        <a href="https://github.com/tylerboice/Digital-Roll">
+            <img src="images/github.png" alt="git" class="git">
+        </a>
+    </div>
+    
+    <div class=email_pos>
+        <a href="mailto:tmb463@nau.edu">
+            <img src="images/email.png" alt="email" class="email">
+        </a>
+    </div>
+    
+    <!-- We ar Digital Roll -->
+    <div class="dr_lineOne">We are</div>
+    <div class="dr_lineTwo">Digital Roll</div>
+
+    <!-- Button to project info -->
+    <div >
+        <a href="#project_sec" class="to_project">Project Info</a>
+    </div>
+
+    <!-- Project Info -->
+    <main>
+        <a name="project_sec"></a>
+        <h2 class="project">Our Project</h2>
+        <div class=intro>
+            <p>
+                Our client, <a href="http://www.beautymark.designstud.io/about-1" class="text_link">Jason Robinson</a> is the founder of the website design company, <a href="http://www.beautymark.designstud.io/#/ec-site/" class="text_link">Beautymark Desisgn Studio</a>. Mr.Robinson enjoys to play tabletop role-playing games(TTRPGs) and wants to use technology to improve how these games are played. TTRPGs use various polyhedral dice like in Figure 1, to determine the outcome of a given event. Mr. Robinson has envisioned an application that reads and outputs the result of all players rolls for both in-person and online players. To do this, Mr. Robinson wants the application to use a smartphone's camera to detect every player's roll. This could solve many problems such as maintaining the pace off the game and reducing the likelihood of dishonest rolls.  
+            </p>
+        </div>
+    
+        <figure>
+            <img src="images/dice.png" alt="dice" class="dice">
+            <figcaption> Figure 1: polyhedral dice used in TTRPGs </figcaption>
+        </figure>
+    
+        <div class=intro>
+            <p>
+            To use this application the phone will need to be set up against a common household object so the camera is angled toward a flat surface. While playing the game, players will roll their dice in the area the camera is observing. The application will use machine learning to detect each dice and output how many dice were rolled, which dice were rolled, and the total sum of all the top faces.
+            </p>
+            
+            <p>
+            This is a very impressive application and will require the use of object detection with machine learning. Digital Roll's goal is to assist Mr. Robinson in creating this application by making a pipeline. This pipeline will let the people at Beautymark Design Studio use their own dataset to create ML kernels and validate them. We will use <a href="https://www.python.org/" class="text_link">Python</a> as our wrapper language and <a href="https://www.tensorflow.org/" class="text_link">TensorFlow</a> as our machine learning framework. Due to its portability and compatibility with Apple products, Mr. Robinson needs the kernels to be Apple's <a href="https://developer.apple.com/documentation/coreml" class="text_link">Core ML</a>. Therefore, we will convert our model from TensorFlow to Core ML. We researched the <a href="documents/Tedhnological_Feasibilty.pdf" class="text_link">feasibility</a> of our project and have found many sources that confirm the possibility of this project. Core ML has already been proven to <a href="https://developer.apple.com/videos/play/wwdc2019/228/" class="text_link">detect pip dice</a>, so it is possible to use polyhedral dice, given a large and diverse dataset.
+            </p>
+        </div>
+
+        <div class="row">
+            
+            <div class="column">
+                <img src="images/python.png" alt="python" class="python" style="width:100%">
+            </div>
+            
+            <div class="column">
+                <img src="images/tensorflow.png" class="tf" style="width:100%">
+            </div>
+            
+            <div class="column">
+                <img src="images/core_ml.png" alt="cml" class="cml" style="width:100%">
+            </div>
+        </div>
+        
+        <div class=intro>
+            <p>
+            The pipeline that we create can be broken up into two parts: an API (application programming interface) and a workbench. The API will take in an image and metadata from a smartphone and produce a consistent format. The data that is produced by the API will be the input for the workbench. The workbench will take in the data to produce an TensorFlow instance model, and convert that to Core ML format (Figure 2).
+            </p>
+        </div>
+        <figure>
+            <img src="images/flowchart.png" alt="dice" class="dice">
+            <figcaption> Figure 2: flowchart for pipeline </figcaption>
+        </figure>
+        <div class=info>
+            <p>
+            For more information on our project specifications. See our <a href="documents/Requirements_Document.pdf"class="doc">Requirnments Document</a>
+            </p>
+        </div>
+    </main>
+</body>
+</html>
