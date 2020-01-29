@@ -26,8 +26,8 @@ from object_detection.utils import config_util
 from object_detection.utils import dataset_util
 from os import path
 from PIL import Image
-from utils import label_map_util
-from utils import visualization_utils as vis_util
+from object_detection.utils import label_map_util
+from object_detection.utils import visualization_utils as vis_util
 
 tf.disable_v2_behavior()
 os.chdir("../")
@@ -507,11 +507,16 @@ def createTfExample(singleFileData, path):
 
 #######################################################################################################################
 def classAsTextToClassAsInt(classAsText):
-	if classAsText == 'd4-3':
+
+	if classAsText == 'd4-1':
 		return 1
-	else:
-		return 0
-		
+	elif classAsText == 'd4-2':
+		return 2
+	elif classAsText == 'd4-3':
+		return 3
+	elif classAsText == 'd4-4':
+		return 4
+	else:		
 #############################################################################################################################
 ################################################################################################################# TESTING ###
 #############################################################################################################################
