@@ -33,6 +33,11 @@ tf.disable_v2_behavior()
 os.chdir("../")
 CWD_PATH = os.getcwd() + "/"
 
+STEP_COUNT = 500
+VALID_IMAGE_NUM = 3
+MAX_NUM_ARCHIVED = 5
+MIN_IMAGES = 50
+
 ######################## STATIC_VALUES #########################################
 ### DIRECTORIES ###
 ARCHIVED = "archived_training_sessions"
@@ -44,7 +49,7 @@ FILES_MODEL_PATH_MUST_CONTAIN = [ "checkpoint" ,
                                  "model.ckpt.data-00000-of-00001",
                                  "model.ckpt.index",
                                  "model.ckpt.meta"]
-FROZEN_GRAPH_LOC =  CWD_PATH + "training/pre-trained_model/frozen_inference_graph.pb"
+FROZEN_GRAPH_LOC =  CWD_PATH + "training/trained_model/frozen_inference_graph.pb"
 GENERATE_REC = "scripts/run_tf.py"
 IMAGE_PATH = CWD_PATH + "images/"
 LABEL_MAP_PATH = CWD_PATH + "data/label_map.pbtxt"
@@ -66,19 +71,13 @@ TRAINED_MODEL_PATH = CWD_PATH +  "training/trained_model"
 
 VALIDATE_IMAGE_PATH = IMAGE_PATH + "validation/"
 
-
 ### OTHER VALUES ###
 ACCESS_RIGHTS = 777
 CLONE_ON_CPU = False
-GENERATE_REC_LABEL_MAP = "def classAsTextTo" + "ClassAsInt(classAsText):"
 INPUT_SHAPE = None
 INPUT_TYPE = "image_tensor"
-MAX_NUM_ARCHIVED = 5
-MIN_IMAGES = 50
 NUM_CLONES = 1
 QUOTE = '"'
-STEP_COUNT = 5
-VALID_IMAGE_NUM = 3
 
 #############################################################################################################################
 ############################################################################################################# Files Exist ###
@@ -180,7 +179,7 @@ def sort_images():
 
     # print total image count
     print("\tTotal images = " + str(total_images))
-    print("\tImages not labelled = " len(unlabelled_files))
+    print("\tImages not labelled = " + str(len(unlabelled_files)))
 
     # total images must be greater than pre-defined count to train on
     if total_images < MIN_IMAGES:
@@ -251,7 +250,7 @@ def convert_to_csv():
 #############################################################################################################################
 ############################################################################################################ UPDATE FILES ###
 #############################################################################################################################
-def get_classifer_info():
+def get_classifiers():
     class_counter = 0
     classifiers = []
 
@@ -423,7 +422,7 @@ def reformatCsvFileData(csvFileDataFrame):
 def createTfExample(singleFileData, path):
     # use TensorFlow's GFile function to open the .jpg image matching the current box data
     with tf.gfile.GFile(os.path.join(path, '{}'.format(singleFileData.filename)), 'rb') as tensorFlowImageFile:
-        tensorFlowImage = tensorFlowImageFile.()
+        tensorFlowImage = tensorFlowImageFile.read()
     # end with
 
     # get the image width and height via converting from a TensorFlow image to an io library BytesIO image,
@@ -443,8 +442,7 @@ def createTfExample(singleFileData, path):
     yMaxs = []
     classesAsText = []
     classesAsInts = []
-    max_num_classes= get_classifer_info()
-
+    classifiers = get_classifiers()
     # for each row in the current .xml file's data . . . (each row in the .xml file corresponds to one box)
     for index, row in singleFileData.object.iterrows():
         xMins.append(row['xmin'] / width)
@@ -452,7 +450,7 @@ def createTfExample(singleFileData, path):
         yMins.append(row['ymin'] / height)
         yMaxs.append(row['ymax'] / height)
         classesAsText.append(row['class'].encode('utf8'))
-        classesAsInts.append(classAsTextToClassAsInt(row['class']))
+        classesAsInts.append(classAsTextToClassAsInt(row['class'], classifiers))
     # end for
 
     # finally we can calculate and return the TensorFlow Example
@@ -476,16 +474,16 @@ def createTfExample(singleFileData, path):
 #######################################################################################################################
 def classAsTextToClassAsInt(classAsText, classifiers):
     class_num = 0
-    for class in classifiers:
-        class_num ++
-        if classAsText == class:
-            return class_num
+    while class_num < len(classifiers):
+        if classAsText == classifiers[class_num]:
+            return class_num + 1
+        class_num += 1
     return 0
 
 #############################################################################################################################
 ################################################################################################################# TESTING ###
 #############################################################################################################################
-def test(classifiers):
+def test(class_num):
     # this next comment line is necessary to avoid a false PyCharm warning
     # noinspection PyUnresolvedReferences
     if StrictVersion(tf.__version__) < StrictVersion('1.5.0'):
@@ -507,9 +505,8 @@ def test(classifiers):
     # Label maps map indices to category names, so that when our convolution network predicts `5`,
     # we know that this corresponds to `airplane`.  Here we use internal utility functions,
     # but anything that returns a dictionary mapping integers to appropriate string labels would be fine
-    max_num_classes = len(classifiers)
     label_map = label_map_util.load_labelmap(LABEL_MAP_PATH)
-    categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=max_num_classes,
+    categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=1,
                                                                 use_display_name=True)
     category_index = label_map_util.create_category_index(categories)
 
@@ -578,19 +575,22 @@ def main(self):
     convert_to_csv()
     print("\tSuccessfully updated files.\n")
 
-    print("\nUpdating classifers and config files...")
-    classifiers = get_classifer_info()
+    classifiers = get_classifiers()
     num_classes = str(len(classifiers))
+    print("\nUpdating classifers and config files...")
+
     update_pipeline(num_classes)
+    print("\t\tPipline updated")
+
     update_label_map(classifiers)
+    print("\t\tLabel_map updated")
+
     delete_files()
     print("\tSuccessfully updated files")
 
     print("\nConverting csv files to tensorflow records...")
     generate_tfrecords()
     print("\tSuccessfully converted csv files into tensorflow records\n")
-
-
 
     print("\tSuccessfully updated files.\n")
 
@@ -666,8 +666,6 @@ def main(self):
 #############################################################################################################################
 ################################################################################################## EXPORT INFERENCE GRAPH ###
 #############################################################################################################################
-    checkpoint = get_checkpoint()
-
     if path.exists(TRAINED_MODEL_PATH):
         shutil.rmtree(TRAINED_MODEL_PATH)
     os.mkdir(TRAINED_MODEL_PATH, ACCESS_RIGHTS)
@@ -689,13 +687,13 @@ def main(self):
     # end if
 
     print("calling export_inference_graph() . . .")
-    exporter.export_inference_graph(INPUT_TYPE, trainEvalPipelineConfig, CHECKPOINT_PATH + str(checkpoint), TRAINED_MODEL_PATH, INPUT_SHAPE)
+    exporter.export_inference_graph(INPUT_TYPE, trainEvalPipelineConfig, CHECKPOINT_PATH + str(get_checkpoint()), TRAINED_MODEL_PATH, INPUT_SHAPE)
 
     print("Successfully exported Inference graph")
 
     print("\nStarting testing. . .")
 
-    test()
+    test(len(classifiers))
 
 # end main
 if __name__ == '__main__':
