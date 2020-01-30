@@ -54,7 +54,6 @@ PRE_TRAINED_CHECKPOINT_PATH = CWD_PATH + "training/pre-trained_model/model.ckpt"
 SAVED_MODEL = "saved_training_checkpoint-"
 
 TEST_CSV_PATH = CWD_PATH + "data/test_labels.csv"
-TEST_FILE = CWD_PATH + "scripts/test.py"
 TEST_IMAGE_PATH =  IMAGE_PATH + "test/"
 TEST_TF_RECORD_PATH = CWD_PATH + "data/test.tfrecord"
 
@@ -82,9 +81,8 @@ STEP_COUNT = 5
 VALID_IMAGE_NUM = 3
 
 #############################################################################################################################
-############################################################################################################## XML TO CSV ###
+############################################################################################################# Files Exist ###
 #############################################################################################################################
-#######################################################################################################################
 def checkIfNecessaryPathsAndFilesExist():
     ####### IMAGE PATH #######
     if not os.path.exists(IMAGE_PATH):
@@ -126,12 +124,19 @@ def checkIfNecessaryPathsAndFilesExist():
 
     return True
 
+#############################################################################################################################
+############################################################################################################# Sort Images ###
+#############################################################################################################################
 def sort_images():
+
+    # Method Variables
     total_images = 0
     file_count = 0
     unlabelled_files = []
     valid_images = []
     get_valid = False
+    total_images = 0
+    train_images = 0
 
     ########################################## MOVE IMAGE FILES
     for filename in os.listdir(IMAGE_PATH):
@@ -142,15 +147,15 @@ def sort_images():
 
             # move to test
             if total_images % 10 == 0:
-                shutil.move(IMAGE_PATH + filename, TEST_IMAGE_PATH)
                 if path.exists(IMAGE_PATH + xml_version):
+                    shutil.move(IMAGE_PATH + filename, TEST_IMAGE_PATH)
                     shutil.move(IMAGE_PATH + xml_version, TEST_IMAGE_PATH)
                     found_label = True
 
             # move to train
             else:
-                shutil.move(IMAGE_PATH + filename, TRAIN_IMAGE_PATH)
                 if path.exists(IMAGE_PATH + xml_version):
+                    shutil.move(IMAGE_PATH + filename, TRAIN_IMAGE_PATH)
                     shutil.move(IMAGE_PATH + xml_version, TRAIN_IMAGE_PATH)
                     found_label = True
 
@@ -162,8 +167,6 @@ def sort_images():
         elif os.path.isdir(filename) and '.xml' not in filename:
             os.remove(filename)
 
-    total_images = 0
-    train_images = 0
     # count all image and .xml files in test
     for filename in os.listdir(TEST_IMAGE_PATH):
         if '.png' in filename or '.jpg' in filename or '.jpeg' in filename:
@@ -177,6 +180,7 @@ def sort_images():
 
     # print total image count
     print("\tTotal images = " + str(total_images))
+    print("\tImages not labelled = " len(unlabelled_files))
 
     # total images must be greater than pre-defined count to train on
     if total_images < MIN_IMAGES:
@@ -209,10 +213,15 @@ def sort_images():
                 if path.exists(TRAIN_IMAGE_PATH + xml_version):
                     shutil.move(TRAIN_IMAGE_PATH + xml_version, VALIDATE_IMAGE_PATH)
 
-
+#############################################################################################################################
+############################################################################################################## XML to CSV ###
+#############################################################################################################################
 def xml_to_csv(path):
 
+    # Method Variables
     xml_list = []
+
+    # Loop though values of xml file and append to a list
     for xml_file in glob.glob(path + '/*.xml'):
         tree = ET.parse(xml_file)
         root = tree.getroot()
@@ -280,7 +289,6 @@ def update_pipeline(num_classes):
     with open(PIPELINE_PATH, "w") as f:
         for line in stored_lines:
             f.write(line)
-    f.close()
 
 ########################## LABEL_MAP ############################
 def update_label_map(classifiers):
@@ -290,47 +298,6 @@ def update_label_map(classifiers):
         for classification in classifiers:
             class_counter += 1
             f.write("item { \n\tid: " + str(class_counter) + "\n\tname: '" + classification + "'\n}\n")
-
-########################## GENERATE_REC ############################
-def update_record_files(classifiers):
-    stored_lines = []
-    class_counter = 1
-    change = False
-    with open(GENERATE_REC, "r") as f:
-        for line in f.readlines():
-            if GENERATE_REC_LABEL_MAP in line and not change:
-                stored_lines.append(GENERATE_REC_LABEL_MAP + "\n\n")
-                for classification in classifiers:
-                    if class_counter == 1:
-                        stored_lines.append("\tif classAsText == '" + classification + "':\n\t\treturn " + str(class_counter) + "\n")
-                    else:
-                        stored_lines.append("\telif classAsText == '" + classification + "':\n\t\treturn " + str(class_counter) + "\n")
-                    class_counter += 1
-                change = True
-
-            elif change and 'else' in line:
-                stored_lines.append('\telse:')
-                change = False
-            elif not change:
-                stored_lines.append(line)
-
-    with open(GENERATE_REC, "w") as f:
-        for line in stored_lines:
-            f.write(line)
-    f.close()
-
-########################## TEST_FILE #############################
-    stored_lines = []
-    with open(TEST_FILE, "r") as f:
-        for line in f.readlines():
-            if 'NUM_CLASSES =' in line:
-                stored_lines.append("NUM_CLASSES = " + str(len(get_classifer_info())))
-            else:
-                stored_lines.append(line)
-
-    with open(TEST_FILE, "w") as f:
-        for line in stored_lines:
-            f.write(line)
 
 ########################## DELETE_FILES ############################
 def delete_files():
@@ -456,7 +423,7 @@ def reformatCsvFileData(csvFileDataFrame):
 def createTfExample(singleFileData, path):
     # use TensorFlow's GFile function to open the .jpg image matching the current box data
     with tf.gfile.GFile(os.path.join(path, '{}'.format(singleFileData.filename)), 'rb') as tensorFlowImageFile:
-        tensorFlowImage = tensorFlowImageFile.read()
+        tensorFlowImage = tensorFlowImageFile.()
     # end with
 
     # get the image width and height via converting from a TensorFlow image to an io library BytesIO image,
@@ -476,6 +443,7 @@ def createTfExample(singleFileData, path):
     yMaxs = []
     classesAsText = []
     classesAsInts = []
+    max_num_classes= get_classifer_info()
 
     # for each row in the current .xml file's data . . . (each row in the .xml file corresponds to one box)
     for index, row in singleFileData.object.iterrows():
@@ -506,16 +474,18 @@ def createTfExample(singleFileData, path):
 # end function
 
 #######################################################################################################################
-def classAsTextToClassAsInt(classAsText):
-	if classAsText == 'd4-3':
-		return 1
-	else:
-		return 0
-		
+def classAsTextToClassAsInt(classAsText, classifiers):
+    class_num = 0
+    for class in classifiers:
+        class_num ++
+        if classAsText == class:
+            return class_num
+    return 0
+
 #############################################################################################################################
 ################################################################################################################# TESTING ###
 #############################################################################################################################
-def test():
+def test(classifiers):
     # this next comment line is necessary to avoid a false PyCharm warning
     # noinspection PyUnresolvedReferences
     if StrictVersion(tf.__version__) < StrictVersion('1.5.0'):
@@ -537,7 +507,7 @@ def test():
     # Label maps map indices to category names, so that when our convolution network predicts `5`,
     # we know that this corresponds to `airplane`.  Here we use internal utility functions,
     # but anything that returns a dictionary mapping integers to appropriate string labels would be fine
-    max_num_classes= len(get_classifer_info())
+    max_num_classes = len(classifiers)
     label_map = label_map_util.load_labelmap(LABEL_MAP_PATH)
     categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=max_num_classes,
                                                                 use_display_name=True)
@@ -613,7 +583,6 @@ def main(self):
     num_classes = str(len(classifiers))
     update_pipeline(num_classes)
     update_label_map(classifiers)
-    update_record_files(classifiers)
     delete_files()
     print("\tSuccessfully updated files")
 
