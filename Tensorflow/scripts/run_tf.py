@@ -9,6 +9,7 @@ import numpy as np
 import os
 import pandas as pd
 import random
+import re
 import shutil
 import sys
 import tensorflow.compat.v1 as tf
@@ -33,60 +34,65 @@ tf.disable_v2_behavior()
 os.chdir("../")
 CWD_PATH = os.getcwd() + "/"
 
-STEP_COUNT = 500
-VALID_IMAGE_NUM = 3
-MAX_NUM_ARCHIVED = 5
-MIN_IMAGES = 50
 
 ######################## STATIC_VALUES #########################################
 ### DIRECTORIES ###
 ARCHIVED = "archived_training_sessions"
 ARCHIVED_PATH = CWD_PATH + "training/" + ARCHIVED
 CHECKPOINT_PATH = CWD_PATH  + "training/model.ckpt-"
-DATA_PATH = "data/"
+DATA_PATH = CWD_PATH + "data/"
 FILES_MODEL_PATH_MUST_CONTAIN = [ "checkpoint" ,
                                  "frozen_inference_graph.pb",
                                  "model.ckpt.data-00000-of-00001",
                                  "model.ckpt.index",
                                  "model.ckpt.meta"]
 FROZEN_GRAPH_LOC =  CWD_PATH + "training/trained_model/frozen_inference_graph.pb"
-GENERATE_REC = "scripts/run_tf.py"
 IMAGE_PATH = CWD_PATH + "images/"
-LABEL_MAP_PATH = CWD_PATH + "data/label_map.pbtxt"
+LABEL_MAP_PATH = DATA_PATH + "label_map.pbtxt"
 PIPELINE_PATH = CWD_PATH + "training/pre-trained_model/pipeline.config"
 PRE_TRAINED_MODEL_PATH = CWD_PATH + "training/pre-trained_model"
-PRE_TRAINED_CHECKPOINT_PATH = CWD_PATH + "training/pre-trained_model/model.ckpt"
+PRE_TRAINED_CHECKPOINT_PATH = PRE_TRAINED_MODEL_PATH + "/model.ckpt"
+PREFERENCES_PATH = CWD_PATH + "preferences.txt"
 SAVED_MODEL = "saved_training_checkpoint-"
 
-TEST_CSV_PATH = CWD_PATH + "data/test_labels.csv"
+TEST_CSV_PATH = DATA_PATH + "test_labels.csv"
 TEST_IMAGE_PATH =  IMAGE_PATH + "test/"
-TEST_TF_RECORD_PATH = CWD_PATH + "data/test.tfrecord"
+TEST_TF_RECORD_PATH = DATA_PATH + "test.tfrecord"
 
-TRAIN_CSV_PATH = CWD_PATH + "data/train_labels.csv"
+TRAIN_CSV_PATH = DATA_PATH +  "train_labels.csv"
 TRAIN_IMAGE_PATH = IMAGE_PATH + "train/"
-TRAIN_TF_RECORD_PATH = CWD_PATH + "data/train.tfrecord"
+TRAIN_TF_RECORD_PATH = DATA_PATH + "train.tfrecord"
 
 TRAINING_PATH = CWD_PATH + "training/"
-TRAINED_MODEL_PATH = CWD_PATH +  "training/trained_model"
+TRAINED_MODEL_PATH = TRAINING_PATH +  "trained_model"
 
 VALIDATE_IMAGE_PATH = IMAGE_PATH + "validation/"
 
 ### OTHER VALUES ###
 ACCESS_RIGHTS = 777
 CLONE_ON_CPU = False
+DEFAULT_MAX_SAVED_MODELS = 5
+DEFAULT_NUM_STEPS = 500
+DEFAULT_NUM_TEST_IMAGES = 3
 INPUT_SHAPE = None
 INPUT_TYPE = "image_tensor"
+MIN_IMAGES = 50
 NUM_CLONES = 1
+SAVED_MODEL_VAR = 'saved_models:'
+TEST_IMAGE_VAR = 'testing_images:'
+TRAIN_STEP_VAR = 'training_steps:'
 QUOTE = '"'
+
+
 
 #############################################################################################################################
 ############################################################################################################# Files Exist ###
 #############################################################################################################################
 def checkIfNecessaryPathsAndFilesExist():
+
     ####### IMAGE PATH #######
     if not os.path.exists(IMAGE_PATH):
-        print("ERROR: The image directory does not exist")
-        exit()
+        print_error(IMAGE_PATH)
 
     ####### TEST IMAGE PATH #######
     if not os.path.exists(TEST_IMAGE_PATH):
@@ -98,30 +104,73 @@ def checkIfNecessaryPathsAndFilesExist():
 
     ####### VALIDATE IMAGE PATH #######
     if not os.path.exists(VALIDATE_IMAGE_PATH):
-            os.mkdir(VALIDATE_IMAGE_PATH)
+        os.mkdir(VALIDATE_IMAGE_PATH)
 
    ####### PIPELINE PATH #######
     if not os.path.exists(PIPELINE_PATH):
-        print('ERROR: the pipeline.config file "' + PIPELINE_PATH + '" does not seem to exist')
-        exit()
+        print_error(PIPELINE_PATH)
 
     ####### PRE_TRAINED MODEL #######
     if not os.path.exists(PRE_TRAINED_MODEL_PATH):
-        print('ERROR: the model directory "' + PRE_TRAINED_MODEL_PATH + '" does not seem to exist')
-        exit()
+        print_error(PRE_TRAINED_MODEL_PATH)
 
     ####### MODEL_FILES #######
     for necessaryModelFileName in FILES_MODEL_PATH_MUST_CONTAIN:
         if not os.path.exists(os.path.join(PRE_TRAINED_MODEL_PATH, necessaryModelFileName)):
-            print('ERROR: the model file "' + PRE_TRAINED_MODEL_PATH + "/" + necessaryModelFileName + '" does not seem to exist')
-            exit()
+            print_error(RE_TRAINED_MODEL_PATH + "/" + necessaryModelFileName)
 
     ####### LABEL_MAP #######
     if not os.path.exists(LABEL_MAP_PATH):
-        print('ERROR: the label map file "' + LABEL_MAP_PATH + '" does not seem to exist')
-        exit()
+        print_error(LABEL_MAP_PATH)
 
     return True
+
+def print_error(path):
+    print("ERROR: The path " + str(path) + " does not seem to exist or has been move")
+    exit()
+
+#############################################################################################################################
+##############################################################################################################Preferences ###
+#############################################################################################################################
+
+####### GET STEP COUNT #######
+def get_steps():
+    if os.path.exists(PREFERENCES_PATH):
+        with open(PREFERENCES_PATH, "r") as f:
+            for line in f.readlines():
+                if TRAIN_STEP_VAR in line:
+                    training_step = line.split(":")[1]
+                    training_steps = re.sub("\D", "", training_step)
+                    if training_steps.isnumeric():
+                        return int(training_steps)
+    print("\tNo " + TRAIN_STEP_VAR + " variable in preferences, reverting to default: " + str(DEFAULT_NUM_STEPS))
+    return DEFAULT_NUM_STEPS
+
+####### GET VALID IMAGE COUNT #######
+def get_valid_image_num():
+    if os.path.exists(PREFERENCES_PATH):
+        with open(PREFERENCES_PATH, "r") as f:
+            for line in f.readlines():
+                if TEST_IMAGE_VAR in line:
+                    get_valid_image_num = line.split(":")[1]
+                    get_valid_image_num = re.sub("\D", "", get_valid_image_num)
+                    if get_valid_image_num.isnumeric():
+                        return int(get_valid_image_num)
+    print("\tNo " + TEST_IMAGE_VAR + " variable in preferences, reverting to default: " + str(DEFAULT_NUM_TEST_IMAGES))
+    return DEFAULT_NUM_TEST_IMAGES
+
+####### GET SAVE MODEL MAX #######
+def get_archive_max():
+    if os.path.exists(PREFERENCES_PATH):
+        with open(PREFERENCES_PATH, "r") as f:
+            for line in f.readlines():
+                if SAVED_MODEL_VAR in line:
+                    archive_max = line.split(":")[1]
+                    archive_max = re.sub("\D", "", archive_max)
+                    if archive_max.isnumeric():
+                        return int(archive_max)
+    print("\tNo " + SAVED_MODEL_VAR + " variable in preferences, reverting to default: " + str(DEFAULT_MAX_SAVED_MODELS))
+    return DEFAULT_MAX_SAVED_MODELS
 
 #############################################################################################################################
 ############################################################################################################# Sort Images ###
@@ -131,11 +180,11 @@ def sort_images():
     # Method Variables
     total_images = 0
     file_count = 0
+    train_images = 0
     unlabelled_files = []
     valid_images = []
     get_valid = False
-    total_images = 0
-    train_images = 0
+
 
     ########################################## MOVE IMAGE FILES
     for filename in os.listdir(IMAGE_PATH):
@@ -196,7 +245,7 @@ def sort_images():
         shutil.move(VALIDATE_IMAGE_PATH + file, TRAIN_IMAGE_PATH)
 
     # gather all valid images from train
-    while len(valid_images) < VALID_IMAGE_NUM:
+    while len(valid_images) < get_valid_image_num():
         next_valid = random.randint(1, train_images)
         if next_valid not in valid_images:
             valid_images.append(next_valid)
@@ -248,8 +297,10 @@ def convert_to_csv():
         print('\tSuccessfully converted xml to csv.')
 
 #############################################################################################################################
-############################################################################################################ UPDATE FILES ###
+#################################################################################################### GET/UPLOAD FILE INFO ###
 #############################################################################################################################
+
+########################## GET CLASSIFIERS #############################
 def get_classifiers():
     class_counter = 0
     classifiers = []
@@ -279,7 +330,7 @@ def update_pipeline(num_classes):
             elif 'input_path:' in line and input_test == True:
                 stored_lines.append("\t  input_path: " + QUOTE + TEST_TF_RECORD_PATH + QUOTE + "\n")
             elif 'num_steps:' in line:
-                stored_lines.append("  num_steps: " + str(STEP_COUNT) + "\n")
+                stored_lines.append("  num_steps: " + str(get_steps()) + "\n")
             elif 'fine_tune_checkpoint' in line:
                 stored_lines.append("  fine_tune_checkpoint: " + QUOTE + PRE_TRAINED_CHECKPOINT_PATH + QUOTE + "\n")
             else:
@@ -298,10 +349,10 @@ def update_label_map(classifiers):
             class_counter += 1
             f.write("item { \n\tid: " + str(class_counter) + "\n\tname: '" + classification + "'\n}\n")
 
-########################## DELETE_FILES ############################
+####################### DELETE FILES IN TRAINING ############################
 def delete_files():
     last_checkpoint = get_checkpoint()
-    for filename in os.listdir():
+    for filename in os.listdir(TRAINING_PATH):
         if 'model.ckpt-' and 'meta' in filename:
            current = filename.split('-')[1]
            current = current.split('.')[0]
@@ -348,14 +399,12 @@ def create_archive():
 def place_archive():
     archive_counter = 1
     oldest_save = ARCHIVED_PATH + '/' + SAVED_MODEL + '1'
-    print(oldest_save)
     for file in os.listdir(ARCHIVED_PATH):
         archive_counter += 1
-    if archive_counter > MAX_NUM_ARCHIVED:
+    if archive_counter > get_archive_max():
         shutil.rmtree(oldest_save)
         archive_counter = 0
-        os.chdir(ARCHIVED_PATH)
-        for filename in os.listdir():
+        for filename in os.listdir(ARCHIVED_PATH):
             archive_counter += 1
             os.rename(filename, SAVED_MODEL + str(archive_counter))
         archive_counter += 1
@@ -506,7 +555,7 @@ def test(class_num):
     # we know that this corresponds to `airplane`.  Here we use internal utility functions,
     # but anything that returns a dictionary mapping integers to appropriate string labels would be fine
     label_map = label_map_util.load_labelmap(LABEL_MAP_PATH)
-    categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=1,
+    categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=class_num,
                                                                 use_display_name=True)
     category_index = label_map_util.create_category_index(categories)
 
@@ -580,19 +629,18 @@ def main(self):
     print("\nUpdating classifers and config files...")
 
     update_pipeline(num_classes)
-    print("\t\tPipline updated")
+    print("\tPipline updated")
 
     update_label_map(classifiers)
-    print("\t\tLabel_map updated")
-
-    delete_files()
-    print("\tSuccessfully updated files")
+    print("\tLabel_map updated")
 
     print("\nConverting csv files to tensorflow records...")
     generate_tfrecords()
     print("\tSuccessfully converted csv files into tensorflow records\n")
 
-    print("\tSuccessfully updated files.\n")
+    print("\tArchiving previous training files")
+    delete_files()
+    print("\tFiles ready for training")
 
     print("\nBeing Training . . .")
 
