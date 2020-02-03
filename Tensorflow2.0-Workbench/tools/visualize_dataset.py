@@ -13,7 +13,7 @@ from yolov3_tf2.utils import draw_outputs
 flags.DEFINE_string('classes', './data/coco.names', 'path to classes file')
 flags.DEFINE_integer('size', 416, 'resize images to')
 flags.DEFINE_string(
-    'dataset', './data/voc2012_train.tfrecord', 'path to dataset')
+    'dataset', './data/dice_train.tfrecord', 'path to dataset')
 flags.DEFINE_string('output', './output.jpg', 'path to output image')
 
 
