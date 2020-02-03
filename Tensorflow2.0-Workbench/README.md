@@ -9,6 +9,7 @@ their own data and conversting the models produced into Apple CoreML to be used 
 
 - [x] TensorFlow 2.0
 - [x] Conversion of models to Apple CoreML
+- [x] Training on user given dice data
 - [x] `yolov3` with pre-trained Weights
 - [x] `yolov3-tiny` with pre-trained Weights
 - [x] Inference example
@@ -21,8 +22,8 @@ their own data and conversting the models produced into Apple CoreML to be used 
 - [x] Vectorized transformations
 - [x] GPU accelerated
 - [x] Fully integrated with `absl-py` from [abseil.io](https://abseil.io)
-- [ ] Clean implementation
-- [ ] Following the best practices
+- [x] Clean implementation
+- [x] Following the best practices
 - [x] MIT License
 
 ![demo](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/data/dice_out.jpg)
