@@ -27,7 +27,7 @@ their own data and conversting the models produced into Apple CoreML to be used 
 - [x] MIT License
 
 ![demo](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/data/dice_out.jpg)
-![demo](https://raw.githubusercontent.com/zzh8829/yolov3-tf2/master/data/meme_out.jpg)
+![demo](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/data/dice2_out.jpg)
 ![demo](https://raw.githubusercontent.com/zzh8829/yolov3-tf2/master/data/street_out.jpg)
 
 ## Usage
