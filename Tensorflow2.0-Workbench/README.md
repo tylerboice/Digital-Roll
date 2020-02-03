@@ -50,8 +50,6 @@ conda activate yolov3-tf2-gpu
 
 ```bash
 pip install -r requirements.txt
-pip install git+https://github.com/apple/coremltools
-pip install tfcoreml
 ```
 
 #### CoreML
