@@ -4,4 +4,4 @@ python tools/diceData.py --data_dir './data/images/' --split train --output_file
 
 python detect.py --classes ./data/dice.names --num_classes 4 --weights ./checkpoints/yolov3_train_59.tf --image ./data/dice.jpg
 
-python export_tfserving.py --weights ./checkpoints/yolov3_train_59.tf --output serving/yolov3/1/
+python tools/export_tfserving.py --weights ./checkpoints/yolov3_train_59.tf --output serving/yolov3/1/
