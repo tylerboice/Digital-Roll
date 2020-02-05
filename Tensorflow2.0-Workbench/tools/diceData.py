@@ -8,17 +8,18 @@ import tensorflow as tf
 import lxml.etree
 import tqdm
 
-flags.DEFINE_string('data_dir', './data/images/validation/',
+flags.DEFINE_string('data_dir', './data/images/train/',
                     'path to raw DICE dataset')
-flags.DEFINE_enum('split', 'train', [
-                  'train', 'val'], 'specify train or val spit')
 flags.DEFINE_string('output_file', './data/dice_train.tfrecord', 'output dataset')
 flags.DEFINE_string('classes', './data/dice.names', 'classes file')
+data_dir = FLAGS.data_dir
+output_file = FLAGS.output_file
+classes = FLAGS.classes
 
 
 def build_example(annotation, class_map):
     img_path = os.path.join(
-        FLAGS.data_dir, annotation['filename'])
+        data_dir, annotation['filename'])
     img_raw = open(img_path, 'rb').read()
     key = hashlib.sha256(img_raw).hexdigest()
 
@@ -86,29 +87,40 @@ def parse_xml(xml):
     return {xml.tag: result}
 
 
-def main(_argv):
-    class_map = {name: idx for idx, name in enumerate(
-        open(FLAGS.classes).read().splitlines())}
+def get_class_map(classesFile):
+    return {name: idx for idx, name in enumerate(
+        open(classesFile).read().splitlines())}
+
+
+def run_tfrecord_converter(classes_file, output, data_directory):
+    classes = classes_file
+    output_file = output
+    data_dir = data_directory
+    class_map = get_class_map(classes)
     logging.info("Class mapping loaded: %s", class_map)
 
-    writer = tf.io.TFRecordWriter(FLAGS.output_file)
+    writer = tf.io.TFRecordWriter(output_file)
     image_list = []
     # r=root, d=directories, f = files
-    for r, d, f in os.walk(FLAGS.data_dir):
+    for r, d, f in os.walk(data_dir):
         for file in f:
             if '.jpg' in file:
-                image_list.append(file) #remove .jpg suffix
+                image_list.append(file)  # remove .jpg suffix
     logging.info("Image list loaded: %d", len(image_list))
     for image in tqdm.tqdm(image_list):
         name = image[:len(image) - 4]
         annotation_xml = os.path.join(
-            FLAGS.data_dir, name + '.xml')
+            data_dir, name + '.xml')
         annotation_xml = lxml.etree.fromstring(open(annotation_xml).read())
         annotation = parse_xml(annotation_xml)['annotation']
         tf_example = build_example(annotation, class_map)
         writer.write(tf_example.SerializeToString())
     writer.close()
     logging.info("Done")
+
+
+def main(_argv):
+    run_tfrecord_converter(FLAGS.classes, FLAGS.output_file, FLAGS.data_dir)
 
 
 if __name__ == '__main__':
