@@ -279,7 +279,7 @@ def parse_xml(xml):
 
 
 ########################## GENERATE TFRECORDS #############################
-def generate_tfrecods(input_folder, output_file):
+def generate_tfrecords(input_folder, output_file):
     class_map = {name: idx for idx, name in enumerate(
         open(CLASSIFIER_FILE).read().splitlines())}
     logging.info("Class mapping loaded: %s", class_map)
@@ -322,8 +322,8 @@ def main():
 
     # generate tf records
     print("Generating images and xml files into tfrecords...")
-    generate_tfrecods(TRAIN_IMAGE_PATH, TRAIN_TF_RECORD_PATH)
-    generate_tfrecods(TEST_IMAGE_PATH, TEST_TF_RECORD_PATH)
+    generate_tfrecords(TRAIN_IMAGE_PATH, TRAIN_TF_RECORD_PATH)
+    generate_tfrecords(TEST_IMAGE_PATH, TEST_TF_RECORD_PATH)
     print("\n\tSuccessfully generated tf records")
 
 main()

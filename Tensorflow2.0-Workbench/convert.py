@@ -9,24 +9,27 @@ flags.DEFINE_string('output', './checkpoints/yolov3.tf', 'path to output')
 flags.DEFINE_boolean('tiny', False, 'yolov3 or yolov3-tiny')
 flags.DEFINE_integer('num_classes', 80, 'number of classes in the model')
 
-
-def main(_argv):
-    if FLAGS.tiny:
-        yolo = YoloV3Tiny(classes=FLAGS.num_classes)
+def run_weight_convert(weights, output, tiny, num_classes):
+    if tiny:
+        yolo = YoloV3Tiny(classes=num_classes)
     else:
-        yolo = YoloV3(classes=FLAGS.num_classes)
+        yolo = YoloV3(classes=num_classes)
     yolo.summary()
     logging.info('model created')
 
-    load_darknet_weights(yolo, FLAGS.weights, FLAGS.tiny)
+    load_darknet_weights(yolo, weights, tiny)
     logging.info('weights loaded')
 
     img = np.random.random((1, 320, 320, 3)).astype(np.float32)
-    output = yolo(img)
+    outputSanity = yolo(img)
     logging.info('sanity check passed')
 
-    yolo.save_weights(FLAGS.output)
+    yolo.save_weights(output)
     logging.info('weights saved')
+
+
+def main(_argv):
+    run_weight_convert(FLAGS.weights, FLAGS.output, FLAGS.tiny, FLAGS.num_classes)
 
 
 if __name__ == '__main__':
