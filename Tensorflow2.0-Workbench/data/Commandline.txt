@@ -1,4 +1,4 @@
-python train.py --dataset ./data/dice_train.tfrecord --val_dataset ./data/dice_val.tfrecord --classes ./data/dice.names --num_classes 18 --mode fit --transfer darknet --batch_size 5 --epochs 40 --weights ./checkpoints/yolov3.tf --weights_num_classes 80 
+python train.py --dataset ./data/train.tfrecord --val_dataset ./data/test.tfrecord --classes ./data/classifier.names --num_classes 18 --mode fit --transfer darknet --batch_size 5 --epochs 5 --weights ./checkpoints/yolov3_train_7.tf --weights_num_classes 18 
 
 python tools/diceData.py --split train --output_file ./data/dice_train.tfrecord
 

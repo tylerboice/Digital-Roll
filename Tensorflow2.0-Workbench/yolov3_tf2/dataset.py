@@ -130,7 +130,7 @@ def load_tfrecord_dataset(file_pattern, class_file, size=416):
 
 def load_fake_dataset():
     x_train = tf.image.decode_jpeg(
-        open('./data/girl.png', 'rb').read(), channels=3)
+        open('./data/dice.jpg', 'rb').read(), channels=3)
     x_train = tf.expand_dims(x_train, axis=0)
 
     labels = [
