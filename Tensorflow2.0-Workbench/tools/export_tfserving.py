@@ -21,27 +21,26 @@ flags.DEFINE_string('classes', './data/dice.names', 'path to classes file')
 flags.DEFINE_string('image', './data/dice.png', 'path to input image')
 flags.DEFINE_integer('num_classes', 4, 'number of classes in the model')
 
-
-def main(_argv):
-    if FLAGS.tiny:
-        yolo = YoloV3Tiny(classes=FLAGS.num_classes)
+def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
+    if tiny:
+        yolo = YoloV3Tiny(classes= num_classes)
     else:
-        yolo = YoloV3(classes=FLAGS.num_classes)
+        yolo = YoloV3(classes= num_classes)
 
-    yolo.load_weights(FLAGS.weights)
+    yolo.load_weights(weights)
     logging.info('weights loaded')
 
-    tf.saved_model.save(yolo, FLAGS.output)
-    logging.info("model saved to: {}".format(FLAGS.output))
+    tf.saved_model.save(yolo, output)
+    logging.info("model saved to: {}".format(output))
 
-    model = tf.saved_model.load(FLAGS.output)
+    model = tf.saved_model.load(output)
     infer = model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
     logging.info(infer.structured_outputs)
 
-    class_names = [c.strip() for c in open(FLAGS.classes).readlines()]
+    class_names = [c.strip() for c in open(classes).readlines()]
     logging.info('classes loaded')
 
-    img = tf.image.decode_image(open(FLAGS.image, 'rb').read(), channels=3)
+    img = tf.image.decode_image(open(image, 'rb').read(), channels=3)
     img = tf.expand_dims(img, 0)
     img = transform_images(img, 416)
 
@@ -57,6 +56,11 @@ def main(_argv):
         logging.info('\t{}, {}, {}'.format(class_names[int(classes[0][i])],
                                            scores[0][i].numpy(),
                                            boxes[0][i].numpy()))
+
+
+def main(_argv):
+    run_export_tfserving(FLAGS.weights, FLAGS.tiny, FLAGS.output,
+                         FLAGS.classes, FLAGS.image, FLAGS.num_classes)
 
 
 if __name__ == '__main__':

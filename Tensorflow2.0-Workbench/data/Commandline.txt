@@ -4,7 +4,7 @@ python tools/diceData.py --split train --output_file ./data/dice_train.tfrecord
 
 python detect.py --classes ./data/dice.names --num_classes 18 --weights ./checkpoints/yolov3_train_7.tf --image ./data/dice3.jpg
 
-python tools/export_tfserving.py --weights ./checkpoints/yolov3_train_59.tf --output serving/yolov3/1/
+python tools/export_tfserving.py --weights ./checkpoints/yolov3_train_7.tf --output serving/yolov3/multi-dice/
 
 
 #Scratch Train (No Weights)
