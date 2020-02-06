@@ -15,21 +15,21 @@ import tensorflow as tf
 import lxml.etree
 import tqdm
 
-CWD_PATH = os.getcwd() + "/"
+CWD_PATH = os.path.join(os.getcwd() + '/')
 
 # DATA SET PATHS
-IMAGES_PATH = CWD_PATH + "images/"
-TRAIN_IMAGE_PATH = IMAGES_PATH + "train/"
-TEST_IMAGE_PATH = IMAGES_PATH + "test/"
-VALIDATE_IMAGE_PATH = IMAGES_PATH + "validate/"
+IMAGES_PATH = os.path.join(CWD_PATH, "images/")
+TRAIN_IMAGE_PATH = os.path.join(IMAGES_PATH, "train/")
+TEST_IMAGE_PATH = os.path.join(IMAGES_PATH, "test/")
+VALIDATE_IMAGE_PATH = os.path.join(IMAGES_PATH, "validate/")
 
 # DATA PATHS
-DATA_PATH = CWD_PATH + "data" + "/"
+DATA_PATH = os.path.join(CWD_PATH + "data/")
 
-CLASSIFIER_FILE = DATA_PATH + "classifier.names"
-PREFERENCES_PATH = CWD_PATH + "preferences.txt"
-TRAIN_TF_RECORD_PATH = DATA_PATH + "train.tfrecord"
-TEST_TF_RECORD_PATH = DATA_PATH + "test.tfrecord"
+CLASSIFIER_FILE = os.path.join(DATA_PATH, "classifier.names")
+PREFERENCES_PATH = os.path.join(CWD_PATH, "preferences.txt")
+TRAIN_TF_RECORD_PATH = os.path.join(DATA_PATH, "train.tfrecord")
+TEST_TF_RECORD_PATH = os.path.join(DATA_PATH, "test.tfrecord")
 
 ##### STATIC VARIABLES ####
 DEFAULT_NUM_VAL_IMAGES = 3
@@ -37,7 +37,7 @@ MIN_IMAGES = 50
 TEST_IMAGE_VAR = 'validate_images:'
 
 flags.DEFINE_enum('split', 'train', [
-                  'train', 'val'], 'specify train or val spit')
+                  'train', 'val'], 'specify train or val split')
 flags.DEFINE_string('output_file', './data/new.tfrecord', 'outpot IMAGES')
 flags.DEFINE_string('classes', './data/voc2012.names', 'classes file')
 
@@ -47,7 +47,7 @@ def checkIfNecessaryPathsAndFilesExist():
 
     ####### IMAGE PATH #######
     if not os.path.exists(IMAGES_PATH):
-        print_error(IMAGE_PATH)
+        print(IMAGES_PATH)
 
     ####### TEST IMAGE PATH #######
     if not os.path.exists(TEST_IMAGE_PATH):
