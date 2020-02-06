@@ -12,9 +12,6 @@ flags.DEFINE_string('data_dir', './data/images/train/',
                     'path to raw DICE dataset')
 flags.DEFINE_string('output_file', './data/dice_train.tfrecord', 'output dataset')
 flags.DEFINE_string('classes', './data/dice.names', 'classes file')
-data_dir = FLAGS.data_dir
-output_file = FLAGS.output_file
-classes = FLAGS.classes
 
 
 def build_example(annotation, class_map):
