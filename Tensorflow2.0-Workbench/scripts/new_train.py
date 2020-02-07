@@ -19,13 +19,8 @@ from yolov3_tf2.utils import freeze_all
 import yolov3_tf2.dataset as dataset
 from scripts import defaults
 
-
-CLASSIFIER_FILE = defaults.CLASSIFIER_FILE
-TEST_TF_RECORD_PATH = defaults.TEST_TF_RECORD_PATH
-TRAIN_TF_RECORD_PATH = defaults.TRAIN_TF_RECORD_PATH
-
 def run_train(train_dataset_in, val_dataset_in, tiny,
-              weights, classes, mode, transfer, size, epochs, batch_size,
+              weights, classifiers, mode, transfer, size, epochs, batch_size,
               learning_rate, num_classes, weights_num_classes):
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     if len(physical_devices) > 0:
@@ -44,7 +39,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
     train_dataset = dataset.load_fake_dataset()
     if train_dataset_in:
         train_dataset = dataset.load_tfrecord_dataset(
-            train_dataset_in, classes, size)
+            train_dataset_in, classifiers, size)
     train_dataset = train_dataset.shuffle(buffer_size=512)
     train_dataset = train_dataset.batch(batch_size)
     train_dataset = train_dataset.map(lambda x, y: (
@@ -56,7 +51,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
     val_dataset = dataset.load_fake_dataset()
     if val_dataset_in:
         val_dataset = dataset.load_tfrecord_dataset(
-            val_dataset_in, classes, size)
+            val_dataset_in, classifiers, size)
     val_dataset = val_dataset.batch(batch_size)
     val_dataset = val_dataset.map(lambda x, y: (
         dataset.transform_images(x, size),
@@ -171,11 +166,19 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
 
 
 def main():
-    run_train(deafaults.FLAGS.dataset, deafaults.FLAGS.val_dataset, deafaults.FLAGS.tiny,
-              deafaults.FLAGS.weights, deafaults.FLAGS.classes, deafaults.FLAGS.mode,
-              deafaults.FLAGS.transfer, deafaults.FLAGS.size, deafaults.FLAGS.epochs,
-              deafaults.FLAGS.batch_size,deafaults.FLAGS.learning_rate, deafaults.FLAGS.num_classes,
-              deafaults.FLAGS.weights_num_classes)
+    run_train(defaults.FLAGS.dataset_train,
+              defaults.FLAGS.dataset_test,
+              defaults.FLAGS.tiny,
+              defaults.FLAGS.weights,
+              defaults.FLAGS.classifiers,
+              defaults.FLAGS.mode,
+              defaults.FLAGS.transfer,
+              defaults.FLAGS.size,
+              defaults.FLAGS.epochs,
+              defaults.FLAGS.batch_size,
+              defaults.FLAGS.learning_rate,
+              defaults.FLAGS.num_classes,
+              defaults.FLAGS.weights_num_classes)
 
 if __name__ == '__main__':
     try:

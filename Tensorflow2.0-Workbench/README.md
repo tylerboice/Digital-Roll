@@ -30,12 +30,22 @@ their own data and conversting the models produced into Apple CoreML to be used 
 ![demo](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/data/dice2_out.jpg)
 ![demo](https://raw.githubusercontent.com/zzh8829/yolov3-tf2/master/data/street_out.jpg)
 
-## Usage
 
-### Installation
+## Installation
 
-#### Conda (Recommended)
+#### Install Anaconda for Windows
+```bash
+# Windows
+https://repo.anaconda.com/archive/Anaconda3-2019.10-Windows-x86_64.exe
 
+# MacOS
+https://repo.anaconda.com/archive/Anaconda3-2019.10-MacOSX-x86_64.pkg
+
+# Linux
+https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
+```
+
+#### Create Anaconda Environment
 ```bash
 # Tensorflow CPU
 conda env create -f conda-cpu.yml
@@ -68,6 +78,13 @@ sudo apt install nvidia-driver-430
 https://www.nvidia.com/Download/index.aspx
 ```
 
+## Usage
+### Train
+
+```bash
+# to train based off the preferences.txt file
+python run_workbench.py
+```
 ### Convert pre-trained Darknet weights
 
 ```bash

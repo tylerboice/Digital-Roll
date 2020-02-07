@@ -216,6 +216,12 @@ def print_var_not_found(var_name, default):
 flags.DEFINE_integer('batch_size', get_batch_size(), 'batch size')
 # checkpoint path
 flags.DEFINE_string('output', get_checkponit_path(), 'path to output')
+# classifiers
+flags.DEFINE_string('classifiers', CLASSIFIER_FILE, 'file of classifier names')
+# dataset_train
+flags.DEFINE_string('dataset_train', TRAIN_TF_RECORD_PATH, 'path to training tf record')
+# dataset_test
+flags.DEFINE_string('dataset_test', TEST_TF_RECORD_PATH, 'path to test tf record')
 # ephoch num
 flags.DEFINE_integer('epochs', get_epoch_num(), 'number of epochs')
 # image_size

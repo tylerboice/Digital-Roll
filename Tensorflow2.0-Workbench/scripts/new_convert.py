@@ -9,10 +9,6 @@ from scripts import defaults
 FLAGS(sys.argv)
 
 def run_weight_convert(weights, output, tiny, num_classes):
-    print(weights)
-    print(output)
-    print(tiny)
-    print(num_classes)
 
     if tiny:
         yolo = YoloV3Tiny(classes=num_classes)
