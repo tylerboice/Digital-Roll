@@ -1,4 +1,4 @@
-name: yolov3-tf2-cpu
+name: cpu
 
 dependencies:
   - python==3.7

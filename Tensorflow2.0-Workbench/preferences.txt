@@ -1,53 +1,35 @@
-<<<<<<< HEAD
-Number of images you want to validate your trained model on (Default = 3)
-validate_images: 3
+Amount of batches you process at a time(Default = 4)
+batch_size: 4
+
+Where the checkpoint model is saved (Default = checkpoints/yolov3.tf)
+checkpoint_path: checkpoints/yolov3.tf
 
 Size of your images (Default = 416)
 image_size: 416
 
-Amount of batches you process at a time(default = 4)
-batch_size: 4
-
-The type of model data that you train on (Options are "yolo-tiny" or "yolo3")
-                                         (Default = "yolo3")
-                                         (Options can be found at https://pjreddie.com/darknet/yolo/)
-weights_type: yolo3
-
-Path to your weights file (Default = /data/yolov3.weights)
-weights_path: /data/yolov3.weights
-
-The learning rate of the  model you are training (Default = 1e-3)
+The learning rate of the  model you are training (Default = .001)
 learn_rate: .001
 
-
+Number of epochs (Default = 10)
 num_epochs: 10
 
-'none: Training from scratch, '
+
+The type of training (Default = none)
+           'none: Training from scratch, '
            'darknet: Transfer darknet, '
            'no_output: Transfer all but output, '
            'frozen: Transfer and freeze all, '
            'fine_tune: Transfer all and freeze darknet only''
-transfer_type: darknet
-=======
+
+transfer_type: none
+
 Number of images you want to validate your trained model on (Default = 4)
 validate_images: 4
 
-Size of your images (Default = 412)
-image_size: 412
-
-Amount of batches you process at a time(default = 12)
-batch_size: 12
+Path to your weights file (Default = data/yolov3.weights)
+weights_path: data/yolov3.weights
 
 The type of model data that you train on (Options are "yolo-tiny" or "yolo3")
                                          (Default = "yolo3")
                                          (Options can be found at https://pjreddie.com/darknet/yolo/)
 weights_type: yolo3
-
-Path to your weights file (Default = /data/yolov3.weights)
-weights_path: /data/yolov3.weights
-
-The learning rate of the  model you are training (Default = 1e-3)
-learn_rate: .003
-
-num_epochs: 10
->>>>>>> 5076f7f148999e3232c7c7629b953d506bdc33f2

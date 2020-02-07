@@ -1,9 +1,17 @@
-import defaults
+import os
+import random
+import shutil
 
+from os import path
+from scripts import defaults
+
+CLASSIFIER_FILE = defaults.CLASSIFIER_FILE
 IMAGES_PATH = defaults.IMAGES_PATH
+MIN_IMAGES = defaults.MIN_IMAGES
 TEST_IMAGE_PATH = defaults.TEST_IMAGE_PATH
 TRAIN_IMAGE_PATH = defaults.TRAIN_IMAGE_PATH
 VALIDATE_IMAGE_PATH = defaults.VALIDATE_IMAGE_PATH
+
 ########################## Checking FOR FILES #############################
 # checks if all necessary files exist
 def checkIfNecessaryPathsAndFilesExist():
@@ -98,7 +106,7 @@ def sort_images():
         shutil.move(VALIDATE_IMAGE_PATH + file, TRAIN_IMAGE_PATH)
 
     # gather all valid images from train
-    while len(valid_images) < get_valid_image_num(FLAGS.pref):
+    while len(valid_images) < defaults.get_valid_image_num():
         next_valid = random.randint(1, train_images)
         if next_valid not in valid_images:
             valid_images.append(next_valid)
