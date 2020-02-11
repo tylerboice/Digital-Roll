@@ -1,0 +1,601 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		266F957823F24CD300508FB6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 266F957723F24CD300508FB6 /* AppDelegate.swift */; };
+		266F957A23F24CD300508FB6 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 266F957923F24CD300508FB6 /* SceneDelegate.swift */; };
+		266F957C23F24CD300508FB6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 266F957B23F24CD300508FB6 /* ViewController.swift */; };
+		266F957F23F24CD300508FB6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 266F957D23F24CD300508FB6 /* Main.storyboard */; };
+		266F958123F24CD300508FB6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 266F958023F24CD300508FB6 /* Assets.xcassets */; };
+		266F958423F24CD300508FB6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 266F958223F24CD300508FB6 /* LaunchScreen.storyboard */; };
+		266F958F23F24CD300508FB6 /* Digital_Roll_Data_CollectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 266F958E23F24CD300508FB6 /* Digital_Roll_Data_CollectionTests.swift */; };
+		266F959A23F24CD300508FB6 /* Digital_Roll_Data_CollectionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 266F959923F24CD300508FB6 /* Digital_Roll_Data_CollectionUITests.swift */; };
+		266F95A823F24DC000508FB6 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 266F95A723F24DC000508FB6 /* PhotoViewController.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		266F958B23F24CD300508FB6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 266F956C23F24CD300508FB6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 266F957323F24CD300508FB6;
+			remoteInfo = "Digital Roll Data Collection";
+		};
+		266F959623F24CD300508FB6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 266F956C23F24CD300508FB6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 266F957323F24CD300508FB6;
+			remoteInfo = "Digital Roll Data Collection";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		266F957423F24CD300508FB6 /* Digital Roll Data Collection.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Digital Roll Data Collection.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		266F957723F24CD300508FB6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		266F957923F24CD300508FB6 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		266F957B23F24CD300508FB6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		266F957E23F24CD300508FB6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		266F958023F24CD300508FB6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		266F958323F24CD300508FB6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		266F958523F24CD300508FB6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		266F958A23F24CD300508FB6 /* Digital Roll Data CollectionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Digital Roll Data CollectionTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		266F958E23F24CD300508FB6 /* Digital_Roll_Data_CollectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Digital_Roll_Data_CollectionTests.swift; sourceTree = "<group>"; };
+		266F959023F24CD300508FB6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		266F959523F24CD300508FB6 /* Digital Roll Data CollectionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Digital Roll Data CollectionUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		266F959923F24CD300508FB6 /* Digital_Roll_Data_CollectionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Digital_Roll_Data_CollectionUITests.swift; sourceTree = "<group>"; };
+		266F959B23F24CD300508FB6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		266F95A723F24DC000508FB6 /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		266F957123F24CD300508FB6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		266F958723F24CD300508FB6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		266F959223F24CD300508FB6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		266F956B23F24CD300508FB6 = {
+			isa = PBXGroup;
+			children = (
+				266F957623F24CD300508FB6 /* Digital Roll Data Collection */,
+				266F958D23F24CD300508FB6 /* Digital Roll Data CollectionTests */,
+				266F959823F24CD300508FB6 /* Digital Roll Data CollectionUITests */,
+				266F957523F24CD300508FB6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		266F957523F24CD300508FB6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				266F957423F24CD300508FB6 /* Digital Roll Data Collection.app */,
+				266F958A23F24CD300508FB6 /* Digital Roll Data CollectionTests.xctest */,
+				266F959523F24CD300508FB6 /* Digital Roll Data CollectionUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		266F957623F24CD300508FB6 /* Digital Roll Data Collection */ = {
+			isa = PBXGroup;
+			children = (
+				266F957723F24CD300508FB6 /* AppDelegate.swift */,
+				266F957923F24CD300508FB6 /* SceneDelegate.swift */,
+				266F957B23F24CD300508FB6 /* ViewController.swift */,
+				266F95A723F24DC000508FB6 /* PhotoViewController.swift */,
+				266F957D23F24CD300508FB6 /* Main.storyboard */,
+				266F958023F24CD300508FB6 /* Assets.xcassets */,
+				266F958223F24CD300508FB6 /* LaunchScreen.storyboard */,
+				266F958523F24CD300508FB6 /* Info.plist */,
+			);
+			path = "Digital Roll Data Collection";
+			sourceTree = "<group>";
+		};
+		266F958D23F24CD300508FB6 /* Digital Roll Data CollectionTests */ = {
+			isa = PBXGroup;
+			children = (
+				266F958E23F24CD300508FB6 /* Digital_Roll_Data_CollectionTests.swift */,
+				266F959023F24CD300508FB6 /* Info.plist */,
+			);
+			path = "Digital Roll Data CollectionTests";
+			sourceTree = "<group>";
+		};
+		266F959823F24CD300508FB6 /* Digital Roll Data CollectionUITests */ = {
+			isa = PBXGroup;
+			children = (
+				266F959923F24CD300508FB6 /* Digital_Roll_Data_CollectionUITests.swift */,
+				266F959B23F24CD300508FB6 /* Info.plist */,
+			);
+			path = "Digital Roll Data CollectionUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		266F957323F24CD300508FB6 /* Digital Roll Data Collection */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 266F959E23F24CD300508FB6 /* Build configuration list for PBXNativeTarget "Digital Roll Data Collection" */;
+			buildPhases = (
+				266F957023F24CD300508FB6 /* Sources */,
+				266F957123F24CD300508FB6 /* Frameworks */,
+				266F957223F24CD300508FB6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Digital Roll Data Collection";
+			productName = "Digital Roll Data Collection";
+			productReference = 266F957423F24CD300508FB6 /* Digital Roll Data Collection.app */;
+			productType = "com.apple.product-type.application";
+		};
+		266F958923F24CD300508FB6 /* Digital Roll Data CollectionTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 266F95A123F24CD300508FB6 /* Build configuration list for PBXNativeTarget "Digital Roll Data CollectionTests" */;
+			buildPhases = (
+				266F958623F24CD300508FB6 /* Sources */,
+				266F958723F24CD300508FB6 /* Frameworks */,
+				266F958823F24CD300508FB6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				266F958C23F24CD300508FB6 /* PBXTargetDependency */,
+			);
+			name = "Digital Roll Data CollectionTests";
+			productName = "Digital Roll Data CollectionTests";
+			productReference = 266F958A23F24CD300508FB6 /* Digital Roll Data CollectionTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		266F959423F24CD300508FB6 /* Digital Roll Data CollectionUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 266F95A423F24CD300508FB6 /* Build configuration list for PBXNativeTarget "Digital Roll Data CollectionUITests" */;
+			buildPhases = (
+				266F959123F24CD300508FB6 /* Sources */,
+				266F959223F24CD300508FB6 /* Frameworks */,
+				266F959323F24CD300508FB6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				266F959723F24CD300508FB6 /* PBXTargetDependency */,
+			);
+			name = "Digital Roll Data CollectionUITests";
+			productName = "Digital Roll Data CollectionUITests";
+			productReference = 266F959523F24CD300508FB6 /* Digital Roll Data CollectionUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		266F956C23F24CD300508FB6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1130;
+				LastUpgradeCheck = 1130;
+				ORGANIZATIONNAME = "Digital Roll";
+				TargetAttributes = {
+					266F957323F24CD300508FB6 = {
+						CreatedOnToolsVersion = 11.3.1;
+					};
+					266F958923F24CD300508FB6 = {
+						CreatedOnToolsVersion = 11.3.1;
+						TestTargetID = 266F957323F24CD300508FB6;
+					};
+					266F959423F24CD300508FB6 = {
+						CreatedOnToolsVersion = 11.3.1;
+						TestTargetID = 266F957323F24CD300508FB6;
+					};
+				};
+			};
+			buildConfigurationList = 266F956F23F24CD300508FB6 /* Build configuration list for PBXProject "Digital Roll Data Collection" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 266F956B23F24CD300508FB6;
+			productRefGroup = 266F957523F24CD300508FB6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				266F957323F24CD300508FB6 /* Digital Roll Data Collection */,
+				266F958923F24CD300508FB6 /* Digital Roll Data CollectionTests */,
+				266F959423F24CD300508FB6 /* Digital Roll Data CollectionUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		266F957223F24CD300508FB6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				266F958423F24CD300508FB6 /* LaunchScreen.storyboard in Resources */,
+				266F958123F24CD300508FB6 /* Assets.xcassets in Resources */,
+				266F957F23F24CD300508FB6 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		266F958823F24CD300508FB6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		266F959323F24CD300508FB6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		266F957023F24CD300508FB6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				266F957C23F24CD300508FB6 /* ViewController.swift in Sources */,
+				266F95A823F24DC000508FB6 /* PhotoViewController.swift in Sources */,
+				266F957823F24CD300508FB6 /* AppDelegate.swift in Sources */,
+				266F957A23F24CD300508FB6 /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		266F958623F24CD300508FB6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				266F958F23F24CD300508FB6 /* Digital_Roll_Data_CollectionTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		266F959123F24CD300508FB6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				266F959A23F24CD300508FB6 /* Digital_Roll_Data_CollectionUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		266F958C23F24CD300508FB6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 266F957323F24CD300508FB6 /* Digital Roll Data Collection */;
+			targetProxy = 266F958B23F24CD300508FB6 /* PBXContainerItemProxy */;
+		};
+		266F959723F24CD300508FB6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 266F957323F24CD300508FB6 /* Digital Roll Data Collection */;
+			targetProxy = 266F959623F24CD300508FB6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		266F957D23F24CD300508FB6 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				266F957E23F24CD300508FB6 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		266F958223F24CD300508FB6 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				266F958323F24CD300508FB6 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		266F959C23F24CD300508FB6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		266F959D23F24CD300508FB6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		266F959F23F24CD300508FB6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CWYFJ325Z;
+				INFOPLIST_FILE = "Digital Roll Data Collection/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.digitalroll.Digital-Roll-Data-Collection";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		266F95A023F24CD300508FB6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CWYFJ325Z;
+				INFOPLIST_FILE = "Digital Roll Data Collection/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.digitalroll.Digital-Roll-Data-Collection";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		266F95A223F24CD300508FB6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CWYFJ325Z;
+				INFOPLIST_FILE = "Digital Roll Data CollectionTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.digitalroll.Digital-Roll-Data-CollectionTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Digital Roll Data Collection.app/Digital Roll Data Collection";
+			};
+			name = Debug;
+		};
+		266F95A323F24CD300508FB6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CWYFJ325Z;
+				INFOPLIST_FILE = "Digital Roll Data CollectionTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.digitalroll.Digital-Roll-Data-CollectionTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Digital Roll Data Collection.app/Digital Roll Data Collection";
+			};
+			name = Release;
+		};
+		266F95A523F24CD300508FB6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CWYFJ325Z;
+				INFOPLIST_FILE = "Digital Roll Data CollectionUITests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.digitalroll.Digital-Roll-Data-CollectionUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Digital Roll Data Collection";
+			};
+			name = Debug;
+		};
+		266F95A623F24CD300508FB6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CWYFJ325Z;
+				INFOPLIST_FILE = "Digital Roll Data CollectionUITests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.digitalroll.Digital-Roll-Data-CollectionUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Digital Roll Data Collection";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		266F956F23F24CD300508FB6 /* Build configuration list for PBXProject "Digital Roll Data Collection" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				266F959C23F24CD300508FB6 /* Debug */,
+				266F959D23F24CD300508FB6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		266F959E23F24CD300508FB6 /* Build configuration list for PBXNativeTarget "Digital Roll Data Collection" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				266F959F23F24CD300508FB6 /* Debug */,
+				266F95A023F24CD300508FB6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		266F95A123F24CD300508FB6 /* Build configuration list for PBXNativeTarget "Digital Roll Data CollectionTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				266F95A223F24CD300508FB6 /* Debug */,
+				266F95A323F24CD300508FB6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		266F95A423F24CD300508FB6 /* Build configuration list for PBXNativeTarget "Digital Roll Data CollectionUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				266F95A523F24CD300508FB6 /* Debug */,
+				266F95A623F24CD300508FB6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 266F956C23F24CD300508FB6 /* Project object */;
+}
