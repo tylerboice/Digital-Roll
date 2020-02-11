@@ -8,6 +8,7 @@
 
 import UIKit
 import AVFoundation
+import CoreMotion
 
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     
@@ -16,10 +17,18 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     var previewLayer:CALayer!
     var captureDevice:AVCaptureDevice!
     var takePhoto = false
+    
+    // Initalize Variables for capturing accelerometer data
+   @IBOutlet weak var xAccel: UITextField!
+   @IBOutlet weak var yAccel: UITextField!
+   @IBOutlet weak var zAccel: UITextField!
+   var motion = CMMotionManager()
+       
 
     // Tell the device to run the camera
     override func viewDidLoad() {
         super.viewDidLoad()
+        readAccelerometer()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -51,6 +60,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
         self.view.layer.addSublayer(self.previewLayer)
         self.previewLayer.frame = self.view.layer.frame
+        self.previewLayer.frame = CGRect(x: 20, y: 10, width: 330, height:530)
         captureSession.startRunning()
         
         // Display the output of our recording device
@@ -129,5 +139,31 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
                 self.captureSession.removeInput(input)
             }
         }
+    }
+    
+    // Read the accelerometer
+    func readAccelerometer() {
+        motion.accelerometerUpdateInterval = 0.5
+        motion.startAccelerometerUpdates(to: OperationQueue.current!) {(data, error) in print(data as Any)
+        
+        if let trueData = data {
+            self.view.reloadInputViews()
+            let x = trueData.acceleration.x
+            let y = trueData.acceleration.y
+            let z = trueData.acceleration.z
+            
+            self.xAccel.text = "X: \(Double(x).rounded(toPlaces: 3))"
+            self.yAccel.text = "Y: \(Double(y).rounded(toPlaces: 3))"
+            self.zAccel.text = "Z: \(Double(z).rounded(toPlaces: 3))"
+            }
+        }
+    }
+}
+
+// Modify doubles to be rounded
+extension Double {
+    func rounded(toPlaces places:Int) -> Double {
+        let divisor = pow(10.0, Double(places))
+        return (self * divisor).rounded() / divisor
     }
 }
