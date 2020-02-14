@@ -8,9 +8,14 @@ from scripts import defaults
 CLASSIFIER_FILE = defaults.CLASSIFIER_FILE
 IMAGES_PATH = defaults.IMAGES_PATH
 MIN_IMAGES = defaults.MIN_IMAGES
+OUTPUT_MODEL_PATH = defaults.OUTPUT_MODEL_PATH
 TEST_IMAGE_PATH = defaults.TEST_IMAGE_PATH
 TRAIN_IMAGE_PATH = defaults.TRAIN_IMAGE_PATH
 VALIDATE_IMAGE_PATH = defaults.VALIDATE_IMAGE_PATH
+
+
+def print_error(name, PATH):
+    print(name +" path does not exist, please make sure you have a path at " + PATH )
 
 ########################## Checking FOR FILES #############################
 # checks if all necessary files exist
@@ -18,7 +23,11 @@ def checkIfNecessaryPathsAndFilesExist():
 
     ####### IMAGE PATH #######
     if not os.path.exists(IMAGES_PATH):
-        print_error(IMAGE_PATH)
+        print_error("Image", IMAGE_PATH)
+
+    ####### OUTPUT MODEL PATH #######
+    if not os.path.exists(OUTPUT_MODEL_PATH):
+        os.mkdir(OUTPUT_MODEL_PATH)
 
     ####### TEST IMAGE PATH #######
     if not os.path.exists(TEST_IMAGE_PATH):
@@ -31,6 +40,7 @@ def checkIfNecessaryPathsAndFilesExist():
     ####### VALIDATE IMAGE PATH #######
     if not os.path.exists(VALIDATE_IMAGE_PATH):
         os.mkdir(VALIDATE_IMAGE_PATH)
+
 
 ########################## SORT IMAGES #############################
 # Takes all the images in the image folder and places them in test, train and validate
@@ -71,10 +81,6 @@ def sort_images():
             # if image was found but label was not:
             if found_label == False:
                 unlabelled_files.append(filename)
-
-        # file is not a folder, image or .xml then delete it
-        elif os.path.isdir(filename) and '.xml' not in filename:
-            os.remove(filename)
 
     # count all image and .xml files in test
     for filename in os.listdir(TEST_IMAGE_PATH):
@@ -149,6 +155,7 @@ def get_classifiers(data_dir):
                             classifiers.sort()
     return classifiers
 
+
 ########################## CREATE_CLASSIFIER_NAMES #############################
 # takes in a list of all classifiers and writes to the CLASSIFIER_FILE each classifier
 def create_classifier_file(classifiers):
@@ -158,3 +165,23 @@ def create_classifier_file(classifiers):
         for classification in classifiers:
             class_counter += 1
             f.write(classification + "\n")
+
+
+########################## GET_LAST_CHECKPOINT #############################
+# gets the name of the last classifier from training
+def get_last_checkpoint():
+    last_checkpoint_num = 0
+    last_checkpoint = ""
+    for filename in os.listdir(defaults.CHECKPOINT_PATH):
+        if 'tf.index' and 'train' in filename:
+           if 'of' not in filename:
+               current = filename.split(".")[0]
+               print(current)
+               current = current.split('_')[2]
+               if last_checkpoint_num < int(current):
+                   last_checkpoint_num = int(current)
+                   last_checkpoint = filename
+    if last_checkpoint_num == 0:
+        print("No chekpoint found")
+        exit()
+    return last_checkpoint

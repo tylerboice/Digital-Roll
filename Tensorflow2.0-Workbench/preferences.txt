@@ -1,9 +1,6 @@
 Amount of batches you process at a time(Default = 4)
 batch_size: 4
 
-Where the checkpoint model is saved (Default = checkpoints/yolov3.tf)
-checkpoint_path: checkpoints/yolov3.tf
-
 Size of your images (Default = 416)
 image_size: 416
 
@@ -12,7 +9,6 @@ learn_rate: .001
 
 Number of epochs (Default = 10)
 num_epochs: 10
-
 
 The type of training (Default = none)
            'none: Training from scratch, '
@@ -23,8 +19,8 @@ The type of training (Default = none)
 
 transfer_type: none
 
-Number of images you want to validate your trained model on (Default = 4)
-validate_images: 4
+Number of images you want to validate your trained model on (Default = 3)
+validate_images: 3
 
 Path to your weights file (Default = data/yolov3.weights)
 weights_path: data/yolov3.weights
@@ -32,4 +28,4 @@ weights_path: data/yolov3.weights
 The type of model data that you train on (Options are "yolo-tiny" or "yolo3")
                                          (Default = "yolo3")
                                          (Options can be found at https://pjreddie.com/darknet/yolo/)
-weights_type: yolo3
+tiny_weights: True

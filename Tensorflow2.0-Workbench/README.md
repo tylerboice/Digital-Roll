@@ -33,17 +33,17 @@ their own data and conversting the models produced into Apple CoreML to be used 
 
 ## Installation
 
-#### Install Anaconda for Windows
-```bash
-# Windows
+### Install Anaconda
+
+#### Windows
 https://repo.anaconda.com/archive/Anaconda3-2019.10-Windows-x86_64.exe
 
-# MacOS
+#### MacOS
 https://repo.anaconda.com/archive/Anaconda3-2019.10-MacOSX-x86_64.pkg
 
-# Linux
+#### Linux
 https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
-```
+
 
 #### Create Anaconda Environment
 ```bash
@@ -56,20 +56,13 @@ conda env create -f conda-gpu.yml
 conda activate gpu
 ```
 
-#### Pip
-
+#### install packages
 ```bash
+# install packages
 pip install -r requirements.txt
 ```
 
-#### CoreML
-```bash
-pip install git+https://github.com/apple/coremltools
-pip install tfcoreml
-```
-
 ### Nvidia Driver (For GPU)
-
 ```bash
 # Ubuntu 18.04
 sudo apt-add-repository -r ppa:graphics-drivers/ppa
@@ -79,13 +72,23 @@ https://www.nvidia.com/Download/index.aspx
 ```
 
 ## Usage
-### Train
+### Easy application (Once script application)
+Place all images with their .xml files into the images folder
 
 ```bash
 # to train based off the preferences.txt file
 python run_workbench.py
 ```
-### Convert pre-trained Darknet weights
+
+at any point during the training you can stop it(ctrl + c) and it will save the last checkpoint
+
+```bash
+# if training was stopped, to continure workbench with last checkpoint
+python continue_workbench.py
+
+```
+
+### Step by Step Usage
 
 ```bash
 # yolov3

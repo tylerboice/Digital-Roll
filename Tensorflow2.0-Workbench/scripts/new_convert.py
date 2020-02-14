@@ -4,9 +4,6 @@ import numpy as np
 import sys
 from yolov3_tf2.models import YoloV3, YoloV3Tiny
 from yolov3_tf2.utils import load_darknet_weights
-from scripts import defaults
-
-FLAGS(sys.argv)
 
 def run_weight_convert(weights, output, tiny, num_classes):
 
@@ -26,7 +23,3 @@ def run_weight_convert(weights, output, tiny, num_classes):
 
     yolo.save_weights(output)
     logging.info('weights saved')
-
-
-def main():
-    run_weight_convert(defaults.FLAGS.weights, defaults.FLAGS.output, defaults.FLAGS.tiny, defaults.FLAGS.weights_num_classes)

@@ -1,6 +1,3 @@
-from absl import app, flags, logging
-from absl.flags import FLAGS
-
 import tensorflow as tf
 import numpy as np
 import cv2
@@ -17,11 +14,11 @@ from yolov3_tf2.models import (
 )
 from yolov3_tf2.utils import freeze_all
 import yolov3_tf2.dataset as dataset
-from scripts import defaults
 
 def run_train(train_dataset_in, val_dataset_in, tiny,
               weights, classifiers, mode, transfer, size, epochs, batch_size,
               learning_rate, num_classes, weights_num_classes):
+
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     if len(physical_devices) > 0:
         tf.config.experimental.set_memory_growth(physical_devices[0], True)
@@ -164,21 +161,6 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
                             callbacks=callbacks,
                             validation_data=val_dataset)
 
-
-def main():
-    run_train(defaults.FLAGS.dataset_train,
-              defaults.FLAGS.dataset_test,
-              defaults.FLAGS.tiny,
-              defaults.FLAGS.weights,
-              defaults.FLAGS.classifiers,
-              defaults.FLAGS.mode,
-              defaults.FLAGS.transfer,
-              defaults.FLAGS.size,
-              defaults.FLAGS.epochs,
-              defaults.FLAGS.batch_size,
-              defaults.FLAGS.learning_rate,
-              defaults.FLAGS.num_classes,
-              defaults.FLAGS.weights_num_classes)
 
 if __name__ == '__main__':
     try:

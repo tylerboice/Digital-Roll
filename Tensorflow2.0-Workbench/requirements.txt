@@ -1,8 +1,9 @@
-tensorflow==2.1.0rc1
+tensorflow==2.0
 opencv-python==4.1.1.26
 pandas
 lxml
 tqdm
 pandas
-
+git+https://github.com/apple/coremltools
+tfcoreml
 -e .
