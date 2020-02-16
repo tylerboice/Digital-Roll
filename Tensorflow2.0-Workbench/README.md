@@ -73,7 +73,9 @@ https://www.nvidia.com/Download/index.aspx
 
 #### Before you run
 Make sure you have the following files:
+
      - https://pjreddie.com/media/files/yolov3.weights places in the data folder
+     
      - All images with their .xml files placed in the images folder
 
 
