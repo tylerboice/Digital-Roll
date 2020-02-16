@@ -170,13 +170,6 @@ def get_weights_path(is_tiny):
     return YOLO_PATH
 
 
-TEST_IMAGE_VAR = "validate_images"
-TINY_WEIGHTS_VAR = "tiny_weights"
-TRANSFER_VAR = "transfer_type"
-VALID_IN_VAR = "validate_image_input"
-WEIGHTS_CLASS_VAR = "Weighted_class"
-WEIGHTS_PATH_VAR = "weights_path"
-
 def get_help():
     if FLAGS.help != DEFAULT_HELP:
         print("\n\t\t\t////////////////////////////////")
