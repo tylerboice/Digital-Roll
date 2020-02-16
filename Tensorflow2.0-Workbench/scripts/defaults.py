@@ -75,9 +75,20 @@ VALID_IN_VAR = "validate_image_input"
 WEIGHTS_CLASS_VAR = "Weighted_class"
 WEIGHTS_PATH_VAR = "weights_path"
 
+CONVERT_WEIGHT = "convert_weight"
+CREATE_CLASS_VAR = "create_class_file"
+DETECT_IMAGES_VAR = "detect_img"
+EXPORT_COREML_VAR = "core_ml"
+EXPORT_Tf_MODEL_VAR = "tf_model"
+GENRATE_TF_VAR = "generate_tf"
+SORT_IMAGES_VAR = "sort_images"
+TRAIN_VAR = "train"
 
 
 ########################## FLAGS #################################
+########################
+###      VALUES      ###
+########################
 # batch_size
 flags.DEFINE_integer( BATCH_SIZE_VAR, DEFAULT_BATCH_SIZE, 'batch size')
 # checkpoint path
@@ -120,6 +131,26 @@ flags.DEFINE_string(VALID_IN_VAR, INPUT_IMAGE_PATH, 'path to image output')
 # weights num
 flags.DEFINE_integer(WEIGHTS_PATH_VAR, DEFAULT_WEIGHT_NUM, 'specify num class for `weights` file if different, '
                      'useful in transfer learning with different number of classes')
+
+########################
+###     Scripts      ###
+########################
+# Create Classifier
+flags.DEFINE_boolean( CONVERT_WEIGHT, False, 'weights')
+# Create Classifier
+flags.DEFINE_boolean( CREATE_CLASS_VAR, False, 'classifier')
+# Detect Images
+flags.DEFINE_boolean( DETECT_IMAGES_VAR, False, 'image_size')
+# Export Core ML model
+flags.DEFINE_boolean( EXPORT_COREML_VAR, False, 'coreML')
+# Export TF Model
+flags.DEFINE_boolean( EXPORT_Tf_MODEL_VAR, False, 'tf model')
+# Generate TF Records
+flags.DEFINE_boolean( GENRATE_TF_VAR, False, 'ygenerate tf')
+# Train
+flags.DEFINE_boolean( TRAIN_VAR, False, 'train')
+# Sort Images
+flags.DEFINE_boolean( SORT_IMAGES_VAR, False, 'sort images')
 
 FLAGS(sys.argv)
 
@@ -175,6 +206,7 @@ def get_help():
         print("\n\t\t\t////////////////////////////////")
         print("\t\t\t//     Workbench Help Menu    //")
         print("\t\t\t////////////////////////////////\n")
+        print("Values:")
         print("\t--" + BATCH_SIZE_VAR + ": batch size of training...........................................(Default: " + str(DEFAULT_BATCH_SIZE) + ")")
         print("\t--" + CHECKPOINT_VAR + ": path that the checkpoint is saved...........................(Default: " + DEFAULT_CHECKPOINT_PATH + ")")
         print("\t--" + CLASSIFIERS_VAR + ": name of the classifier names file...............................(Default: " + CLASSIFIER_FILE + ")")
@@ -203,4 +235,13 @@ def get_help():
         print("\t\t\t(5) fine_tune: Transfer all and freeze darknet only\n")
         print("\t--" + WEIGHTS_PATH_VAR + ": number of classes the weights file is trained on...............(Default: " +str( DEFAULT_WEIGHT_NUM) + ")")
         print("\t--" + VALID_IN_VAR + ": path to image(s) you want to test the new model on.....(Default: " + INPUT_IMAGE_PATH + ")")
+        print("\n\nRunning specific scripts (can only run one):")
+        print("\t--" + CONVERT_WEIGHT + ": converts the weight file and stops the program")
+        print("\t--" + CREATE_CLASS_VAR + ": just generates the classifier file and stops the program")
+        print("\t--" + DETECT_IMAGES_VAR  + ": just tests model on images and stops the program")
+        print("\t--" + EXPORT_COREML_VAR + ": just exports the CoreML model and stops the program")
+        print("\t--" + EXPORT_Tf_MODEL_VAR  + ": just exports the TensorFlow model and stops the program")
+        print("\t--" + GENRATE_TF_VAR + ": just generates the tf records and stops the program")
+        print("\t--" + TRAIN_VAR + ": just trains the model and stops the program")
+        print("\t--" + SORT_IMAGES_VAR + ": sorts the image directory and stops the program")
         exit()

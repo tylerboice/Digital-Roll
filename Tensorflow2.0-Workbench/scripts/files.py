@@ -190,12 +190,10 @@ def get_last_checkpoint():
 ########################## GET NUM CLASSES ##########################
 def get_num_classes(file):
     num_classes = 0
-    if os.path.exists(file):
-        with open(file, "r") as f:
-            for line in f.readlines():
-                if len(line.strip()) != 0 :
-                    num_classes = num_classes + 1
-        return num_classes
-    else:
-        print("Classifier file: " + file + " does not exist")
-        exit()
+    if not os.path.exists(file):
+        open(file, "w")
+    with open(file, "r") as f:
+        for line in f.readlines():
+            if len(line.strip()) != 0 :
+                num_classes = num_classes + 1
+    return num_classes

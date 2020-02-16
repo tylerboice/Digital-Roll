@@ -1,8 +1,10 @@
 import os
 from os import path
+sys.path.insert(1, './scripts')
 
-from scripts import defaults
-from scripts import files
+import defaults
+import files
+import preferences
 
 
 ############################## MAIN ##########################

@@ -9,19 +9,7 @@ import tqdm
 from absl import app, flags, logging
 from absl.flags import FLAGS
 
-from scripts import defaults
-
-
-# DATA SET PATHS
-IMAGES_PATH = defaults.IMAGES_PATH
-TRAIN_IMAGE_PATH = defaults.TRAIN_IMAGE_PATH
-TEST_IMAGE_PATH = defaults.TEST_IMAGE_PATH
-VALIDATE_IMAGE_PATH = defaults.VALIDATE_IMAGE_PATH
-
-CLASSIFIER_FILE = defaults.CLASSIFIER_FILE
-TRAIN_TF_RECORD_PATH = defaults.TRAIN_TF_RECORD_PATH
-TEST_TF_RECORD_PATH = defaults.TEST_TF_RECORD_PATH
-
+from scripts import preferences
 
 def build_example(annotation, class_map, input_folder):
     img_path = os.path.join(input_folder, annotation['filename'])
@@ -97,7 +85,7 @@ def parse_xml(xml):
 ########################## GENERATE TFRECORDS #############################
 def generate_tfrecods(input_folder, output_file):
     class_map = {name: idx for idx, name in enumerate(
-        open(CLASSIFIER_FILE).read().splitlines())}
+        open(preferences.classifier_file).read().splitlines())}
     logging.info("Class mapping loaded: %s", class_map)
 
     writer = tf.io.TFRecordWriter(output_file)
