@@ -47,7 +47,7 @@ def checkIfNecessaryPathsAndFilesExist():
 # Train = 90% of the images
 # Test = 10% of the images
 # Validate = takes user spicifed amount of files out of train
-def sort_images():
+def sort_images(num_validate):
 
     # Method Variables
     total_images = 0
@@ -112,7 +112,7 @@ def sort_images():
         shutil.move(VALIDATE_IMAGE_PATH + file, TRAIN_IMAGE_PATH)
 
     # gather all valid images from train
-    while len(valid_images) < defaults.get_valid_image_num():
+    while len(valid_images) < num_validate:
         next_valid = random.randint(1, train_images)
         if next_valid not in valid_images:
             valid_images.append(next_valid)
@@ -156,6 +156,7 @@ def get_classifiers(data_dir):
     return classifiers
 
 
+
 ########################## CREATE_CLASSIFIER_NAMES #############################
 # takes in a list of all classifiers and writes to the CLASSIFIER_FILE each classifier
 def create_classifier_file(classifiers):
@@ -176,12 +177,25 @@ def get_last_checkpoint():
         if 'tf.index' and 'train' in filename:
            if 'of' not in filename:
                current = filename.split(".")[0]
-               print(current)
                current = current.split('_')[2]
                if last_checkpoint_num < int(current):
                    last_checkpoint_num = int(current)
-                   last_checkpoint = filename
+                   last_checkpoint = defaults.CHECKPOINT_PATH + filename.split(".")[0] + ".tf"
     if last_checkpoint_num == 0:
         print("No chekpoint found")
         exit()
     return last_checkpoint
+
+
+########################## GET NUM CLASSES ##########################
+def get_num_classes(file):
+    num_classes = 0
+    if os.path.exists(file):
+        with open(file, "r") as f:
+            for line in f.readlines():
+                if len(line.strip()) != 0 :
+                    num_classes = num_classes + 1
+        return num_classes
+    else:
+        print("Classifier file: " + file + " does not exist")
+        exit()

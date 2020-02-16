@@ -3,34 +3,19 @@ from os import path
 
 from scripts import defaults
 from scripts import files
+from scripts import preferences
 from scripts import generate_tf
-from scripts import new_convert
-from scripts import new_train
-from scripts import new_export_tfserving
+from scripts import convert_weights
+from scripts import train_workbench
+from scripts import create_tf_model
 
-batch_size = defaults.get_batch_size()
-chkpnt_output = defaults.get_checkpoint_path()
-classes = defaults.FLAGS.classifiers
-dataset_test = defaults.get_dataset_test()
-dataset_train = defaults.get_dataset_train()
-epochs = defaults.get_epoch_num()
-learning_rate = defaults.get_learn_rate()
-mode = defaults.FLAGS.mode
-num_classes = defaults.get_num_classes(classes)
-output_model = defaults.get_model_output()
-size = defaults.get_image_size()
-tiny = defaults.is_tiny_weight()
-transfer = defaults.get_transfer_type()
-valid_image_input = defaults.get_valid_image_input()
-weights_num_classes = defaults.FLAGS.weights_num_classes
-weights = defaults.get_weights_path()
 
 ############################## MAIN ##########################
 def main():
 
     # Display pref
     print("\nCurrent Preferences:")
-    defaults.print_pref()
+    preferences.print_pref()
 
     # check if necessary files exist
     print("\n\nChecking that necessary file path exist...")
@@ -45,7 +30,7 @@ def main():
 
     # sort all the images
     print("Sorting images...")
-    files.sort_images()
+    files.sort_images(defaults.DEFAULT_NUM_VAL_IMAGES)
     print("\n\tAll images sorted!\n")
 
     # generate tf records
@@ -58,51 +43,48 @@ def main():
 
     # convert to checkpoint
     print("Converting records to checkpoint...\n")
-    new_convert.run_weight_convert(weights,
-                                   chkpnt_output,
-                                   tiny,
-                                   weights_num_classes)
+    convert_weights.run_weight_convert(preferences.weights,
+                                       preferences.checkpoint_output,
+                                       preferences.tiny,
+                                       preferences.weight_num_classes)
     print("\nCheckpoint Converted!")
 
     # train
     print("\nBegin Training... \n")
-    '''
-    new_train.run_train(dataset_train,
-                        dataset_test,
-                        tiny,
-                        weights,
-                        classifiers,
-                        mode,
-                        transfer,
-                        size,
-                        epochs,
-                        batch_size,
-                        learning_rate,
-                        num_classes,
-                        weights_num_classes)
-    '''
+    train_workbench.run_train(dataset_train,
+                              dataset_test,
+                              tiny,
+                              weights,
+                              classifiers,
+                              mode,
+                              transfer,
+                              size,
+                              epochs,
+                              batch_size,
+                              learning_rate,
+                              num_classes,
+                              weights_num_classes)
     print("\n\tTraining Complete!")
 
     # generating tensorflow models
     print("\nGenerating TensorFlow model...")
     chkpnt_weights = files.get_last_checkpoint()
-    if path.isfile(valid_image_input):
-        new_export_tfserving.run_export_tfserving = (chkpnt_weights,
-                                                     tiny,
-                                                     output_model,
-                                                     classes,
-                                                     valid_image_input,
-                                                     num_classes)
+    if path.isfile(preferences.validate_input):
+        create_tf_model.run_export_tfserving(chkpnt_weights,
+                                                  preferences.tiny,
+                                                  preferences.output_model,
+                                                  preferences.classifier_file,
+                                                  preferences.validate_input + file,
+                                                  preferences.num_classes)
     else:
-        for file in os.listdir(valid_image_input):
-            print( "---------------------------------------------------\nchkweight:" + chkpnt_weights + "\ntiny:" + str(tiny) + "\nout_model:" + output_model + "\nclasses" + str(classes)  + "\nfile" +  file  + "\nnum_classes" +  str(num_classes))
-            if ".jpg" in file:
-                new_export_tfserving.run_export_tfserving = (chkpnt_weights,
-                                                             tiny,
-                                                             output_model,
-                                                             classes,
-                                                             file,
-                                                             num_classes)
+        for file in os.listdir(preferences.validate_input):
+            if '.jpg' in file:
+                create_tf_model.run_export_tfserving(chkpnt_weights,
+                                                          preferences.tiny,
+                                                          preferences.output_model,
+                                                          preferences.classifier_file,
+                                                          preferences.validate_input + file,
+                                                          preferences.num_classes)
     print("\n\tTensorFlow model Generated!")
 
 main()
