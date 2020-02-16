@@ -12,6 +12,8 @@ from scripts import create_tf_model
 
 ############################## MAIN ##########################
 def main():
+    # get help if needed
+    defaults.get_help()
 
     # Display pref
     print("\nCurrent Preferences:")

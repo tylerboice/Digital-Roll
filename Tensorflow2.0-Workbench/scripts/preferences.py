@@ -6,7 +6,7 @@ from absl.flags import FLAGS
 import sys
 
 batch_size = defaults.check_preferences(defaults.BATCH_SIZE_VAR, defaults.FLAGS.batch_size, defaults.INT)
-checkpoint_output = defaults.check_preferences(defaults.CHECKPOINT_VAR, defaults.FLAGS.chkpnt_output, defaults.FILE)
+checkpoint_output = defaults.check_preferences(defaults.CHECKPOINT_VAR, defaults.FLAGS.checkpoint_path, defaults.FILE)
 classifier_file = defaults.check_preferences(defaults.CLASSIFIERS_VAR, defaults.FLAGS.classifiers, defaults.FILE)
 dataset_test = defaults.check_preferences(defaults.DATASET_TEST_VAR, defaults.FLAGS.dataset_test, defaults.FILE)
 dataset_train = defaults.check_preferences(defaults.DATASET_TRAIN_VAR, defaults.FLAGS.dataset_train, defaults.FILE)
@@ -19,8 +19,8 @@ output_model =  defaults.check_preferences(defaults.OUTPUT_MODEL_VAR, defaults.F
 pref_file = defaults.FLAGS.pref
 tiny = defaults.check_preferences(defaults.TINY_WEIGHTS_VAR, defaults.FLAGS.tiny_weights, defaults.BOOL)
 transfer = defaults.check_preferences(defaults.TRANSFER_VAR, defaults.FLAGS.transfer, defaults.TRANSFER_OPTIONS)
-validate_input = defaults.check_preferences(defaults.VALID_IN_VAR, defaults.FLAGS.validate_input, defaults.FILE)
-weight_num_classes = defaults.check_preferences(defaults.WEIGHTS_CLASS_VAR, defaults.FLAGS.weight_num_classes, defaults.INT)
+validate_input = defaults.check_preferences(defaults.VALID_IN_VAR, defaults.FLAGS.validate_image_input, defaults.FILE)
+weight_num_classes = defaults.check_preferences(defaults.WEIGHTS_CLASS_VAR, defaults.FLAGS.weights_path, defaults.INT)
 
 
 # validate image input

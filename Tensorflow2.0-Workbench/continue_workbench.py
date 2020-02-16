@@ -7,6 +7,8 @@ from scripts import files
 
 ############################## MAIN ##########################
 def main():
+    # get help if needed
+    defaults.get_help()
 
     # check if file paths exists
     files.checkIfNecessaryPathsAndFilesExist()
