@@ -9,27 +9,15 @@ from yolov3_tf2.models import (
 )
 from yolov3_tf2.dataset import transform_images, load_tfrecord_dataset
 from yolov3_tf2.utils import draw_outputs
-from scripts import default
 
-# input image
-flags.DEFINE_string('image_output', get_valid_test_image(), 'path to output')
 
-def run_detect(classes_in, weights_in, tiny_in,
-               size_in, image_in, tfrecord_in,
-               output_in, num_classes_in):
-    classes = classes_in
-    weights = weights_in
-    tiny = tiny_in
-    size = size_in
-    image = image_in
-    tfrecord = tfrecord_in
-    output = output_in
-    num_classes = num_classes_in
+def run_detect(classes, weights, tiny, size, image, output, num_classes):
+    tfrecord = None
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     if len(physical_devices) > 0:
         tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
-    if FLAGS.tiny:
+    if tiny:
         yolo = YoloV3Tiny(classes=num_classes)
     else:
         yolo = YoloV3(classes=num_classes)
@@ -67,11 +55,3 @@ def run_detect(classes_in, weights_in, tiny_in,
     img = draw_outputs(img, (boxes, scores, classesArr, nums), class_names)
     cv2.imwrite(output, img)
     logging.info('output saved to: {}'.format(output))
-
-
-
-if __name__ == '__main__':
-    try:
-        app.run(main)
-    except SystemExit:
-        pass

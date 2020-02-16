@@ -6,4 +6,5 @@ tqdm
 pandas
 git+https://github.com/apple/coremltools
 tfcoreml
+sympy
 -e .

@@ -15,7 +15,7 @@ image_size = defaults.check_preferences(defaults.IMAGE_SIZE_VAR, defaults.FLAGS.
 learning_rate = defaults.check_preferences(defaults.LEARN_RATE_VAR, defaults.FLAGS.learn_rate, defaults.FLOAT)
 mode = defaults.check_preferences(defaults.MODE_VAR, defaults.FLAGS.mode, defaults.MODE_OPTIONS)
 num_classes = files.get_num_classes(classifier_file)
-output_model =  defaults.check_preferences(defaults.OUTPUT_MODEL_VAR, defaults.FLAGS.output_model, defaults.FILE)
+output =  defaults.check_preferences(defaults.OUTPUT_VAR, defaults.FLAGS.output, defaults.FILE)
 pref_file = defaults.FLAGS.pref
 tiny = defaults.check_preferences(defaults.TINY_WEIGHTS_VAR, defaults.FLAGS.tiny_weights, defaults.BOOL)
 transfer = defaults.check_preferences(defaults.TRANSFER_VAR, defaults.FLAGS.transfer, defaults.TRANSFER_OPTIONS)
@@ -40,7 +40,7 @@ def print_pref():
     print("\tLearning Rate.......... " + str(learning_rate))
     print("\tMode................... " + mode)
     print("\tNumber of Classes...... " + str(num_classes))
-    print("\tOutput Model........... " + output_model)
+    print("\tOutput Model........... " + output)
     print("\tPreference File........ " + pref_file)
     print("\tTiny Weights........... " + str(tiny))
     print("\tTransfer............... " + transfer)

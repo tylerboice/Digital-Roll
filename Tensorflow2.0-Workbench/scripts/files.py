@@ -8,7 +8,7 @@ from scripts import defaults
 CLASSIFIER_FILE = defaults.CLASSIFIER_FILE
 IMAGES_PATH = defaults.IMAGES_PATH
 MIN_IMAGES = defaults.MIN_IMAGES
-OUTPUT_MODEL_PATH = defaults.OUTPUT_MODEL_PATH
+OUTPUT_PATH = defaults.OUTPUT_PATH
 TEST_IMAGE_PATH = defaults.TEST_IMAGE_PATH
 TRAIN_IMAGE_PATH = defaults.TRAIN_IMAGE_PATH
 VALIDATE_IMAGE_PATH = defaults.VALIDATE_IMAGE_PATH
@@ -26,8 +26,8 @@ def checkIfNecessaryPathsAndFilesExist():
         print_error("Image", IMAGE_PATH)
 
     ####### OUTPUT MODEL PATH #######
-    if not os.path.exists(OUTPUT_MODEL_PATH):
-        os.mkdir(OUTPUT_MODEL_PATH)
+    if not os.path.exists(OUTPUT_PATH):
+        os.mkdir(OUTPUT_PATH)
 
     ####### TEST IMAGE PATH #######
     if not os.path.exists(TEST_IMAGE_PATH):

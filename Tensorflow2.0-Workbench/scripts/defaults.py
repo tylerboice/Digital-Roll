@@ -26,7 +26,7 @@ TEST_TF_RECORD_PATH = DATA_PATH + "test.tfrecord"
 CHECKPOINT_PATH = CWD_PATH + "checkpoints/"
 
 # OUTPUT
-OUTPUT_MODEL_PATH = CWD_PATH + "output/"
+OUTPUT_PATH = CWD_PATH + "output/"
 
 # HARD CODED VALUES
 MIN_IMAGES = 50
@@ -66,7 +66,7 @@ HELP_VAR = "help"
 IMAGE_SIZE_VAR = "image_size"
 LEARN_RATE_VAR = "learn_rate"
 MODE_VAR = "mode"
-OUTPUT_MODEL_VAR = "output_model"
+OUTPUT_VAR = "output"
 PREF_VAR = "pref"
 TEST_IMAGE_VAR = "validate_images"
 TINY_WEIGHTS_VAR = "tiny_weights"
@@ -112,8 +112,8 @@ flags.DEFINE_enum(MODE_VAR, DEFAULT_MODE, ['fit', 'eager_fit', 'eager_tf'],
                   'fit: model.fit, '
                   'eager_fit: model.fit(run_eagerly=True), '
                   'eager_tf: custom GradientTape')
-# output_model
-flags.DEFINE_string(OUTPUT_MODEL_VAR, OUTPUT_MODEL_PATH, 'output for the model and images')
+# output
+flags.DEFINE_string(OUTPUT_VAR, OUTPUT_PATH, 'output for the model and images')
 # preference file
 flags.DEFINE_string( PREF_VAR, NO_PREF_PATH, 'prefences file path')
 # tiny
@@ -220,7 +220,7 @@ def get_help():
         print("\t\t\t(1) fit: model.fit")
         print("\t\t\t(2) eager_fit: model.fit(run_eagerly=True")
         print("\t\t\t(3) eager_tf: custom GradientTape\n")
-        print("\t--" + OUTPUT_MODEL_VAR + ": location where tf and core ml model will be saved..............(Default: " + OUTPUT_MODEL_PATH + ")")
+        print("\t--" + OUTPUT_VAR + ": location where tf and core ml model will be saved..............(Default: " + OUTPUT_PATH + ")")
         print("\t--" + PREF_VAR + ": file that contains preferences, this cannot be ran with other flags....(Default: " + NO_PREF_PATH + ")")
         print("\t--" + TINY_WEIGHTS_VAR + ": training with the tiny weights or not..........................(Default: " + str(DEFAULT_WEIGHT_TYPE) + ")")
         print("\t\tOptions:")

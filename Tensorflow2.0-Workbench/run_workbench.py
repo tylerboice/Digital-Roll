@@ -9,8 +9,13 @@ from scripts import generate_tf
 from scripts import convert_weights
 from scripts import train_workbench
 from scripts import create_tf_model
+from scripts import detect_img
+from scripts import create_coreml
+
+
 
 def run_single_script():
+    # just create class file
     if defaults.FLAGS.create_class_file:
         print("Gathering classifier data...")
         classifiers = files.get_classifiers(defaults.IMAGES_PATH)
@@ -18,13 +23,15 @@ def run_single_script():
         print("\tData successfuly classified!\n")
         exit()
 
-    elif defaults.FLAGS.sort_images:
+    # just sort images
+    if defaults.FLAGS.sort_images:
         print("Sorting images...")
         files.sort_images(defaults.DEFAULT_NUM_VAL_IMAGES)
         print("\n\tAll images sorted!\n")
         exit()
 
-    elif defaults.FLAGS.generate_tf:
+    # just generate tf records
+    if defaults.FLAGS.generate_tf:
         classifiers = files.get_classifiers(defaults.IMAGES_PATH)
         files.create_classifier_file(classifiers)
         print("Generating images and xml files into tfrecords...")
@@ -35,7 +42,8 @@ def run_single_script():
         print("\n\tSuccessfully generated tf records\n")
         exit()
 
-    elif defaults.FLAGS.convert_weight:
+    # just convert weights
+    if defaults.FLAGS.convert_weight:
         if not os.path.exists(preferences.weights):
             print("Weights file does not exist")
             exit()
@@ -46,7 +54,8 @@ def run_single_script():
                                            preferences.weight_num_classes)
         exit()
 
-    elif defaults.FLAGS.train:
+    # just train
+    if defaults.FLAGS.train:
         print("\nBegin Training... \n")
         train_workbench.run_train(preferences.dataset_train,
                                   preferences.dataset_test,
@@ -64,27 +73,65 @@ def run_single_script():
         print("\n\tTraining Complete!")
         exit()
 
-    elif defaults.FLAGS.tf_model:
+    # just create tf model
+    if defaults.FLAGS.tf_model:
+        # generating tensorflow models
         print("\nGenerating TensorFlow model...")
         chkpnt_weights = files.get_last_checkpoint()
+        print("\n\tUsing checkpoint: " + chkpnt_weights + "\n")
         if path.isfile(preferences.validate_input):
             create_tf_model.run_export_tfserving(chkpnt_weights,
                                                       preferences.tiny,
-                                                      preferences.output_model,
+                                                      preferences.output,
                                                       preferences.classifier_file,
                                                       preferences.validate_input + file,
                                                       preferences.num_classes)
         else:
+            model_saved = False
             for file in os.listdir(preferences.validate_input):
-                if '.jpg' in file:
+                if '.jpg' in file and not model_saved:
                     create_tf_model.run_export_tfserving(chkpnt_weights,
                                                               preferences.tiny,
-                                                              preferences.output_model,
+                                                              preferences.output,
                                                               preferences.classifier_file,
                                                               preferences.validate_input + file,
                                                               preferences.num_classes)
+                    model_saved = True
         print("\n\tTensorFlow model Generated!")
         exit()
+
+    # just detect images
+    if defaults.FLAGS.detect_img:
+        # generating tensorflow models
+        print("\nTesting Images...")
+        chkpnt_weights = files.get_last_checkpoint()
+        if path.isfile(preferences.validate_input):
+            print("\tTesting on image: " + file + "\n")
+            detect_img.run_detect(preferences.classifier_file,
+                                   chkpnt_weights,
+                                   preferences.tiny,
+                                   preferences.image_size,
+                                   preferences.validate_input + file,
+                                   preferences.output,
+                                   preferences.num_classes)
+        else:
+            for file in os.listdir(preferences.validate_input):
+                if '.jpg' in file:
+                    detect_img.run_detect(preferences.classifier_file,
+                                           chkpnt_weights,
+                                           preferences.tiny,
+                                           preferences.image_size,
+                                           preferences.validate_input + file,
+                                           preferences.output + file + "_output.jpg",
+                                           preferences.num_classes)
+                    print("\tTesting on image: " + preferences.validate_input + file + "\n")
+        print("\n\tImages Tested and stored in " + preferences.output)
+
+    # just export coreml model
+    if defaults.FLAGS.core_ml:
+        print("Create a CoreML model...")
+        create_coreml.export_coreml(preferences.output)
+        print("Core ML model created!")
 
 
 ############################## MAIN ##########################
@@ -92,7 +139,6 @@ def main():
 
     # get help if needed
     defaults.get_help()
-
     # Display pref
     print("\nCurrent Preferences:")
     preferences.print_pref()
@@ -154,22 +200,57 @@ def main():
     # generating tensorflow models
     print("\nGenerating TensorFlow model...")
     chkpnt_weights = files.get_last_checkpoint()
+    print("\n\tUsing checkpoint: " + chkpnt_weights + "\n")
     if path.isfile(preferences.validate_input):
         create_tf_model.run_export_tfserving(chkpnt_weights,
                                                   preferences.tiny,
-                                                  preferences.output_model,
+                                                  preferences.output,
                                                   preferences.classifier_file,
                                                   preferences.validate_input + file,
                                                   preferences.num_classes)
     else:
+        model_saved = False
         for file in os.listdir(preferences.validate_input):
-            if '.jpg' in file:
+            if '.jpg' in file and not model_saved:
                 create_tf_model.run_export_tfserving(chkpnt_weights,
                                                           preferences.tiny,
-                                                          preferences.output_model,
+                                                          preferences.output,
                                                           preferences.classifier_file,
                                                           preferences.validate_input + file,
                                                           preferences.num_classes)
+                model_saved = True
     print("\n\tTensorFlow model Generated!")
+
+    # generating tensorflow models
+    print("\nTesting Images...")
+    chkpnt_weights = files.get_last_checkpoint()
+    if path.isfile(preferences.validate_input):
+        print("\tTesting on image: " + file + "\n")
+        detect_img.run_detect(preferences.classifier_file,
+                               chkpnt_weights,
+                               preferences.tiny,
+                               preferences.image_size,
+                               preferences.validate_input + file,
+                               preferences.output,
+                               preferences.num_classes)
+    else:
+        for file in os.listdir(preferences.validate_input):
+            if '.jpg' in file:
+                detect_img.run_detect(preferences.classifier_file,
+                                       chkpnt_weights,
+                                       preferences.tiny,
+                                       preferences.image_size,
+                                       preferences.validate_input + file,
+                                       preferences.output + file + "_output.jpg",
+                                       preferences.num_classes)
+                print("\tTesting on image: " + preferences.validate_input + file + "\n")
+    print("\n\tImages Tested and stpreferences.ored in " + preferences.output)
+
+    print("\nCreate a CoreML model...")
+    create_coreml.export_coreml(preferences.output)
+    print("\n\tCore ML model created!")
+
+    print("\nWorkbench Successful!")
+    print("\n\tAll models and images saved in " + preferences.output)
 
 main()
