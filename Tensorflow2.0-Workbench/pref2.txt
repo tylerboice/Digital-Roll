@@ -5,13 +5,13 @@ Path where the training checkpoints will be placed   (Default = ./checkpoints)
 checkpoint_path: ./checkpoints
 
 Path and name of the file with your classifier names (Default = ./data/classifier.names)
-classifiers:
+classifiers: ./data/classifier.names
 
 Path and name of file that will become your .tfrecords for testing (Default: ./data/test.tfrecord)
-dataset-test:
+dataset-test: ./data/test.tfrecord
 
 Path and name of file that will become your .tfrecords for training (Default: ./data/train.tfrecord)
-dataset-train:
+dataset-train: ./data/train.tfrecord
 
 Number of epochs (Default = 10)
 epochs: 15
@@ -40,7 +40,7 @@ The type of training (Default = none)
 transfer_type: none
 
 The image(s) you want to test the model on (Default= ./images/validate)
-validate_image_input:
+validate_image_input: ./images/validate
 
 Number of images you want to validate your trained model on (Default = 3)
 validate_images: 3
