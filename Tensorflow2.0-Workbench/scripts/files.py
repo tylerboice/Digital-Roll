@@ -67,16 +67,18 @@ def sort_images(num_validate):
             # move to test
             if total_images % 10 == 0:
                 if path.exists(IMAGES_PATH + xml_version):
-                    shutil.move(IMAGES_PATH + filename, TEST_IMAGE_PATH)
-                    shutil.move(IMAGES_PATH + xml_version, TEST_IMAGE_PATH)
-                    found_label = True
+                    if not path.exists(TEST_IMAGE_PATH + filename) and not path.exists(TEST_IMAGE_PATH + xml_version):
+                        shutil.move(IMAGES_PATH + filename, TEST_IMAGE_PATH)
+                        shutil.move(IMAGES_PATH + xml_version, TEST_IMAGE_PATH)
+                        found_label = True
 
             # move to train
             else:
                 if path.exists(IMAGES_PATH + xml_version):
-                    shutil.move(IMAGES_PATH + filename, TRAIN_IMAGE_PATH)
-                    shutil.move(IMAGES_PATH + xml_version, TRAIN_IMAGE_PATH)
-                    found_label = True
+                    if not path.exists(TRAIN_IMAGE_PATH + filename) and not path.exists(TRAIN_IMAGE_PATH + xml_version):
+                        shutil.move(IMAGES_PATH + filename, TRAIN_IMAGE_PATH)
+                        shutil.move(IMAGES_PATH + xml_version, TRAIN_IMAGE_PATH)
+                        found_label = True
 
             # if image was found but label was not:
             if found_label == False:
