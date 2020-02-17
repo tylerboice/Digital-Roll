@@ -47,25 +47,3 @@ def print_pref():
     print("\tValidate Image Input... " + validate_input)
     print("\tWeighted Classes....... " + str(weight_num_classes))
     print("\tWeights Path........... " + weights)
-
-def update_pref(new_pref):
-    pref_file = new_pref
-
-    batch_size = defaults.check_preferences(defaults.BATCH_SIZE_VAR, defaults.FLAGS.batch_size, defaults.INT)
-    checkpoint_output = defaults.check_preferences(defaults.CHECKPOINT_VAR, defaults.FLAGS.checkpoint_path,
-                                                   defaults.FILE)
-    classifier_file = defaults.check_preferences(defaults.CLASSIFIERS_VAR, defaults.FLAGS.classifiers, defaults.FILE)
-    dataset_test = defaults.check_preferences(defaults.DATASET_TEST_VAR, defaults.FLAGS.dataset_test, defaults.FILE)
-    dataset_train = defaults.check_preferences(defaults.DATASET_TRAIN_VAR, defaults.FLAGS.dataset_train, defaults.FILE)
-    epochs = defaults.check_preferences(defaults.EPOCH_NUM_VAR, defaults.FLAGS.epochs, defaults.INT)
-    image_size = defaults.check_preferences(defaults.IMAGE_SIZE_VAR, defaults.FLAGS.image_size, defaults.INT)
-    learning_rate = defaults.check_preferences(defaults.LEARN_RATE_VAR, defaults.FLAGS.learn_rate, defaults.FLOAT)
-    mode = defaults.check_preferences(defaults.MODE_VAR, defaults.FLAGS.mode, defaults.MODE_OPTIONS)
-    num_classes = files.get_num_classes(classifier_file)
-    output = defaults.check_preferences(defaults.OUTPUT_VAR, defaults.FLAGS.output, defaults.FILE)
-    tiny = defaults.check_preferences(defaults.TINY_WEIGHTS_VAR, defaults.FLAGS.tiny_weights, defaults.BOOL)
-    transfer = defaults.check_preferences(defaults.TRANSFER_VAR, defaults.FLAGS.transfer, defaults.TRANSFER_OPTIONS)
-    validate_input = defaults.check_preferences(defaults.VALID_IN_VAR, defaults.FLAGS.validate_image_input,
-                                                defaults.FILE)
-    weight_num_classes = defaults.check_preferences(defaults.WEIGHTS_CLASS_VAR, defaults.FLAGS.weights_path,
-                                                    defaults.INT)

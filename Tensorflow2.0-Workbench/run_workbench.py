@@ -164,11 +164,61 @@ def main():
             preferences.print_pref()
 
         elif userInput[0:5] == "load " or userInput[0:2] == "l ":
-            pref_path = userInput[5:]
+            if userInput[0:2] == "l ":
+                pref_path = userInput[2:]
+            else:
+                pref_path = userInput[5:]
+            print("Searching for: " + pref_path)
             if path.exists(os.getcwd() + "/" + pref_path):
                 pref_path = os.getcwd() + "/" + pref_path
+                print("Found file at: " + pref_path)
             if path.exists(pref_path):
                 #TODO Set new preferences
+                preferences.pref_file = pref_path
+                defaults.DEFAULT_PREF_PATH = pref_path
+                preferences.batch_size = defaults.check_preferences(defaults.BATCH_SIZE_VAR,
+                                                        defaults.FLAGS.batch_size,
+                                                        defaults.INT)
+                preferences.checkpoint_output = defaults.check_preferences(defaults.CHECKPOINT_VAR,
+                                                               defaults.FLAGS.checkpoint_path,
+                                                               defaults.FILE)
+                preferences.classifier_file = defaults.check_preferences(defaults.CLASSIFIERS_VAR,
+                                                             defaults.FLAGS.classifiers,
+                                                             defaults.FILE)
+                preferences.dataset_test = defaults.check_preferences(defaults.DATASET_TEST_VAR,
+                                                                      defaults.FLAGS.dataset_test,
+                                                                      defaults.FILE)
+                preferences.dataset_train = defaults.check_preferences(defaults.DATASET_TRAIN_VAR,
+                                                                       defaults.FLAGS.dataset_train,
+                                                                       defaults.FILE)
+                preferences.epochs = defaults.check_preferences(defaults.EPOCH_NUM_VAR,
+                                                                defaults.FLAGS.epochs,
+                                                                defaults.INT)
+                preferences.image_size = defaults.check_preferences(defaults.IMAGE_SIZE_VAR,
+                                                                    defaults.FLAGS.image_size,
+                                                                    defaults.INT)
+                preferences.learning_rate = defaults.check_preferences(defaults.LEARN_RATE_VAR,
+                                                                       defaults.FLAGS.learn_rate,
+                                                                       defaults.FLOAT)
+                preferences.mode = defaults.check_preferences(defaults.MODE_VAR,
+                                                              defaults.FLAGS.mode,
+                                                              defaults.MODE_OPTIONS)
+                preferences.num_classes = files.get_num_classes(preferences.classifier_file)
+                preferences.output = defaults.check_preferences(defaults.OUTPUT_VAR,
+                                                                defaults.FLAGS.output,
+                                                                defaults.FILE)
+                preferences.tiny = defaults.check_preferences(defaults.TINY_WEIGHTS_VAR,
+                                                              defaults.FLAGS.tiny_weights,
+                                                              defaults.BOOL)
+                preferences.transfer = defaults.check_preferences(defaults.TRANSFER_VAR,
+                                                                  defaults.FLAGS.transfer,
+                                                                  defaults.TRANSFER_OPTIONS)
+                preferences.validate_input = defaults.check_preferences(defaults.VALID_IN_VAR,
+                                                                        defaults.FLAGS.validate_image_input,
+                                                                        defaults.FILE)
+                preferences.weight_num_classes = defaults.check_preferences(defaults.WEIGHTS_CLASS_VAR,
+                                                                            defaults.FLAGS.weights_path,
+                                                                            defaults.INT)
                 print("\nNew Preferences:")
                 preferences.print_pref()
             else:

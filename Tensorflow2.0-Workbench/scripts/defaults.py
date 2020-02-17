@@ -162,36 +162,36 @@ def check_preferences(var, flag, type):
         with open(FLAGS.pref, "r") as f:
             for line in f.readlines():
                 if var in line:
-                    input = line.split(":")[1]
+                    txt_input = line.split(":")[1]
                     # integer variable
                     if type == INT:
-                        input = re.sub("\D", "", input)
-                        if input.isnumeric():
-                            return int(input)
+                        txt_input = re.sub("\D", "", txt_input)
+                        if txt_input.isnumeric():
+                            return int(txt_input)
                     # float variable
                     elif type == FLOAT:
-                        input = re.sub("\D", "", input)
-                        if input.isfloat():
-                            return float(input)
+                        txt_input = re.sub("\D", "", txt_input)
+                        if txt_input.isfloat():
+                            return float(txt_input)
                     # string/file variable
                     elif type == FILE:
-                        input = input.replace(" ", "")
-                        input = input.replace("\n", "")
-                        if path.exists(input):
-                            return input
+                        txt_input = txt_input.replace(" ", "")
+                        txt_input = txt_input.replace("\n", "")
+                        if path.exists(txt_input):
+                            return txt_input
                     # boolean variable
                     elif type == BOOL:
-                        input = is_tiny.lower()
-                        if "true"in input:
+                        txt_input = is_tiny.lower()
+                        if "true"in txt_input:
                             return True
-                        elif "false" in input:
+                        elif "false" in txt_input:
                             return False
                     # list variable
                     else:
-                        input = input.replace(" ", "")
-                        input = input.replace("\n", "")
-                        if input in type:
-                            return input
+                        txt_input = txt_input.replace(" ", "")
+                        txt_input = txt_input.replace("\n", "")
+                        if txt_input in type:
+                            return txt_input
     return flag
 
 ####### WEIGHTS PATH ######
