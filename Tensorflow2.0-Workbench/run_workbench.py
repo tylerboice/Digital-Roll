@@ -136,24 +136,21 @@ def run_single_script():
 
 ############################## MAIN ##########################
 def main():
-    print("\nWelcome to the workbench")
-    # get help if needed
-    defaults.get_help()
-    # Display pref
-    print("\nCurrent Preferences:")
-    preferences.print_pref()
+    print("\nWelcome to the Digital Roll Workbench")
+    print("\nEnter 'help' or 'h' for a list of commands:")
+
     while True:
         userInput = input("\n<WORKBENCH>: ")
         userInput.lower()
         userInput.strip()
         if userInput == "help" or userInput == "h":
             print("\n COMMANDS")
-            print("\n help or h == Brings up this help display")
-            print("\n run or r == Starts the process of training and validation")
-            print("\n settings or s == Displays current settings")
-            print("\n load or l <path to pref.txt> == Loads a given .txt file as the current preference text")
-            print("\n change or c <variable> <value> == Changes the setting variable to a new value")
-            print("\n quit or q == Exits the Workbench")
+            print("\n help or h                      ==> Brings up this help display")
+            print("\n run or r                       ==> Starts the process of training and validation")
+            print("\n settings or s                  ==> Displays current settings")
+            print("\n load or l <path to pref.txt>   ==> Loads a given .txt file as the current preference text")
+            print("\n change or c <variable> <value> ==> Changes the setting variable to a new value")
+            print("\n quit or q                      ==> Exits the Workbench")
 
         elif userInput == "run" or userInput == "r":
             run()
