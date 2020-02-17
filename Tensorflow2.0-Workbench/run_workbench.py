@@ -152,6 +152,7 @@ def main():
             print("\n run or r == Starts the process of training and validation")
             print("\n settings or s == Displays current settings")
             print("\n load or l <path to pref.txt> == Loads a given .txt file as the current preference text")
+            print("\n change or c <variable> <value> == Changes the setting variable to a new value")
             print("\n quit or q == Exits the Workbench")
 
         elif userInput == "run" or userInput == "r":
@@ -162,15 +163,60 @@ def main():
             print("\nCurrent Preferences:")
             preferences.print_pref()
 
-        elif userInput[0:3] == "load" or userInput == "l":
-            old_pref = defaults.DEFAULT_PREF_PATH
-            defaults.DEFAULT_PREF_PATH = userInput[5:]
-            print("\nNew Preferences:")
-            try:
+        elif userInput[0:5] == "load " or userInput[0:2] == "l ":
+            pref_path = userInput[5:]
+            if path.exists(os.getcwd() + "/" + pref_path):
+                pref_path = os.getcwd() + "/" + pref_path
+            if path.exists(pref_path):
+                #TODO Set new preferences
+                print("\nNew Preferences:")
                 preferences.print_pref()
-            except True:
+            else:
                 print("\nERROR: Bad Preferences File")
-                defaults.DEFAULT_PREF_PATH = old_pref
+
+        elif userInput[0:6] == "change " or userInput[0:2] == "c ":
+            userInputArr = userInput.split(" ")
+            if len(userInputArr) == 3:
+                try:
+                    if userInputArr[1] == "batch_size":
+                        preferences.batch_size = userInputArr[2]
+                    elif userInputArr[1] == "checkpoint_output":
+                        preferences.checkpoint_output = userInputArr[2]
+                    elif userInputArr[1] == "classifier_file":
+                        preferences.classifier_file = userInputArr[2]
+                    elif userInputArr[1] == "dataset_test":
+                        preferences.dataset_test = userInputArr[2]
+                    elif userInputArr[1] == "epochs":
+                        preferences.epochs = userInputArr[2]
+                    elif userInputArr[1] == "image_size":
+                        preferences.image_size = userInputArr[2]
+                    elif userInputArr[1] == "learning_rate":
+                        preferences.learning_rate = userInputArr[2]
+                    elif userInputArr[1] == "mode":
+                        preferences.mode = userInputArr[2]
+                    elif userInputArr[1] == "num_classes":
+                        preferences.num_classes = userInputArr[2]
+                    elif userInputArr[1] == "output":
+                        preferences.output = userInputArr[2]
+                    elif userInputArr[1] == "tiny":
+                        preferences.tiny = userInputArr[2]
+                    elif userInputArr[1] == "transfer":
+                        preferences.transfer = userInputArr[2]
+                    elif userInputArr[1] == "validate_input":
+                        preferences.validate_input = userInputArr[2]
+                    elif userInputArr[1] == "weight_num_classes":
+                        preferences.weight_num_classes = userInputArr[2]
+                    else:
+                        print("ERROR: Unknown variable name")
+                except:
+                    print("ERROR: Failed to change variable to given value")
+
+                print("Set " + userInputArr[1] + " to " + userInputArr[2])
+
+            else:
+                print("Not enough arguments, please provide a variable and a value ie batch_size 3")
+
+
 
         elif userInput == "quit" or userInput == "q":
             break
