@@ -150,8 +150,9 @@ def main():
             print("\n display or d                   ==> Displays current settings")
             print("\n load or l <path to pref.txt>   ==> Loads a given .txt file as the current preference text")
             print("\n save or s <new .txt path>      ==> saves the current settings to the path + name given")
-            print("\n                                  example: C:\\Users\\new_pref.txt")
+            print("\n                                  example: save C:\\Users\\new_pref.txt")
             print("\n change or c <variable> <value> ==> Changes the setting variable to a new value")
+            print("\n                                  example: change batch_size 3")
             print("\n quit or q                      ==> Exits the Workbench")
 
         elif userInput == "run" or userInput == "r":
