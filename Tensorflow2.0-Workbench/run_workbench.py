@@ -147,15 +147,17 @@ def main():
             print("\n COMMANDS")
             print("\n help or h                      ==> Brings up this help display")
             print("\n run or r                       ==> Starts the process of training and validation")
-            print("\n settings or s                  ==> Displays current settings")
+            print("\n display or d                   ==> Displays current settings")
             print("\n load or l <path to pref.txt>   ==> Loads a given .txt file as the current preference text")
+            print("\n save or s <new .txt path>      ==> saves the current settings to the path + name given")
+            print("\n                                  example: C:\\Users\\new_pref.txt")
             print("\n change or c <variable> <value> ==> Changes the setting variable to a new value")
             print("\n quit or q                      ==> Exits the Workbench")
 
         elif userInput == "run" or userInput == "r":
             run()
 
-        elif userInput == "settings" or userInput == "s":
+        elif userInput == "display" or userInput == "d":
             # Display pref
             print("\nCurrent Preferences:")
             preferences.print_pref()
@@ -246,6 +248,23 @@ def main():
             else:
                 print("\nERROR: Bad Preferences File")
 
+        elif userInput[0:5] == "save " or userInput[0:2] == "s ":
+            if userInput[0:2] == "s ":
+                save_path = userInput[2:]
+            else:
+                save_path = userInput[5:]
+            save_path.rstrip("\n\r")
+            print("Attempting to save to " + save_path)
+            if not path.exists(save_path):
+                # open a new txt and copy in settings
+                try:
+                    save(save_path)
+                    print("Successfully saved!")
+                except:
+                    print("ERROR: Failed to save")
+            else:
+                print("ERROR: File with this name already exists at this location")
+
         elif userInput[0:6] == "change " or userInput[0:2] == "c ":
             userInputArr = userInput.split(" ")
             if len(userInputArr) == 3:
@@ -296,6 +315,23 @@ def main():
             # end of cases, inform the user that their input was invalid
             print("\nCommand not recognized, try 'help' or 'h' for a list of options")
 
+
+def save(save_path):
+    with open(save_path, "w") as f:
+        f.write(defaults.BATCH_SIZE_VAR + ": " + str(preferences.batch_size) + "\n")
+        f.write(defaults.CHECKPOINT_VAR + ": " + str(preferences.checkpoint_output) + "\n")
+        f.write(defaults.CLASSIFIERS_VAR + ": " + str(preferences.classifier_file) + "\n")
+        f.write(defaults.DATASET_TEST_VAR + ": " + str(preferences.dataset_test) + "\n")
+        f.write(defaults.DATASET_TRAIN_VAR + ": " + str(preferences.dataset_train) + "\n")
+        f.write(defaults.EPOCH_NUM_VAR + ": " + str(preferences.epochs) + "\n")
+        f.write(defaults.IMAGE_SIZE_VAR + ": " + str(preferences.image_size) + "\n")
+        f.write(defaults.LEARN_RATE_VAR + ": " + str(preferences.learning_rate) + "\n")
+        f.write(defaults.MODE_VAR + ": " + str(preferences.mode) + "\n")
+        f.write(defaults.OUTPUT_VAR + ": " + str(preferences.output) + "\n")
+        f.write(defaults.TINY_WEIGHTS_VAR + ": " + str(preferences.tiny) + "\n")
+        f.write(defaults.TRANSFER_VAR + ": " + str(preferences.transfer) + "\n")
+        f.write(defaults.VALID_IN_VAR + ": " + str(preferences.validate_input) + "\n")
+        f.write(defaults.WEIGHTS_CLASS_VAR + ": " + str(preferences.weight_num_classes) + "\n")
 
 
 def run():
