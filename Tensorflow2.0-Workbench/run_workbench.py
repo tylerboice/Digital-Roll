@@ -136,12 +136,51 @@ def run_single_script():
 
 ############################## MAIN ##########################
 def main():
-
+    print("\nWelcome to the workbench")
     # get help if needed
     defaults.get_help()
     # Display pref
     print("\nCurrent Preferences:")
     preferences.print_pref()
+    while True:
+        userInput = input("\n<WORKBENCH>: ")
+        userInput.lower()
+        userInput.strip()
+        if userInput == "help" or userInput == "h":
+            print("\n COMMANDS")
+            print("\n help or h == Brings up this help display")
+            print("\n run or r == Starts the process of training and validation")
+            print("\n settings or s == Displays current settings")
+            print("\n load or l <path to pref.txt> == Loads a given .txt file as the current preference text")
+            print("\n quit or q == Exits the Workbench")
+
+        elif userInput == "run" or userInput == "r":
+            run()
+
+        elif userInput == "settings" or userInput == "s":
+            # Display pref
+            print("\nCurrent Preferences:")
+            preferences.print_pref()
+
+        elif userInput[0:3] == "load" or userInput == "l":
+            old_pref = defaults.DEFAULT_PREF_PATH
+            defaults.DEFAULT_PREF_PATH = userInput[5:]
+            print("\nNew Preferences:")
+            try:
+                preferences.print_pref()
+            except True:
+                print("\nERROR: Bad Preferences File")
+                defaults.DEFAULT_PREF_PATH = old_pref
+
+        elif userInput == "quit" or userInput == "q":
+            break
+        else:
+            # end of cases, inform the user that their input was invalid
+            print("\nCommand not recognized, try 'help' or 'h' for a list of options")
+
+
+
+def run():
 
     # check if necessary files exist
     print("\n\nChecking that necessary file path exist...")
@@ -252,5 +291,6 @@ def main():
 
     print("\nWorkbench Successful!")
     print("\n\tAll models and images saved in " + preferences.output)
+
 
 main()
