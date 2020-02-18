@@ -86,10 +86,6 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         takePhoto = true
     }
     
-    
-    
-    //func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
-    
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         
         // Sets take photo to false after button is pressed, so we only take one photo
@@ -140,6 +136,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             }
         }
     }
+    
     
     // Read the accelerometer
     func readAccelerometer() {

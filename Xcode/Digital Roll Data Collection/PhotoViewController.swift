@@ -36,6 +36,7 @@ class PhotoViewController: UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
     
+    // Checks accelerometer data at moment photo is taken
     func readAccelerometer() {
         motion.accelerometerUpdateInterval = TimeInterval(Int(UInt8.max))
         motion.startAccelerometerUpdates(to: OperationQueue.current!) {(data, error) in print(data as Any)
@@ -53,7 +54,18 @@ class PhotoViewController: UIViewController {
             }
         }
     }
-
+    
+    // Share button functionality
+    
+    @IBAction func sharePressed(_ sender: Any) {
+        // Create activity view controller
+        let activityVC = UIActivityViewController(activityItems: [takenPhoto as Any, self.xAccel.text, self.yAccel.text, self.zAccel.text], applicationActivities: nil)
+        activityVC.popoverPresentationController?.sourceView = self.view
+        
+        self.present(activityVC, animated: true, completion: nil)
+        
+    }
+    
     /*
     // MARK: - Navigation
 
