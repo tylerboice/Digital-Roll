@@ -16,6 +16,9 @@
 		266F958F23F24CD300508FB6 /* Digital_Roll_Data_CollectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 266F958E23F24CD300508FB6 /* Digital_Roll_Data_CollectionTests.swift */; };
 		266F959A23F24CD300508FB6 /* Digital_Roll_Data_CollectionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 266F959923F24CD300508FB6 /* Digital_Roll_Data_CollectionUITests.swift */; };
 		266F95A823F24DC000508FB6 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 266F95A723F24DC000508FB6 /* PhotoViewController.swift */; };
+		26D54A3423FBE17E00D9BEBB /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26D54A3323FBE17E00D9BEBB /* ShareViewController.swift */; };
+		26D54A3723FBE17E00D9BEBB /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26D54A3523FBE17E00D9BEBB /* MainInterface.storyboard */; };
+		26D54A3B23FBE17E00D9BEBB /* Dropbox Share Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 26D54A3123FBE17E00D9BEBB /* Dropbox Share Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,7 +36,28 @@
 			remoteGlobalIDString = 266F957323F24CD300508FB6;
 			remoteInfo = "Digital Roll Data Collection";
 		};
+		26D54A3923FBE17E00D9BEBB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 266F956C23F24CD300508FB6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 26D54A3023FBE17E00D9BEBB;
+			remoteInfo = "Dropbox Share Extension";
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		26D54A3C23FBE17E00D9BEBB /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				26D54A3B23FBE17E00D9BEBB /* Dropbox Share Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		266F957423F24CD300508FB6 /* Digital Roll Data Collection.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Digital Roll Data Collection.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -51,6 +75,12 @@
 		266F959923F24CD300508FB6 /* Digital_Roll_Data_CollectionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Digital_Roll_Data_CollectionUITests.swift; sourceTree = "<group>"; };
 		266F959B23F24CD300508FB6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		266F95A723F24DC000508FB6 /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
+		26D54A3123FBE17E00D9BEBB /* Dropbox Share Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Dropbox Share Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		26D54A3323FBE17E00D9BEBB /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		26D54A3623FBE17E00D9BEBB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		26D54A3823FBE17E00D9BEBB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		26D54A4023FBE1D700D9BEBB /* Dropbox Share Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Dropbox Share Extension.entitlements"; sourceTree = "<group>"; };
+		26D54A4123FBE4AE00D9BEBB /* Dropbox Share ExtensionRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Dropbox Share ExtensionRelease.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +105,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		26D54A2E23FBE17E00D9BEBB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -84,6 +121,7 @@
 				266F957623F24CD300508FB6 /* Digital Roll Data Collection */,
 				266F958D23F24CD300508FB6 /* Digital Roll Data CollectionTests */,
 				266F959823F24CD300508FB6 /* Digital Roll Data CollectionUITests */,
+				26D54A3223FBE17E00D9BEBB /* Dropbox Share Extension */,
 				266F957523F24CD300508FB6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -94,6 +132,7 @@
 				266F957423F24CD300508FB6 /* Digital Roll Data Collection.app */,
 				266F958A23F24CD300508FB6 /* Digital Roll Data CollectionTests.xctest */,
 				266F959523F24CD300508FB6 /* Digital Roll Data CollectionUITests.xctest */,
+				26D54A3123FBE17E00D9BEBB /* Dropbox Share Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -131,6 +170,18 @@
 			path = "Digital Roll Data CollectionUITests";
 			sourceTree = "<group>";
 		};
+		26D54A3223FBE17E00D9BEBB /* Dropbox Share Extension */ = {
+			isa = PBXGroup;
+			children = (
+				26D54A4123FBE4AE00D9BEBB /* Dropbox Share ExtensionRelease.entitlements */,
+				26D54A4023FBE1D700D9BEBB /* Dropbox Share Extension.entitlements */,
+				26D54A3323FBE17E00D9BEBB /* ShareViewController.swift */,
+				26D54A3523FBE17E00D9BEBB /* MainInterface.storyboard */,
+				26D54A3823FBE17E00D9BEBB /* Info.plist */,
+			);
+			path = "Dropbox Share Extension";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -141,10 +192,12 @@
 				266F957023F24CD300508FB6 /* Sources */,
 				266F957123F24CD300508FB6 /* Frameworks */,
 				266F957223F24CD300508FB6 /* Resources */,
+				26D54A3C23FBE17E00D9BEBB /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				26D54A3A23FBE17E00D9BEBB /* PBXTargetDependency */,
 			);
 			name = "Digital Roll Data Collection";
 			productName = "Digital Roll Data Collection";
@@ -187,6 +240,23 @@
 			productReference = 266F959523F24CD300508FB6 /* Digital Roll Data CollectionUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		26D54A3023FBE17E00D9BEBB /* Dropbox Share Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 26D54A3F23FBE17E00D9BEBB /* Build configuration list for PBXNativeTarget "Dropbox Share Extension" */;
+			buildPhases = (
+				26D54A2D23FBE17E00D9BEBB /* Sources */,
+				26D54A2E23FBE17E00D9BEBB /* Frameworks */,
+				26D54A2F23FBE17E00D9BEBB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Dropbox Share Extension";
+			productName = "Dropbox Share Extension";
+			productReference = 26D54A3123FBE17E00D9BEBB /* Dropbox Share Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -208,6 +278,9 @@
 						CreatedOnToolsVersion = 11.3.1;
 						TestTargetID = 266F957323F24CD300508FB6;
 					};
+					26D54A3023FBE17E00D9BEBB = {
+						CreatedOnToolsVersion = 11.3.1;
+					};
 				};
 			};
 			buildConfigurationList = 266F956F23F24CD300508FB6 /* Build configuration list for PBXProject "Digital Roll Data Collection" */;
@@ -226,6 +299,7 @@
 				266F957323F24CD300508FB6 /* Digital Roll Data Collection */,
 				266F958923F24CD300508FB6 /* Digital Roll Data CollectionTests */,
 				266F959423F24CD300508FB6 /* Digital Roll Data CollectionUITests */,
+				26D54A3023FBE17E00D9BEBB /* Dropbox Share Extension */,
 			);
 		};
 /* End PBXProject section */
@@ -252,6 +326,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		26D54A2F23FBE17E00D9BEBB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26D54A3723FBE17E00D9BEBB /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,6 +367,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		26D54A2D23FBE17E00D9BEBB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26D54A3423FBE17E00D9BEBB /* ShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -297,6 +387,11 @@
 			isa = PBXTargetDependency;
 			target = 266F957323F24CD300508FB6 /* Digital Roll Data Collection */;
 			targetProxy = 266F959623F24CD300508FB6 /* PBXContainerItemProxy */;
+		};
+		26D54A3A23FBE17E00D9BEBB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 26D54A3023FBE17E00D9BEBB /* Dropbox Share Extension */;
+			targetProxy = 26D54A3923FBE17E00D9BEBB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -315,6 +410,14 @@
 				266F958323F24CD300508FB6 /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		26D54A3523FBE17E00D9BEBB /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				26D54A3623FBE17E00D9BEBB /* Base */,
+			);
+			name = MainInterface.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -437,6 +540,7 @@
 		266F959F23F24CD300508FB6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4CWYFJ325Z;
@@ -456,6 +560,7 @@
 		266F95A023F24CD300508FB6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 4CWYFJ325Z;
@@ -556,6 +661,48 @@
 			};
 			name = Release;
 		};
+		26D54A3D23FBE17E00D9BEBB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Dropbox Share Extension/Dropbox Share Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CWYFJ325Z;
+				INFOPLIST_FILE = "Dropbox Share Extension/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.digitalroll.Digital-Roll-Data-Collection.Dropbox-Share-Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		26D54A3E23FBE17E00D9BEBB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Dropbox Share Extension/Dropbox Share ExtensionRelease.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4CWYFJ325Z;
+				INFOPLIST_FILE = "Dropbox Share Extension/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.digitalroll.Digital-Roll-Data-Collection.Dropbox-Share-Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -591,6 +738,15 @@
 			buildConfigurations = (
 				266F95A523F24CD300508FB6 /* Debug */,
 				266F95A623F24CD300508FB6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		26D54A3F23FBE17E00D9BEBB /* Build configuration list for PBXNativeTarget "Dropbox Share Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				26D54A3D23FBE17E00D9BEBB /* Debug */,
+				26D54A3E23FBE17E00D9BEBB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

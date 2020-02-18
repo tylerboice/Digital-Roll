@@ -76,7 +76,7 @@
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6hc-ju-JyD">
                                 <rect key="frame" x="20" y="82" width="374" height="598"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                <viewLayoutGuide key="safeArea" id="Mdu-jf-Jod"/>
+                                <viewLayoutGuide key="safeArea" id="Lr0-JC-4fe"/>
                             </imageView>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="YnH-YQ-3HW">
                                 <rect key="frame" x="107" y="702" width="200" height="34"/>
@@ -99,11 +99,23 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wpl-wA-vIc">
+                                <rect key="frame" x="354" y="44" width="40" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <state key="normal" title="Share">
+                                    <color key="titleColor" systemColor="linkColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="sharePressed:" destination="EyY-eg-fsr" eventType="touchUpInside" id="iqz-P2-dey"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
                             <constraint firstItem="pd7-zJ-NxG" firstAttribute="top" secondItem="YlU-hv-tMO" secondAttribute="top" id="NV2-gf-bXf"/>
                             <constraint firstItem="pd7-zJ-NxG" firstAttribute="leading" secondItem="5mE-HB-o8a" secondAttribute="leadingMargin" id="SRU-I6-jDc"/>
+                            <constraint firstItem="Wpl-wA-vIc" firstAttribute="top" secondItem="YlU-hv-tMO" secondAttribute="top" id="oO7-a8-Mld"/>
+                            <constraint firstItem="Wpl-wA-vIc" firstAttribute="trailing" secondItem="5mE-HB-o8a" secondAttribute="trailingMargin" id="uvQ-fJ-kZ7"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="YlU-hv-tMO"/>
                     </view>
