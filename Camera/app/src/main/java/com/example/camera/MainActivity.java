@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,10 +82,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         float[] adjustedRotationMatrix = new float[9];
         SensorManager.remapCoordinateSystem(rotationMatrix, worldAxisX, worldAxisZ, adjustedRotationMatrix);
         float[] orientation = new float[3];
-        SensorManager.getOrientation(adjustedRotationMatrix, orientation);
-        float pitch = orientation[1] * FROM_RADS_TO_DEGS;
+        SensorManager.getOrientation(rotationMatrix, orientation);
+        float pitch = orientation[0] * FROM_RADS_TO_DEGS;
+        float yaw = orientation[1] * FROM_RADS_TO_DEGS;
         float roll = orientation[2] * FROM_RADS_TO_DEGS;
-        ((TextView)findViewById(R.id.pitch)).setText("Pitch: "+pitch);
+        ((TextView)findViewById(R.id.pitch)).setText("Pitch: "+yaw);
+        ((TextView)findViewById(R.id.yaw)).setText("Yaw: "+pitch);
         ((TextView)findViewById(R.id.roll)).setText("Roll: "+roll);
     }
 
@@ -138,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private static boolean fM;
 
+
     @Override
     protected void onResume(){
         super.onResume();
@@ -158,32 +162,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             else{
                 flashB.setVisibility((View.GONE));
             }
-            final File imagesFolder = new File(getExternalFilesDir(null), "MyImages");
-            imagesFolder.mkdirs();
+            final File myimagesFolder = new File(getExternalFilesDir(null), "MyImages");
+            myimagesFolder.mkdirs();
             final Button switchCameraButton = findViewById(R.id.switchCamera);
             switchCameraButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //Uri uriSavedImage=Uri.fromFile(imagesFolder);
-                    Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    //camera.putExtra(MediaStore.EXTRA_OUTPUT, uriSavedImage);
-                    startActivityForResult(camera, 1);
-                    /*mCamera.release();
-                    switchCamera();
-                    rotateCamera();
-                    try{
-                        mCamera.setPreviewDisplay(myHolder);
-                    }
-                    catch (Exception e){
 
-                    }
-                    mCamera.startPreview();
-                    if(hasFlash()){
-                        flashB.setVisibility(View.VISIBLE);
-                    }
-                    else{
-                        flashB.setVisibility(View.GONE);
-                    }*/
+                    Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivity(camera);
+                    mCamera.release();
+
                 }
             });
             orientationEventListener = new OrientationEventListener(this) {

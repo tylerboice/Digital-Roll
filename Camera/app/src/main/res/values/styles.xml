@@ -9,6 +9,8 @@
 
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
+
+        <!--<string name="APP_KEY">zlfffpen111zty4</string>-->
     </style>
 
 </resources>

@@ -15,17 +15,17 @@
         android:orientation="horizontal">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Orientation"
-            android:textSize="20sp"
-            android:layout_margin="10dp"/>
-
-        <TextView
             android:id="@+id/pitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Pitch:"
+            android:layout_margin="10dp"/>
+
+        <TextView
+            android:id="@+id/yaw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Yaw:"
             android:layout_margin="10dp"/>
 
         <TextView
