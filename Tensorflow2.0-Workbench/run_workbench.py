@@ -170,78 +170,96 @@ def main():
                 pref_path = userInput[5:]
             pref_path.rstrip("\n\r")
             print("Searching for: " + pref_path)
-            if path.exists(os.getcwd() + "/" + pref_path):
-                pref_path = os.getcwd() + "/" + pref_path
+            if path.exists(os.getcwd().replace("\\", "/") + "/" + pref_path):
+                pref_path = os.getcwd().replace("\\", "/") + "/" + pref_path
                 print("Found file at: " + pref_path)
             if path.exists(pref_path):
                 # Set new preferences
                 preferences.pref_file = pref_path
                 with open(pref_path, "r") as f:
                     for line in f.readlines():
-                        if defaults.BATCH_SIZE_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
+                        if defaults.BATCH_SIZE_VAR + "=" in line:
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
                             preferences.batch_size = txt_input
 
-                        elif defaults.CHECKPOINT_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
+                        elif defaults.CHECKPOINT_VAR + "=" in line:
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
                             preferences.checkpoint_output = txt_input
 
-                        elif defaults.CLASSIFIERS_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
-                            txt_input = txt_input.rstrip()
+                        elif defaults.CLASSIFIERS_VAR + "=" in line:
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
+                            old_classifier = preferences.classifier_file
                             preferences.classifier_file = txt_input
                             try:
                                 preferences.num_classes = files.get_num_classes(preferences.classifier_file)
                             except:
                                 try:
-                                    preferences.num_classes = files.get_num_classes(os.getcwd()
+                                    preferences.num_classes = files.get_num_classes(os.getcwd().replace("\\", "/")
                                                                                     + "/"
                                                                                     + preferences.classifier_file[1:])
                                 except:
                                     print("ERROR: Failed to update classifier file, new file not found")
+                                    preferences.classifier_file = old_classifier
 
-                        elif defaults.DATASET_TEST_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
-                            preferences.dataset_test = txt_input
+                        elif defaults.DATASET_TEST_VAR + "=" in line:
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
+                            if path.exists(txt_input):
+                                preferences.dataset_test = txt_input
+                            else:
+                                print("ERROR: Bad test dataset directory given")
 
-                        elif defaults.DATASET_TRAIN_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
+                        elif defaults.DATASET_TRAIN_VAR + "=" in line:
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
                             preferences.dataset_train = txt_input
 
-                        elif defaults.EPOCH_NUM_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
+                        elif defaults.EPOCH_NUM_VAR + "=" in line:
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
                             preferences.epochs = txt_input
 
                         elif defaults.IMAGE_SIZE_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
                             preferences.image_size = txt_input
 
                         elif defaults.LEARN_RATE_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
                             preferences.learning_rate = txt_input
 
-                        elif defaults.MODE_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
+                        elif defaults.MODE_VAR + "=" in line:
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
                             preferences.mode = txt_input
 
-                        elif defaults.OUTPUT_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
+                        elif defaults.OUTPUT_VAR + "=" in line:
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
                             preferences.output = txt_input
 
                         elif defaults.TINY_WEIGHTS_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
                             preferences.tiny = txt_input
 
-                        elif defaults.TRANSFER_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
+                        elif defaults.TRANSFER_VAR + "=" in line:
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
                             preferences.transfer = txt_input
 
-                        elif defaults.VALID_IN_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
+                        elif defaults.VALID_IN_VAR + "=" in line:
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
                             preferences.validate_input = txt_input
 
-                        elif defaults.WEIGHTS_CLASS_VAR + ":" in line:
-                            txt_input = line.split(":")[1]
+                        elif defaults.WEIGHTS_CLASS_VAR + "=" in line:
+                            txt_input = line.split("=")[1]
+                            txt_input = txt_input.strip()
                             preferences.weight_num_classes = txt_input
 
                 print("\nNew Preferences:")
@@ -319,20 +337,20 @@ def main():
 
 def save(save_path):
     with open(save_path, "w") as f:
-        f.write(defaults.BATCH_SIZE_VAR + ": " + str(preferences.batch_size) + "\n")
-        f.write(defaults.CHECKPOINT_VAR + ": " + str(preferences.checkpoint_output) + "\n")
-        f.write(defaults.CLASSIFIERS_VAR + ": " + str(preferences.classifier_file) + "\n")
-        f.write(defaults.DATASET_TEST_VAR + ": " + str(preferences.dataset_test) + "\n")
-        f.write(defaults.DATASET_TRAIN_VAR + ": " + str(preferences.dataset_train) + "\n")
-        f.write(defaults.EPOCH_NUM_VAR + ": " + str(preferences.epochs) + "\n")
-        f.write(defaults.IMAGE_SIZE_VAR + ": " + str(preferences.image_size) + "\n")
-        f.write(defaults.LEARN_RATE_VAR + ": " + str(preferences.learning_rate) + "\n")
-        f.write(defaults.MODE_VAR + ": " + str(preferences.mode) + "\n")
-        f.write(defaults.OUTPUT_VAR + ": " + str(preferences.output) + "\n")
-        f.write(defaults.TINY_WEIGHTS_VAR + ": " + str(preferences.tiny) + "\n")
-        f.write(defaults.TRANSFER_VAR + ": " + str(preferences.transfer) + "\n")
-        f.write(defaults.VALID_IN_VAR + ": " + str(preferences.validate_input) + "\n")
-        f.write(defaults.WEIGHTS_CLASS_VAR + ": " + str(preferences.weight_num_classes) + "\n")
+        f.write(defaults.BATCH_SIZE_VAR + "= " + str(preferences.batch_size) + "\n")
+        f.write(defaults.CHECKPOINT_VAR + "= " + str(preferences.checkpoint_output) + "\n")
+        f.write(defaults.CLASSIFIERS_VAR + "= " + str(preferences.classifier_file) + "\n")
+        f.write(defaults.DATASET_TEST_VAR + "= " + str(preferences.dataset_test) + "\n")
+        f.write(defaults.DATASET_TRAIN_VAR + "= " + str(preferences.dataset_train) + "\n")
+        f.write(defaults.EPOCH_NUM_VAR + "= " + str(preferences.epochs) + "\n")
+        f.write(defaults.IMAGE_SIZE_VAR + "= " + str(preferences.image_size) + "\n")
+        f.write(defaults.LEARN_RATE_VAR + "= " + str(preferences.learning_rate) + "\n")
+        f.write(defaults.MODE_VAR + "= " + str(preferences.mode) + "\n")
+        f.write(defaults.OUTPUT_VAR + "= " + str(preferences.output) + "\n")
+        f.write(defaults.TINY_WEIGHTS_VAR + "= " + str(preferences.tiny) + "\n")
+        f.write(defaults.TRANSFER_VAR + "= " + str(preferences.transfer) + "\n")
+        f.write(defaults.VALID_IN_VAR + "= " + str(preferences.validate_input) + "\n")
+        f.write(defaults.WEIGHTS_CLASS_VAR + "= " + str(preferences.weight_num_classes) + "\n")
 
 
 def run():
@@ -360,9 +378,9 @@ def run():
 
     # generate tf records
     print("Generating images and xml files into tfrecords...")
-    generate_tf.generate_tfrecods(defaults.TRAIN_IMAGE_PATH,
+    generate_tf.generate_tfrecords(defaults.TRAIN_IMAGE_PATH,
                                   preferences.dataset_train)
-    generate_tf.generate_tfrecods(defaults.TEST_IMAGE_PATH,
+    generate_tf.generate_tfrecords(defaults.TEST_IMAGE_PATH,
                                   preferences.dataset_test)
     print("\n\tSuccessfully generated tf records\n")
 

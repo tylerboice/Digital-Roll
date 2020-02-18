@@ -6,27 +6,27 @@ from absl import app, flags, logging
 from absl.flags import FLAGS
 from os import path
 
-CWD_PATH = os.getcwd() + "/"
+CWD_PATH = os.getcwd().replace("\\", "/") + "/"
 
 # IMAGE SET PATHS
-IMAGES_PATH = CWD_PATH + "images/"
-INPUT_IMAGE_PATH = IMAGES_PATH + "validate/"
-TRAIN_IMAGE_PATH = IMAGES_PATH + "train/"
-TEST_IMAGE_PATH = IMAGES_PATH + "test/"
-VALIDATE_IMAGE_PATH = IMAGES_PATH + "validate/"
+IMAGES_PATH = os.path.join(CWD_PATH , "images/")
+INPUT_IMAGE_PATH = os.path.join(IMAGES_PATH , "validate/")
+TRAIN_IMAGE_PATH = os.path.join(IMAGES_PATH , "train/")
+TEST_IMAGE_PATH = os.path.join(IMAGES_PATH , "test/")
+VALIDATE_IMAGE_PATH = os.path.join(IMAGES_PATH , "validate/")
 
 # DATA PATHS
-DATA_PATH = CWD_PATH + "data" + "/"
+DATA_PATH = os.path.join(CWD_PATH , "data/")
 
-CLASSIFIER_FILE = DATA_PATH + "classifier.names"
-TRAIN_TF_RECORD_PATH = DATA_PATH + "train.tfrecord"
-TEST_TF_RECORD_PATH = DATA_PATH + "test.tfrecord"
+CLASSIFIER_FILE = os.path.join(DATA_PATH , "classifier.names")
+TRAIN_TF_RECORD_PATH = os.path.join(DATA_PATH , "train.tfrecord")
+TEST_TF_RECORD_PATH = os.path.join(DATA_PATH , "test.tfrecord")
 
 # CHECKPOINTS
-CHECKPOINT_PATH = CWD_PATH + "checkpoints/"
+CHECKPOINT_PATH = os.path.join(CWD_PATH , "checkpoints/")
 
 # OUTPUT
-OUTPUT_PATH = CWD_PATH + "output/"
+OUTPUT_PATH = os.path.join(CWD_PATH , "output/")
 
 # HARD CODED VALUES
 MIN_IMAGES = 50

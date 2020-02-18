@@ -1,35 +1,35 @@
 Amount of batches you process at a time  (Default = 4)
-batch_size: 4
+batch_size= 4
 
 Path where the training checkpoints will be placed   (Default = ./checkpoints)
-checkpoint_path: ./checkpoints
+checkpoint_path= ./checkpoints
 
 Path and name of the file with your classifier names (Default = ./data/classifier.names)
-classifiers:
+classifiers=
 
 Path and name of file that will become your .tfrecords for testing (Default: ./data/test.tfrecord)
-dataset-test:
+dataset-test=
 
 Path and name of file that will become your .tfrecords for training (Default: ./data/train.tfrecord)
-dataset-train:
+dataset-train=
 
 Number of epochs (Default = 10)
-epochs: 10
+epochs= 10
 
 Size of your images (Default = 416)
-image_size: 416
+image_size= 416
 
 The learning rate of the  model you are training (Default = .001)
-learn_rate: .001
+learn_rate= .001
 
 Where you want you CoreML and TF models to be placed (Default = ./output)
-output_model: ./output
+output_model= ./output
 
 The type of mode (Default = fit)
                     fit: model.fit
                     eager_fit: model.fit(run_eagerly=True)
                     eager_tf: custom GradientTape
-mode: fit
+mode= fit
 
 The type of training (Default = none)
                     none: Training from scratch
@@ -37,17 +37,17 @@ The type of training (Default = none)
                     no_output: Transfer all but output
                     frozen: Transfer and freeze all
                     fine_tune: Transfer all and freeze darknet only
-transfer_type: none
+transfer_type= none
 
 The image(s) you want to test the model on (Default= ./images/validate)
-validate_image_input:
+validate_image_input=
 
 Number of images you want to validate your trained model on (Default = 3)
-validate_images: 3
+validate_images= 3
 
 Path to your weights file (Default = data/yolov3.weights)
-weights_path: data/yolov3.weights
+weights_path= data/yolov3.weights
 
 The type of model data that you train on (Default = true)
                                          (Options can be found at https://pjreddie.com/darknet/yolo/)
-tiny_weights: True
+tiny_weights= True

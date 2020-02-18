@@ -83,7 +83,7 @@ def parse_xml(xml):
 
 
 ########################## GENERATE TFRECORDS #############################
-def generate_tfrecods(input_folder, output_file):
+def generate_tfrecords(input_folder, output_file):
     class_map = {name: idx for idx, name in enumerate(
         open(preferences.classifier_file).read().splitlines())}
     logging.info("Class mapping loaded: %s", class_map)
