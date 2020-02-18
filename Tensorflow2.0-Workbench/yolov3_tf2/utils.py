@@ -71,7 +71,7 @@ def load_darknet_weights(model, weights_file, tiny=False):
                 layer.set_weights([conv_weights])
                 batch_norm.set_weights(bn_weights)
 
-    assert len(wf.read()) == 0, 'failed to read all data'
+    # assert len(wf.read()) == 0, 'failed to read all data'
     wf.close()
 
 

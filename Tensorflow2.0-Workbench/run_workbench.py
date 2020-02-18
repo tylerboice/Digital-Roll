@@ -164,6 +164,7 @@ def main():
             preferences.print_pref()
 
         elif userInput[0:5] == "load " or userInput[0:2] == "l ":
+            error = False
             if userInput[0:2] == "l ":
                 pref_path = userInput[2:]
             else:
@@ -181,12 +182,20 @@ def main():
                         if defaults.BATCH_SIZE_VAR + "=" in line:
                             txt_input = line.split("=")[1]
                             txt_input = txt_input.strip()
-                            preferences.batch_size = txt_input
+                            try:
+                                preferences.batch_size = int(txt_input)
+                            except:
+                                print("ERROR: Bad batch size given, cannot convert value to int")
+                                error = True
 
                         elif defaults.CHECKPOINT_VAR + "=" in line:
                             txt_input = line.split("=")[1]
                             txt_input = txt_input.strip()
-                            preferences.checkpoint_output = txt_input
+                            try:
+                                preferences.checkpoint_output = int(txt_input)
+                            except:
+                                print("ERROR: Bad checkpoint directory given")
+                                error = True
 
                         elif defaults.CLASSIFIERS_VAR + "=" in line:
                             txt_input = line.split("=")[1]
@@ -203,6 +212,7 @@ def main():
                                 except:
                                     print("ERROR: Failed to update classifier file, new file not found")
                                     preferences.classifier_file = old_classifier
+                                    error = True
 
                         elif defaults.DATASET_TEST_VAR + "=" in line:
                             txt_input = line.split("=")[1]
@@ -211,26 +221,43 @@ def main():
                                 preferences.dataset_test = txt_input
                             else:
                                 print("ERROR: Bad test dataset directory given")
+                                error = True
 
                         elif defaults.DATASET_TRAIN_VAR + "=" in line:
                             txt_input = line.split("=")[1]
                             txt_input = txt_input.strip()
-                            preferences.dataset_train = txt_input
+                            if path.exists(txt_input):
+                                preferences.dataset_train = txt_input
+                            else:
+                                print("ERROR: Bad train dataset directory given")
+                                error = True
 
                         elif defaults.EPOCH_NUM_VAR + "=" in line:
                             txt_input = line.split("=")[1]
                             txt_input = txt_input.strip()
-                            preferences.epochs = txt_input
+                            try:
+                                preferences.epochs = int(txt_input)
+                            except:
+                                print("ERROR: Bad epochs value given, cannot convert to int")
+                                error = True
 
                         elif defaults.IMAGE_SIZE_VAR + ":" in line:
                             txt_input = line.split("=")[1]
                             txt_input = txt_input.strip()
-                            preferences.image_size = txt_input
+                            try:
+                                preferences.image_size = int(txt_input)
+                            except:
+                                print("ERROR: Bad image size value given, cannot convert to int")
+                                error = True
 
                         elif defaults.LEARN_RATE_VAR + ":" in line:
                             txt_input = line.split("=")[1]
                             txt_input = txt_input.strip()
-                            preferences.learning_rate = txt_input
+                            try:
+                                preferences.image_size = float(txt_input)
+                            except:
+                                print("ERROR: Bad learning rate value given, cannot convert to float")
+                                error = True
 
                         elif defaults.MODE_VAR + "=" in line:
                             txt_input = line.split("=")[1]
@@ -240,12 +267,20 @@ def main():
                         elif defaults.OUTPUT_VAR + "=" in line:
                             txt_input = line.split("=")[1]
                             txt_input = txt_input.strip()
-                            preferences.output = txt_input
+                            if path.exists(txt_input):
+                                preferences.output = txt_input
+                            else:
+                                print("ERROR: Bad output directory given")
+                                error = True
 
                         elif defaults.TINY_WEIGHTS_VAR + ":" in line:
                             txt_input = line.split("=")[1]
                             txt_input = txt_input.strip()
-                            preferences.tiny = txt_input
+                            try:
+                                preferences.tiny = bool(txt_input)
+                            except:
+                                print("ERROR: Failed to give True/False to tiny value")
+                                error = True
 
                         elif defaults.TRANSFER_VAR + "=" in line:
                             txt_input = line.split("=")[1]
@@ -255,17 +290,27 @@ def main():
                         elif defaults.VALID_IN_VAR + "=" in line:
                             txt_input = line.split("=")[1]
                             txt_input = txt_input.strip()
-                            preferences.validate_input = txt_input
+                            if path.exists(txt_input):
+                                preferences.validate_input = txt_input
+                            else:
+                                print("ERROR: Failed to find directory for validation")
+                                error = True
 
                         elif defaults.WEIGHTS_CLASS_VAR + "=" in line:
                             txt_input = line.split("=")[1]
                             txt_input = txt_input.strip()
-                            preferences.weight_num_classes = txt_input
-
-                print("\nNew Preferences:")
-                preferences.print_pref()
+                            if path.exists(txt_input):
+                                preferences.weight_num_classes = txt_input
+                            else:
+                                print("ERROR: Failed to find directory for weights")
+                                error = True
+                if error:
+                    print("A setting has failed to load properly please check above errors for info")
+                else:
+                    print("\nNew Preferences:")
+                    preferences.print_pref()
             else:
-                print("\nERROR: Bad Preferences File")
+                print("\nERROR: Bad Preferences File, could not find file")
 
         elif userInput[0:5] == "save " or userInput[0:2] == "s ":
             if userInput[0:2] == "s ":
@@ -285,11 +330,12 @@ def main():
                 print("ERROR: File with this name already exists at this location")
 
         elif userInput[0:6] == "change " or userInput[0:2] == "c ":
+            error = False
             userInputArr = userInput.split(" ")
             if len(userInputArr) == 3:
                 try:
                     if userInputArr[1] == "batch_size":
-                        preferences.batch_size = userInputArr[2]
+                        preferences.batch_size = int(userInputArr[2])
                     elif userInputArr[1] == "checkpoint_output":
                         preferences.checkpoint_output = userInputArr[2]
                     elif userInputArr[1] == "classifier_file":
@@ -297,11 +343,11 @@ def main():
                     elif userInputArr[1] == "dataset_test":
                         preferences.dataset_test = userInputArr[2]
                     elif userInputArr[1] == "epochs":
-                        preferences.epochs = userInputArr[2]
+                        preferences.epochs = int(userInputArr[2])
                     elif userInputArr[1] == "image_size":
-                        preferences.image_size = userInputArr[2]
+                        preferences.image_size = int(userInputArr[2])
                     elif userInputArr[1] == "learning_rate":
-                        preferences.learning_rate = userInputArr[2]
+                        preferences.learning_rate = nt(userInputArr[2])
                     elif userInputArr[1] == "mode":
                         preferences.mode = userInputArr[2]
                     elif userInputArr[1] == "num_classes":
@@ -309,7 +355,7 @@ def main():
                     elif userInputArr[1] == "output":
                         preferences.output = userInputArr[2]
                     elif userInputArr[1] == "tiny":
-                        preferences.tiny = userInputArr[2]
+                        preferences.tiny = bool(userInputArr[2])
                     elif userInputArr[1] == "transfer":
                         preferences.transfer = userInputArr[2]
                     elif userInputArr[1] == "validate_input":
@@ -320,8 +366,9 @@ def main():
                         print("ERROR: Unknown variable name")
                 except:
                     print("ERROR: Failed to change variable to given value")
-
-                print("Set " + userInputArr[1] + " to " + userInputArr[2])
+                    error = True
+                if not error:
+                    print("Set " + userInputArr[1] + " to " + userInputArr[2])
 
             else:
                 print("Not enough arguments, please provide a variable and a value ie batch_size 3")

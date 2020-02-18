@@ -21,7 +21,9 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
 
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     if len(physical_devices) > 0:
-        tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        True
+        # TODO fix this it causes an error that the device is already initialized
+        # tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
     if tiny:
         model = YoloV3Tiny(size, training=True,
