@@ -20,15 +20,13 @@ def run_single_script():
         print("Gathering classifier data...")
         classifiers = files.get_classifiers(defaults.IMAGES_PATH)
         files.create_classifier_file(classifiers)
-        print("\tData successfuly classified!\n")
-        exit()
+        print("\tData successfully classified!\n")
 
     # just sort images
     if defaults.FLAGS.sort_images:
         print("Sorting images...")
         files.sort_images(defaults.DEFAULT_NUM_VAL_IMAGES)
         print("\n\tAll images sorted!\n")
-        exit()
 
     # just generate tf records
     if defaults.FLAGS.generate_tf:
@@ -40,7 +38,6 @@ def run_single_script():
         generate_tf.generate_tfrecods(defaults.TEST_IMAGE_PATH,
                                       preferences.dataset_test)
         print("\n\tSuccessfully generated tf records\n")
-        exit()
 
     # just convert weights
     if defaults.FLAGS.convert_weight:
@@ -52,7 +49,6 @@ def run_single_script():
                                            preferences.checkpoint_output,
                                            preferences.tiny,
                                            preferences.weight_num_classes)
-        exit()
 
     # just train
     if defaults.FLAGS.train:
@@ -71,7 +67,6 @@ def run_single_script():
                                   preferences.num_classes,
                                   preferences.weight_num_classes)
         print("\n\tTraining Complete!")
-        exit()
 
     # just create tf model
     if defaults.FLAGS.tf_model:
@@ -98,34 +93,33 @@ def run_single_script():
                                                               preferences.num_classes)
                     model_saved = True
         print("\n\tTensorFlow model Generated!")
-        exit()
 
-    # just detect images
-    if defaults.FLAGS.detect_img:
-        # generating tensorflow models
-        print("\nTesting Images...")
-        chkpnt_weights = files.get_last_checkpoint()
-        if path.isfile(preferences.validate_input):
-            print("\tTesting on image: " + file + "\n")
-            detect_img.run_detect(preferences.classifier_file,
-                                   chkpnt_weights,
-                                   preferences.tiny,
-                                   preferences.image_size,
-                                   preferences.validate_input + file,
-                                   preferences.output,
-                                   preferences.num_classes)
-        else:
-            for file in os.listdir(preferences.validate_input):
-                if '.jpg' in file:
-                    detect_img.run_detect(preferences.classifier_file,
-                                           chkpnt_weights,
-                                           preferences.tiny,
-                                           preferences.image_size,
-                                           preferences.validate_input + file,
-                                           preferences.output + file + "_output.jpg",
-                                           preferences.num_classes)
-                    print("\tTesting on image: " + preferences.validate_input + file + "\n")
-        print("\n\tImages Tested and stored in " + preferences.output)
+        # just detect images
+        if defaults.FLAGS.detect_img:
+            # generating tensorflow models
+            print("\nTesting Images...")
+            chkpnt_weights = files.get_last_checkpoint()
+            if path.isfile(preferences.validate_input):
+                print("\tTesting on image: " + preferences.validate_input + "\n")
+                detect_img.run_detect(preferences.classifier_file,
+                                      chkpnt_weights,
+                                      preferences.tiny,
+                                      preferences.image_size,
+                                      preferences.validate_input,
+                                      preferences.output,
+                                      preferences.num_classes)
+            else:
+                for file in os.listdir(preferences.validate_input):
+                    if '.jpg' in file:
+                        detect_img.run_detect(preferences.classifier_file,
+                                              chkpnt_weights,
+                                              preferences.tiny,
+                                              preferences.image_size,
+                                              preferences.validate_input + file,
+                                              preferences.output + file + "_output.jpg",
+                                              preferences.num_classes)
+                        print("\tTesting on image: " + preferences.validate_input + file + "\n")
+            print("\n\tImages Tested and stored in " + preferences.output)
 
     # just export coreml model
     if defaults.FLAGS.core_ml:
@@ -147,6 +141,9 @@ def main():
             print("\n COMMANDS")
             print("\n help or h                      ==> Brings up this help display")
             print("\n run or r                       ==> Starts the process of training and validation")
+            print("\n                                  + Saves the model at given output location")
+            print("\n                                    and creates a Apple CoreML converted version")
+            print("\n test or t <path to image>      ==> Tests a given image using the last checkpoint")
             print("\n display or d                   ==> Displays current settings")
             print("\n load or l <path to pref.txt>   ==> Loads a given .txt file as the current preference text")
             print("\n save or s <new .txt path>      ==> saves the current settings to the path + name given")
@@ -157,6 +154,46 @@ def main():
 
         elif userInput == "run" or userInput == "r":
             run()
+
+        elif userInput[0:5] == "test " or userInput[0:2] == "t ":
+            error = False
+            if userInput[0:2] == "t ":
+                img_path = userInput[2:]
+            else:
+                img_path = userInput[5:]
+            img_path.strip("\n\r")
+            print("Searching for: " + img_path)
+            if path.exists(os.getcwd().replace("\\", "/") + "/" + img_path):
+                img_path = os.getcwd().replace("\\", "/") + "/" + img_path
+                print("Found file at: " + img_path)
+            if path.exists(img_path):
+                # test to see if it is a single image or multiple
+                print("\nTesting Images...")
+                chkpnt_weights = files.get_last_checkpoint()
+                if path.isfile(img_path):
+                    print("\tTesting on image: " + img_path + "\n")
+                    detect_img.run_detect(preferences.classifier_file,
+                                          chkpnt_weights,
+                                          preferences.tiny,
+                                          preferences.image_size,
+                                          img_path,
+                                          preferences.output + img_path.split('/')[-1].split('.')[0] + "_output.jpg",
+                                          preferences.num_classes)
+                else:
+                    for file in os.listdir(img_path):
+                        if '.jpg' in file:
+                            detect_img.run_detect(preferences.classifier_file,
+                                                  chkpnt_weights,
+                                                  preferences.tiny,
+                                                  preferences.image_size,
+                                                  img_path + file,
+                                                  preferences.output + file.split('.')[0] + "_output.jpg",
+                                                  preferences.num_classes)
+                            print("\tTesting on image: " + img_path + file + "\n")
+                print("\n\tImages Tested and stored in " + preferences.output)
+            else:
+                print("ERROR: Could not find " + img_path)
+
 
         elif userInput == "display" or userInput == "d":
             # Display pref
@@ -169,7 +206,7 @@ def main():
                 pref_path = userInput[2:]
             else:
                 pref_path = userInput[5:]
-            pref_path.rstrip("\n\r")
+            pref_path.strip("\n\r")
             print("Searching for: " + pref_path)
             if path.exists(os.getcwd().replace("\\", "/") + "/" + pref_path):
                 pref_path = os.getcwd().replace("\\", "/") + "/" + pref_path
@@ -192,7 +229,7 @@ def main():
                             txt_input = line.split("=")[1]
                             txt_input = txt_input.strip()
                             try:
-                                preferences.checkpoint_output = int(txt_input)
+                                preferences.checkpoint_output = txt_input
                             except:
                                 print("ERROR: Bad checkpoint directory given")
                                 error = True
@@ -299,10 +336,10 @@ def main():
                         elif defaults.WEIGHTS_CLASS_VAR + "=" in line:
                             txt_input = line.split("=")[1]
                             txt_input = txt_input.strip()
-                            if path.exists(txt_input):
-                                preferences.weight_num_classes = txt_input
-                            else:
-                                print("ERROR: Failed to find directory for weights")
+                            try:
+                                preferences.weight_num_classes = int(txt_input)
+                            except:
+                                print("ERROR: Failed to update int value of weights")
                                 error = True
                 if error:
                     print("A setting has failed to load properly please check above errors for info")
@@ -317,7 +354,7 @@ def main():
                 save_path = userInput[2:]
             else:
                 save_path = userInput[5:]
-            save_path.rstrip("\n\r")
+            save_path.strip("\n\r")
             print("Attempting to save to " + save_path)
             if not path.exists(save_path):
                 # open a new txt and copy in settings
@@ -364,6 +401,7 @@ def main():
                         preferences.weight_num_classes = userInputArr[2]
                     else:
                         print("ERROR: Unknown variable name")
+                        error = True
                 except:
                     print("ERROR: Failed to change variable to given value")
                     error = True
