@@ -43,7 +43,7 @@ TINY_PATH = DATA_PATH + "yolov3-tiny.weights"
 
 # Default values
 DEFAULT_BATCH_SIZE = 4
-DEFAULT_CHECKPOINT_PATH = CWD_PATH + 'checkpoints/yolov3.tf'
+DEFAULT_CHECKPOINT_PATH = CWD_PATH + 'checkpoints/'
 DEFAULT_EPOCH_NUM = 10
 DEFAULT_HELP = False
 DEFAULT_IMAGE_SIZE = 416
@@ -57,7 +57,8 @@ DEFAULT_WEIGHT_TYPE = False #False = yolov3 True = tiny
 
 # PREFERENCE VARIABLE NAMES
 BATCH_SIZE_VAR = "batch_size"
-CHECKPOINT_VAR = "checkpoint_path"
+CHECKPOINT_VAR = "checkpoints_path"
+TEST_CHECKPOINT_VAR = "test_checkpoint_path"
 CLASSIFIERS_VAR = "classifiers"
 DATASET_TEST_VAR = "dataset_test"
 DATASET_TRAIN_VAR = "dataset_train"
