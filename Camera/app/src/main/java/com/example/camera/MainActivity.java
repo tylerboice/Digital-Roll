@@ -17,6 +17,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.OrientationEventListener;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -28,11 +29,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
+import androidx.core.util.LogWriter;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
+
+import static android.os.Environment.getExternalStoragePublicDirectory;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -138,6 +146,32 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private static boolean fM;
 
+    String currentPhotoPath;
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void addToGallery() {
+        Intent galleryIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(currentPhotoPath);
+        Uri picUri = Uri.fromFile(f);
+        galleryIntent.setData(picUri);
+        this.sendBroadcast(galleryIntent);
+    }
+
     @Override
     protected void onResume(){
         super.onResume();
@@ -164,10 +198,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             switchCameraButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //Uri uriSavedImage=Uri.fromFile(imagesFolder);
+                    File image = null;
+                    try {
+                        image = createImageFile();
+                    } catch (IOException ex) {
+                        // Error occurred while creating the File
+                    }
+
+                    //Produces a content:// path rather than a file:// which is what nugat needs
+                    Uri uriSavedImage = FileProvider.getUriForFile(MainActivity.this,
+                                BuildConfig.APPLICATION_ID + ".provider",
+                                image);
+
+
                     Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    //camera.putExtra(MediaStore.EXTRA_OUTPUT, uriSavedImage);
+                    camera.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    camera.putExtra(MediaStore.EXTRA_OUTPUT, uriSavedImage);
+                    //Trys to push the image into the public gallery
+                    addToGallery();
                     startActivityForResult(camera, 1);
+
+
                     /*mCamera.release();
                     switchCamera();
                     rotateCamera();
@@ -216,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             });
         }
     }
+
 
     private void switchCamera(){
         if(whichCamera){
