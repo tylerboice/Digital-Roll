@@ -590,20 +590,18 @@ def save(save_path):
 def run():
 
     # check if necessary files exist
-    print("\n\nChecking that necessary file path exist...")
-    files.checkIfNecessaryPathsAndFilesExist()
+    error = files.checkIfNecessaryPathsAndFilesExist()
 
-
+    if not error:
+        return
     # Run specified file
     run_single_script()
 
-    print("\tAll necessary files exist!\n")
-
     # create classifiers.names
-    print("Gathering classifier data...")
+    print("\nGathering classifier data...")
     classifiers = files.get_classifiers(defaults.IMAGES_PATH)
     files.create_classifier_file(classifiers)
-    print("\tData successfuly classified!\n")
+    print("\n\tData successfuly classified!\n")
 
     # sort all the images
     print("Sorting images...")
