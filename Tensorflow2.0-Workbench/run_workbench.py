@@ -129,271 +129,6 @@ def run_single_script():
         print("Core ML model created!")
 
 
-############################## MAIN ##########################
-def main():
-    print("\nWelcome to the Digital Roll Workbench")
-    print("\nEnter 'help' or 'h' for a list of commands:")
-
-    while True:
-        userInput = input("\n<WORKBENCH>: ")
-        userInput.lower()
-        userInput.strip()
-        if userInput == "help" or userInput == "h":
-            print("\n COMMANDS")
-            print("\n help or h                      ==> Brings up this help display")
-            print("\n run or r                       ==> Starts the process of training and validation")
-            print("\n                                  + Saves the model at given output location")
-            print("\n                                    and creates a Apple CoreML converted version")
-            print("\n test or t <path to image>      ==> Tests a given image using the last checkpoint")
-            print("\n display or d                   ==> Displays current settings")
-            print("\n load or l <path to pref.txt>   ==> Loads a given .txt file as the current preference text")
-            print("\n save or s <new .txt path>      ==> saves the current settings to the path + name given")
-            print("\n                                  example: save C:\\Users\\new_pref.txt")
-            print("\n change or c <variable> <value> ==> Changes the setting variable to a new value")
-            print("\n                                  example: change batch_size 3")
-            print("\n quit or q                      ==> Exits the Workbench")
-
-        elif userInput == "run" or userInput == "r":
-            run()
-
-        elif userInput[0:5] == "test " or userInput[0:2] == "t ":
-            error = False
-            if userInput[0:2] == "t ":
-                img_path = userInput[2:]
-            else:
-                img_path = userInput[5:]
-            img_path.strip("\n\r")
-            print("Searching for: " + img_path)
-            if path.exists(os.getcwd().replace("\\", "/") + "/" + img_path):
-                img_path = os.getcwd().replace("\\", "/") + "/" + img_path
-                print("Found file at: " + img_path)
-            if path.exists(img_path):
-                # test to see if it is a single image or multiple
-                print("\nTesting Images...")
-                chkpnt_weights = files.get_last_checkpoint()
-                if path.isfile(img_path):
-                    print("\tTesting on image: " + img_path + "\n")
-                    detect_img.run_detect(preferences.classifier_file,
-                                          chkpnt_weights,
-                                          preferences.tiny,
-                                          preferences.image_size,
-                                          img_path,
-                                          preferences.output + img_path.split('/')[-1].split('.')[0] + "_output.jpg",
-                                          preferences.num_classes)
-                else:
-                    for file in os.listdir(img_path):
-                        if '.jpg' in file:
-                            detect_img.run_detect(preferences.classifier_file,
-                                                  chkpnt_weights,
-                                                  preferences.tiny,
-                                                  preferences.image_size,
-                                                  img_path + file,
-                                                  preferences.output + file.split('.')[0] + "_output.jpg",
-                                                  preferences.num_classes)
-                            print("\tTesting on image: " + img_path + file + "\n")
-                print("\n\tImages Tested and stored in " + preferences.output)
-            else:
-                print("ERROR: Could not find " + img_path)
-
-
-        elif userInput == "display" or userInput == "d":
-            # Display pref
-            print("\nCurrent Preferences:")
-            preferences.print_pref()
-
-        elif userInput[0:5] == "load " or userInput[0:2] == "l ":
-            error = False
-            if userInput[0:2] == "l ":
-                pref_path = userInput[2:]
-            else:
-                pref_path = userInput[5:]
-            pref_path.strip("\n\r")
-            print("Searching for: " + pref_path)
-            if path.exists(os.getcwd().replace("\\", "/") + "/" + pref_path):
-                pref_path = os.getcwd().replace("\\", "/") + "/" + pref_path
-                print("Found file at: " + pref_path)
-            try:
-                load(pref_path)
-            except:
-                print("ERROR: Loading failed, see above errors for more info")
-
-        elif userInput[0:5] == "save " or userInput[0:2] == "s ":
-            if userInput[0:2] == "s ":
-                save_path = userInput[2:]
-            else:
-                save_path = userInput[5:]
-            save_path.strip("\n\r")
-            print("Attempting to save to " + save_path)
-            if not path.exists(save_path):
-                # open a new txt and copy in settings
-                try:
-                    save(save_path)
-                    print("Successfully saved!")
-                except:
-                    print("ERROR: Failed to save")
-            else:
-                print("ERROR: File with this name already exists at this location")
-
-        elif userInput[0:6] == "change " or userInput[0:2] == "c ":
-            error = False
-            userInputArr = userInput.split(" ")
-            if len(userInputArr) == 3:
-                try:
-                    if userInputArr[1] == "batch_size":
-                        try:
-                            preferences.batch_size = int(userInputArr[2])
-                        except:
-                            print("ERROR: Please give an integer value")
-                            error = True
-
-                    elif userInputArr[1] == "checkpoints_path":
-                        if path.exists(userInputArr[2]):
-                            preferences.checkpoint_output = userInputArr[2]
-                        else:
-                            print("ERROR: Bad checkpoint output directory given")
-                            error = True
-
-                    elif userInputArr[1] == "test_checkpoint":
-                        if path.exists(userInputArr[2]):
-                            this.test_checkpoint = userInputArr[2]
-                        else:
-                            print("ERROR: Bad testing checkpoint directory given")
-                            error = True
-
-                    elif userInputArr[1] == "classifier_file":
-                        old_classifier = preferences.classifier_file
-                        preferences.classifier_file = userInputArr[2]
-                        try:
-                            preferences.num_classes = files.get_num_classes(os.getcwd().replace("\\", "/")
-                                                                            + "/"
-                                                                            + preferences.classifier_file[1:])
-                        except:
-                            print("ERROR: Failed to update classifier file, new file not found")
-                            preferences.classifier_file = old_classifier
-                            error = True
-
-                    elif userInputArr[1] == "dataset_test":
-                        if path.exists(userInputArr[2]):
-                             preferences.dataset_test = userInputArr[2]
-                        else:
-                            print("ERROR: Bad testing checkpoint directory given")
-                            error = True
-
-                    elif userInputArr[1] == "epochs":
-                        try:
-                            preferences.epochs = int(userInputArr[2])
-                        except:
-                            print("ERROR: Please give an integer value")
-                            error = True
-
-                    elif userInputArr[1] == "image_size":
-                        try:
-                            preferences.image_size = int(userInputArr[2])
-                        except:
-                            print("ERROR: Please give an integer value")
-                            error = True
-
-
-                    elif userInputArr[1] == "learning_rate":
-                        try:
-                            preferences.learning_rate = float(userInputArr[2])
-                        except:
-                            print("ERROR: Please give an float value")
-                            error = True
-
-                    elif userInputArr[1] == "mode":
-                        if userInputArr[2] == "fit" \
-                                or userInputArr[2] == "eager_fit" \
-                                or userInputArr[2] == "eager_tf":
-                            preferences.mode = userInputArr[2]
-                        else:
-                            print(
-                                "\nERROR: Bad mode value given, please choose one of the following")
-                            print("\n       ==> fit, eager_fit, eager_tf")
-                            error = True
-
-                    elif userInputArr[1] == "output":
-                        if path.exists(userInputArr[2]):
-                             preferences.output = userInputArr[2]
-                        else:
-                            print("ERROR: Bad output directory given")
-                            error = True
-
-                    elif userInputArr[1] == "tiny":
-                        try:
-                            preferences.tiny = bool(userInputArr[2])
-                        except:
-                            print("ERROR: Please give an true or false")
-                            error = True
-
-                    elif userInputArr[1] == "transfer":
-                        if userInputArr[2] == "none" \
-                                or userInputArr[2] == "darknet" \
-                                or userInputArr[2] == "no_output" \
-                                or userInputArr[2] == "frozen" \
-                                or userInputArr[2] == "fine_tune":
-                            preferences.transfer = userInputArr[2]
-                        else:
-                            print(
-                                "\nERROR: Bad transfer value given, please choose one of the following")
-                            print("\n       ==> none, darknet, no_output, frozen, fine_tune")
-                            error = True
-
-                    elif userInputArr[1] == "validate_input":
-                        if path.exists(userInputArr[2]):
-                            preferences.validate_input = userInputArr[2]
-                        else:
-                            print("ERROR: Failed to find directory for validation")
-                            error = True
-
-                    elif userInputArr[1] == "weight_path":
-                        old_weights = preferences.weights
-                        preferences.weights = userInputArr[2]
-                        try:
-                            preferences.weight_num_classes = files.get_num_classes(os.getcwd().replace("\\", "/")
-                                                                                   + "/"
-                                                                                   + preferences.weights[1:])
-                        except:
-                            print("ERROR: Failed to update weights file, new file not found")
-                            preferences.weights = old_weights
-                            error = True
-
-                    else:
-                        print("ERROR: Unknown variable name")
-                        error = True
-                except:
-                    print("ERROR: Failed to change variable to given value, try 'change ?' for a list of names")
-                    error = True
-                if not error:
-                    print("Set " + userInputArr[1] + " to " + userInputArr[2])
-            elif len(userInputArr) == 2 and userInputArr[1] == '?':
-                print("\tBatch Size           ==> batch_size       ACCEPTS: int")
-                print("\tCheckpoint Output    ==> checkpoints_path ACCEPTS: path to save checkpoints at")
-                print("\tClassifier file      ==> classifier_file  ACCEPTS: path to file")
-                print("\tNumber of Classes    ==X Automatically updated when classifier is changed")
-                print("\tDataset test         ==> dataset_test     ACCEPTS: path to folder with images")
-                print("\tDataset train        ==> dataset_train    ACCEPTS: path to folder")
-                print("\tEpochs               ==> epochs           ACCEPTS: int")
-                print("\tImage Size           ==> image_size       ACCEPTS: int")
-                print("\tLearning Rate        ==> learning_rate    ACCEPTS: float")
-                print("\tMode                 ==> mode             ACCEPTS: fit, eager_fit, eager_tf")
-                print("\tOutput Model         ==> output           ACCEPTS: path to save location")
-                print("\tTiny Weights         ==> tiny             ACCEPTS: true/false")
-                print("\tTransfer             ==> transfer         ACCEPTS: none, darknet, no_output, frozen, fine_tune")
-                print("\tValidate Image Input ==> validate_input   ACCEPTS: path to file")
-                print("\tWeights Path         ==> weight_path      ACCEPTS: path to file")
-                print("\tWeighted Classes     ==X Automatically updated when weights is changed")
-                print("\tPreference File      ==X Automatically your most recently loaded preference file")
-            else:
-                print("Not enough arguments, please provide a variable and a value ie batch_size 3")
-
-        elif userInput == "quit" or userInput == "q":
-            break
-        else:
-            # end of cases, inform the user that their input was invalid
-            print("\nCommand not recognized, try 'help' or 'h' for a list of options")
-
-
 def load(pref_path):
     if path.exists(pref_path):
         # Set new preferences
@@ -697,5 +432,275 @@ def run():
     print("\nWorkbench Successful!")
     print("\n\tAll models and images saved in " + preferences.output)
 
+
+
+############################## MAIN ##########################
+def main():
+    print("\nWelcome to the Digital Roll Workbench")
+    print("\nEnter 'help' or 'h' for a list of commands:")
+    running = True
+    while running:
+        try:
+            userInput = input("\n<WORKBENCH>: ")
+            userInput.lower()
+            userInput.strip()
+            if userInput == "help" or userInput == "h":
+                print("\n COMMANDS")
+                print("\n help or h                      ==> Brings up this help display")
+                print("\n run or r                       ==> Starts the process of training and validation")
+                print("\n                                  + Saves the model at given output location")
+                print("\n                                    and creates a Apple CoreML converted version")
+                print("\n test or t <path to image>      ==> Tests a given image using the last checkpoint")
+                print("\n display or d                   ==> Displays current settings")
+                print("\n load or l <path to pref.txt>   ==> Loads a given .txt file as the current preference text")
+                print("\n save or s <new .txt path>      ==> saves the current settings to the path + name given")
+                print("\n                                  example: save C:\\Users\\new_pref.txt")
+                print("\n change or c <variable> <value> ==> Changes the setting variable to a new value")
+                print("\n                                  example: change batch_size 3")
+                print("\n quit or q                      ==> Exits the Workbench")
+
+            elif userInput == "run" or userInput == "r":
+                run()
+
+            elif userInput[0:5] == "test " or userInput[0:2] == "t ":
+                error = False
+                if userInput[0:2] == "t ":
+                    img_path = userInput[2:]
+                else:
+                    img_path = userInput[5:]
+                img_path.strip("\n\r")
+                print("Searching for: " + img_path)
+                if path.exists(os.getcwd().replace("\\", "/") + "/" + img_path):
+                    img_path = os.getcwd().replace("\\", "/") + "/" + img_path
+                    print("Found file at: " + img_path)
+                if path.exists(img_path):
+                    # test to see if it is a single image or multiple
+                    print("\nTesting Images...")
+                    chkpnt_weights = files.get_last_checkpoint()
+                    if path.isfile(img_path):
+                        print("\tTesting on image: " + img_path + "\n")
+                        detect_img.run_detect(preferences.classifier_file,
+                                              chkpnt_weights,
+                                              preferences.tiny,
+                                              preferences.image_size,
+                                              img_path,
+                                              preferences.output + img_path.split('/')[-1].split('.')[0] + "_output.jpg",
+                                              preferences.num_classes)
+                    else:
+                        for file in os.listdir(img_path):
+                            if '.jpg' in file:
+                                detect_img.run_detect(preferences.classifier_file,
+                                                      chkpnt_weights,
+                                                      preferences.tiny,
+                                                      preferences.image_size,
+                                                      img_path + file,
+                                                      preferences.output + file.split('.')[0] + "_output.jpg",
+                                                      preferences.num_classes)
+                                print("\tTesting on image: " + img_path + file + "\n")
+                    print("\n\tImages Tested and stored in " + preferences.output)
+                else:
+                    print("ERROR: Could not find " + img_path)
+
+
+            elif userInput == "display" or userInput == "d":
+                # Display pref
+                print("\nCurrent Preferences:")
+                preferences.print_pref()
+
+            elif userInput[0:5] == "load " or userInput[0:2] == "l ":
+                error = False
+                if userInput[0:2] == "l ":
+                    pref_path = userInput[2:]
+                else:
+                    pref_path = userInput[5:]
+                pref_path.strip("\n\r")
+                print("Searching for: " + pref_path)
+                if path.exists(os.getcwd().replace("\\", "/") + "/" + pref_path):
+                    pref_path = os.getcwd().replace("\\", "/") + "/" + pref_path
+                    print("Found file at: " + pref_path)
+                try:
+                    load(pref_path)
+                except:
+                    print("ERROR: Loading failed, see above errors for more info")
+
+            elif userInput[0:5] == "save " or userInput[0:2] == "s ":
+                if userInput[0:2] == "s ":
+                    save_path = userInput[2:]
+                else:
+                    save_path = userInput[5:]
+                save_path.strip("\n\r")
+                print("Attempting to save to " + save_path)
+                if not path.exists(save_path):
+                    # open a new txt and copy in settings
+                    try:
+                        save(save_path)
+                        print("Successfully saved!")
+                    except:
+                        print("ERROR: Failed to save")
+                else:
+                    print("ERROR: File with this name already exists at this location")
+
+            elif userInput[0:6] == "change " or userInput[0:2] == "c ":
+                error = False
+                userInputArr = userInput.split(" ")
+                if len(userInputArr) == 3:
+                    try:
+                        if userInputArr[1] == "batch_size":
+                            try:
+                                preferences.batch_size = int(userInputArr[2])
+                            except:
+                                print("ERROR: Please give an integer value")
+                                error = True
+
+                        elif userInputArr[1] == "checkpoints_path":
+                            if path.exists(userInputArr[2]):
+                                preferences.checkpoint_output = userInputArr[2]
+                            else:
+                                print("ERROR: Bad checkpoint output directory given")
+                                error = True
+
+                        elif userInputArr[1] == "test_checkpoint":
+                            if path.exists(userInputArr[2]):
+                                this.test_checkpoint = userInputArr[2]
+                            else:
+                                print("ERROR: Bad testing checkpoint directory given")
+                                error = True
+
+                        elif userInputArr[1] == "classifier_file":
+                            old_classifier = preferences.classifier_file
+                            preferences.classifier_file = userInputArr[2]
+                            try:
+                                preferences.num_classes = files.get_num_classes(os.getcwd().replace("\\", "/")
+                                                                                + "/"
+                                                                                + preferences.classifier_file[1:])
+                            except:
+                                print("ERROR: Failed to update classifier file, new file not found")
+                                preferences.classifier_file = old_classifier
+                                error = True
+
+                        elif userInputArr[1] == "dataset_test":
+                            if path.exists(userInputArr[2]):
+                                 preferences.dataset_test = userInputArr[2]
+                            else:
+                                print("ERROR: Bad testing checkpoint directory given")
+                                error = True
+
+                        elif userInputArr[1] == "epochs":
+                            try:
+                                preferences.epochs = int(userInputArr[2])
+                            except:
+                                print("ERROR: Please give an integer value")
+                                error = True
+
+                        elif userInputArr[1] == "image_size":
+                            try:
+                                preferences.image_size = int(userInputArr[2])
+                            except:
+                                print("ERROR: Please give an integer value")
+                                error = True
+
+
+                        elif userInputArr[1] == "learning_rate":
+                            try:
+                                preferences.learning_rate = float(userInputArr[2])
+                            except:
+                                print("ERROR: Please give an float value")
+                                error = True
+
+                        elif userInputArr[1] == "mode":
+                            if userInputArr[2] == "fit" \
+                                    or userInputArr[2] == "eager_fit" \
+                                    or userInputArr[2] == "eager_tf":
+                                preferences.mode = userInputArr[2]
+                            else:
+                                print(
+                                    "\nERROR: Bad mode value given, please choose one of the following")
+                                print("\n       ==> fit, eager_fit, eager_tf")
+                                error = True
+
+                        elif userInputArr[1] == "output":
+                            if path.exists(userInputArr[2]):
+                                 preferences.output = userInputArr[2]
+                            else:
+                                print("ERROR: Bad output directory given")
+                                error = True
+
+                        elif userInputArr[1] == "tiny":
+                            try:
+                                preferences.tiny = bool(userInputArr[2])
+                            except:
+                                print("ERROR: Please give an true or false")
+                                error = True
+
+                        elif userInputArr[1] == "transfer":
+                            if userInputArr[2] == "none" \
+                                    or userInputArr[2] == "darknet" \
+                                    or userInputArr[2] == "no_output" \
+                                    or userInputArr[2] == "frozen" \
+                                    or userInputArr[2] == "fine_tune":
+                                preferences.transfer = userInputArr[2]
+                            else:
+                                print(
+                                    "\nERROR: Bad transfer value given, please choose one of the following")
+                                print("\n       ==> none, darknet, no_output, frozen, fine_tune")
+                                error = True
+
+                        elif userInputArr[1] == "validate_input":
+                            if path.exists(userInputArr[2]):
+                                preferences.validate_input = userInputArr[2]
+                            else:
+                                print("ERROR: Failed to find directory for validation")
+                                error = True
+
+                        elif userInputArr[1] == "weight_path":
+                            old_weights = preferences.weights
+                            preferences.weights = userInputArr[2]
+                            try:
+                                preferences.weight_num_classes = files.get_num_classes(os.getcwd().replace("\\", "/")
+                                                                                       + "/"
+                                                                                       + preferences.weights[1:])
+                            except:
+                                print("ERROR: Failed to update weights file, new file not found")
+                                preferences.weights = old_weights
+                                error = True
+
+                        else:
+                            print("ERROR: Unknown variable name")
+                            error = True
+                    except:
+                        print("ERROR: Failed to change variable to given value, try 'change ?' for a list of names")
+                        error = True
+                    if not error:
+                        print("Set " + userInputArr[1] + " to " + userInputArr[2])
+                elif len(userInputArr) == 2 and userInputArr[1] == '?':
+                    print("\tBatch Size           ==> batch_size       ACCEPTS: int")
+                    print("\tCheckpoint Output    ==> checkpoints_path ACCEPTS: path to save checkpoints at")
+                    print("\tClassifier file      ==> classifier_file  ACCEPTS: path to file")
+                    print("\tNumber of Classes    ==X Automatically updated when classifier is changed")
+                    print("\tDataset test         ==> dataset_test     ACCEPTS: path to folder with images")
+                    print("\tDataset train        ==> dataset_train    ACCEPTS: path to folder")
+                    print("\tEpochs               ==> epochs           ACCEPTS: int")
+                    print("\tImage Size           ==> image_size       ACCEPTS: int")
+                    print("\tLearning Rate        ==> learning_rate    ACCEPTS: float")
+                    print("\tMode                 ==> mode             ACCEPTS: fit, eager_fit, eager_tf")
+                    print("\tOutput Model         ==> output           ACCEPTS: path to save location")
+                    print("\tTiny Weights         ==> tiny             ACCEPTS: true/false")
+                    print("\tTransfer             ==> transfer         ACCEPTS: none, darknet, no_output, frozen, fine_tune")
+                    print("\tValidate Image Input ==> validate_input   ACCEPTS: path to file")
+                    print("\tWeights Path         ==> weight_path      ACCEPTS: path to file")
+                    print("\tWeighted Classes     ==X Automatically updated when weights is changed")
+                    print("\tPreference File      ==X Automatically your most recently loaded preference file")
+                else:
+                    print("Not enough arguments, please provide a variable and a value ie batch_size 3")
+
+            elif userInput == "quit" or userInput == "q":
+                running = False
+            else:
+                # end of cases, inform the user that their input was invalid
+                print("\nCommand not recognized, try 'help' or 'h' for a list of options")
+        except KeyboardInterrupt:
+            print("\n------ Current process stopped by user ------")
+            print("\nEnter 'help' or 'h' for a list of commands:")
+            running = True
 
 main()
