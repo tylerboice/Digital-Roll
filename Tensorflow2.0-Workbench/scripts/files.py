@@ -12,7 +12,8 @@ OUTPUT_PATH = defaults.OUTPUT_PATH
 TEST_IMAGE_PATH = defaults.TEST_IMAGE_PATH
 TRAIN_IMAGE_PATH = defaults.TRAIN_IMAGE_PATH
 VALIDATE_IMAGE_PATH = defaults.VALIDATE_IMAGE_PATH
-
+WEIGHTS = defaults.YOLO_PATH
+unlabelled_files = []
 
 def print_error(name, PATH):
     print(name +" path does not exist, please make sure you have a path at " + PATH )
@@ -23,25 +24,85 @@ def checkIfNecessaryPathsAndFilesExist():
 
     ####### IMAGE PATH #######
     if not os.path.exists(IMAGES_PATH):
-        print_error("Image", IMAGE_PATH)
+        os.mkdir(IMAGES_PATH)
 
-    ####### OUTPUT MODEL PATH #######
-    if not os.path.exists(OUTPUT_PATH):
-        os.mkdir(OUTPUT_PATH)
+    images_found = check_for_images(IMAGES_PATH)
 
-    ####### TEST IMAGE PATH #######
-    if not os.path.exists(TEST_IMAGE_PATH):
-        os.mkdir(TEST_IMAGE_PATH)
+    if images_found:
+        ####### OUTPUT MODEL PATH #######
+        if not os.path.exists(OUTPUT_PATH):
+            os.mkdir(OUTPUT_PATH)
 
-    ####### TRAIN IMAGE PATH #######
-    if not os.path.exists(TRAIN_IMAGE_PATH):
-        os.mkdir(TRAIN_IMAGE_PATH)
+        ####### TEST IMAGE PATH #######
+        if not os.path.exists(TEST_IMAGE_PATH):
+            os.mkdir(TEST_IMAGE_PATH)
 
-    ####### VALIDATE IMAGE PATH #######
-    if not os.path.exists(VALIDATE_IMAGE_PATH):
-        os.mkdir(VALIDATE_IMAGE_PATH)
+        ####### TRAIN IMAGE PATH #######
+        if not os.path.exists(TRAIN_IMAGE_PATH):
+            os.mkdir(TRAIN_IMAGE_PATH)
 
+        ####### VALIDATE IMAGE PATH #######
+        if not os.path.exists(VALIDATE_IMAGE_PATH):
+            os.mkdir(VALIDATE_IMAGE_PATH)
 
+        if not os.path.exists(WEIGHTS):
+            print("\nERROR: The weights path does not exist")
+            print("\n\tWeights Path Location: " + WEIGHTS)
+            print("\n\tDownload the yolo3_weight file at https://pjreddie.com/media/files/yolov3.weights")
+            return False
+
+    return images_found
+
+########################## CHECK FOR IMAGES #############################
+# checks a directory for images
+def check_for_images(path):
+
+    total_images = get_img_count(path)
+
+    # print total image count
+    print("\nTotal images = " + str(total_images))
+    print("Images not labelled = " + str(len(unlabelled_files)))
+    if len(unlabelled_files) != 0:
+        print("\nThe following images do not have an xml file:")
+        for item in unlabelled_files:
+            print("\t" + item)
+
+    # No images Found
+    if total_images == 0:
+        print("\nERROR: No images have been found in the image folder")
+        print("\n\tImage Folder Location: " + path)
+        print("\n\tFor an example set, look at the Pre_Labeled_Images folder in the repository or at https://github.com/tylerboice/Digital-Roll")
+        return False
+
+    # total images must be greater than pre-defined count to train on
+    elif total_images < MIN_IMAGES:
+        print("\n\nTensorflow needs at least " + str(MIN_IMAGES) + " images to train")
+        return False
+
+    return True
+
+########################## GET_IMAGE_COUNT #############################
+# recursivly checks driectory for images
+def get_img_count(path):
+    # Method Variables
+    total_images = 0
+
+    # For every file image in the image dir, check if it has an xml file and move it
+    for filename in os.listdir(path):
+        if os.path.isdir(path + filename):
+            total_images += get_img_count(path + filename)
+        elif '.png' in filename or '.jpg' in filename or '.jpeg' in filename:
+            found_label = False
+            xml_version = "/" +filename.split(".")[0] + ".xml"
+            total_images += 1
+            # check if cml for image was found
+            if os.path.exists(path + xml_version):
+                found_label = True
+
+            # if image was found but label was not:
+            if found_label == False:
+                unlabelled_files.append(filename)
+    return total_images
 ########################## SORT IMAGES #############################
 # Takes all the images in the image folder and places them in test, train and validate
 # Train = 90% of the images
@@ -51,9 +112,7 @@ def sort_images(num_validate):
 
     # Method Variables
     total_images = 0
-    file_count = 0
     train_images = 0
-    unlabelled_files = []
     valid_images = []
     get_valid = False
 
@@ -80,10 +139,6 @@ def sort_images(num_validate):
                         shutil.move(IMAGES_PATH + xml_version, TRAIN_IMAGE_PATH)
                         found_label = True
 
-            # if image was found but label was not:
-            if found_label == False:
-                unlabelled_files.append(filename)
-
     # count all image and .xml files in test
     for filename in os.listdir(TEST_IMAGE_PATH):
         if '.png' in filename or '.jpg' in filename or '.jpeg' in filename:
@@ -94,20 +149,6 @@ def sort_images(num_validate):
         if '.png' in filename or '.jpg' in filename or '.jpeg' in filename:
             total_images += 1
             train_images += 1
-
-    # print total image count
-    print("\tTotal images = " + str(total_images))
-    print("\tImages not labelled = " + str(len(unlabelled_files)))
-
-    # total images must be greater than pre-defined count to train on
-    if total_images < MIN_IMAGES:
-        print("\n\nTensorflow needs at least " + str(MIN_IMAGES) + " images to train")
-        exit()
-
-    # if files are unlabelled, print them
-    if len(unlabelled_files) != 0:
-        print("The following images do not have a label:\n\t")
-        print("\t" + unlabelled_files)
 
     # move all files in validate to train
     for file in os.listdir(VALIDATE_IMAGE_PATH):
@@ -175,17 +216,17 @@ def create_classifier_file(classifiers):
 def get_last_checkpoint():
     last_checkpoint_num = 0
     last_checkpoint = ""
-    for filename in os.listdir(defaults.CHECKPOINT_PATH):
-        if 'tf.index' and 'train' in filename:
-           if 'of' not in filename:
-               current = filename.split(".")[0]
-               current = current.split('_')[2]
-               if last_checkpoint_num < int(current):
-                   last_checkpoint_num = int(current)
-                   last_checkpoint = defaults.CHECKPOINT_PATH + filename.split(".")[0] + ".tf"
+    if os.path.exists(defaults.CHECKPOINT_PATH):
+        for filename in os.listdir(defaults.CHECKPOINT_PATH):
+            if 'tf.index' and 'train' in filename:
+               if 'of' not in filename:
+                   current = filename.split(".")[0]
+                   current = current.split('_')[2]
+                   if last_checkpoint_num < int(current):
+                       last_checkpoint_num = int(current)
+                       last_checkpoint = defaults.CHECKPOINT_PATH + filename.split(".")[0] + ".tf"
     if last_checkpoint_num == 0:
-        print("No chekpoint found")
-        exit()
+        last_checkpoint = defaults.CHECKPOINT_PATH + "yolov3_train_0.tf"
     return last_checkpoint
 
 
