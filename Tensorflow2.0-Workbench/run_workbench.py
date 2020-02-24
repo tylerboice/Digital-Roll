@@ -34,9 +34,9 @@ def run_single_script():
         classifiers = files.get_classifiers(defaults.IMAGES_PATH)
         files.create_classifier_file(classifiers)
         print("Generating images and xml files into tfrecords...")
-        generate_tf.generate_tfrecods(defaults.TRAIN_IMAGE_PATH,
+        generate_tf.generate_tfrecords(defaults.TRAIN_IMAGE_PATH,
                                       preferences.dataset_train)
-        generate_tf.generate_tfrecods(defaults.TEST_IMAGE_PATH,
+        generate_tf.generate_tfrecords(defaults.TEST_IMAGE_PATH,
                                       preferences.dataset_test)
         print("\n\tSuccessfully generated tf records\n")
 
