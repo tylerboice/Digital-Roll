@@ -217,7 +217,7 @@ def get_last_checkpoint(checkpoint_path):
                        last_checkpoint_num = int(current)
                        last_checkpoint = checkpoint_path + filename.split(".")[0] + ".tf"
     if last_checkpoint_num == 0:
-        last_checkpoint = checkpoint_path + "yolov3_train_0.tf"
+        last_checkpoint = "none"
     return last_checkpoint
 
 ########################## GET INPUT ###########################

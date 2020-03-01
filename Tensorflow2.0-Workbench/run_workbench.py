@@ -416,11 +416,12 @@ def run(start_from):
     print("\nGenerating TensorFlow model...")
     try:
         chkpnt_weights = files.get_last_checkpoint(preferences.checkpoint_output)
+
     except:
         chkpnt_weights = preferences.checkpoint_output
 
-    if os.path.exists(chkpnt_weights):
-        print("\nERROR: checkpoint_output " + chkpnt_weights + " does not exist\n")
+    if not os.path.exists(chkpnt_weights):
+        print("\nERROR: checkpoint_output " + preferences.checkpoint_output + " does not exist\n")
         return
 
     print("\n\tUsing checkpoint: " + chkpnt_weights + "\n")
@@ -445,7 +446,7 @@ def run(start_from):
                                                           preferences.num_classes)
                 model_saved = True
 
-    print("\n\tTensorFlow model Generated!")
+    print("\tTensorFlow model Generated!")
 
     # generating tensorflow models
     print("\nTesting Images...")
@@ -467,7 +468,7 @@ def run(start_from):
                                        preferences.validate_input + file,
                                        preferences.output + file + "_output.jpg",
                                        preferences.num_classes)
-    print("\n\tImages Tested and stpreferences.ored in " + preferences.output)
+    print("\n\tImages Tested and preferences stored in " + preferences.output)
 
     print("\nCreating a CoreML model...")
     blockPrint()
