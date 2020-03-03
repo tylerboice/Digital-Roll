@@ -3,7 +3,9 @@ from absl import app, flags, logging
 from absl.flags import FLAGS
 import cv2
 import numpy as np
+import os
 import tensorflow as tf
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from yolov3_tf2.models import (
     YoloV3, YoloV3Tiny
 )
@@ -12,6 +14,7 @@ from yolov3_tf2.dataset import transform_images
 from tensorflow.python.eager import def_function
 from tensorflow.python.framework import tensor_spec
 from tensorflow.python.util import nest
+
 
 def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
     if tiny:

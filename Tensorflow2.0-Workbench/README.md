@@ -83,38 +83,8 @@ https://www.nvidia.com/Download/index.aspx
 # to train based off the defaults
 python run_workbench.py
 
-# to train based off a preference file
-python run_workbench.py --pref <name_of_file>
-# Example python run_workbench.py --pref preferences.py
-
-# to train using flag commands
-python run_workbench.py --flags
-# Example python run_workbench.py --batch_size 10 --learning_rate .002
-
-# for flag information
-python run_workbench --help
-
 ```
-#### Training
-at any point during the training you can stop it using ctrl + c and it will save the last checkpoint
 
-#### If training is manually stopped
-```bash
-# to train based off the defaults
-python continue_workbench.py
-
-# to train based off a preference file
-python continue_workbench.py --pref <name_of_pref_file>
-# Example python continue_workbench.py --pref preferences.txt
-
-# to train using flag commands
-python continue_workbench.py --flags
-# Example python continue_workbench.py --batch_size 10 --learning_rate .002
-
-# for flag information
-python continue_workbench --help
-
-```
 
 ## Usage - Step by Step Application
 

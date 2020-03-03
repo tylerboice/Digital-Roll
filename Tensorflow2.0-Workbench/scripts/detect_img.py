@@ -3,7 +3,9 @@ from absl import app, flags, logging
 from absl.flags import FLAGS
 import cv2
 import numpy as np
+import os
 import tensorflow as tf
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from yolov3_tf2.models import (
     YoloV3, YoloV3Tiny
 )
@@ -47,11 +49,19 @@ def run_detect(classes, weights, tiny, size, image, output, num_classes):
     logging.info('time: {}'.format(t2 - t1))
 
     logging.info('detections:')
+    no_classifier = True
+    print("\n\tTesting on image: " + image + "\n")
     for i in range(nums[0]):
+        object_name = class_names[int(classesArr[0][i])]
+        object_acc = round(100 * np.array(scores[0][i]), 2)
+        object_loc =  np.array(boxes[0][i])
+        print("\t\tObject " + str(i + 1) + ": " + str(object_name) + " with a " + str(object_acc) + "% accuracy\n")
+        no_classifier = False
         logging.info('\t{}, {}, {}'.format(class_names[int(classesArr[0][i])],
                                            np.array(scores[0][i]),
                                            np.array(boxes[0][i])))
-
+    if no_classifier:
+        print("\t\tNo objects found in image")
     img = cv2.cvtColor(img_raw.numpy(), cv2.COLOR_RGB2BGR)
     img = draw_outputs(img, (boxes, scores, classesArr, nums), class_names)
     cv2.imwrite(output, img)
