@@ -1,3 +1,4 @@
+
 import tensorflow as tf
 import numpy as np
 import cv2
@@ -17,7 +18,7 @@ import yolov3_tf2.dataset as dataset
 
 def run_train(train_dataset_in, val_dataset_in, tiny,
               weights, classifiers, mode, transfer, size, epochs, batch_size,
-              learning_rate, num_classes, weights_num_classes):
+              learning_rate, num_classes, weights_num_classes, checpoint_path, total_checkpoints):
 
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     if len(physical_devices) > 0:
@@ -149,7 +150,6 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
     else:
         model.compile(optimizer=optimizer, loss=loss,
                       run_eagerly=(mode == 'eager_fit'))
-
         callbacks = [
             ReduceLROnPlateau(verbose=1),
             EarlyStopping(patience=3, verbose=1),
@@ -157,12 +157,50 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
                             verbose=1, save_weights_only=True),
             TensorBoard(log_dir='logs')
         ]
+        total_batches = round(epochs/total_checkpoints)
+        batches = 1
+        if total_checkpoints != 0:
+            print("Training in batches to save memory")
+            while batches <= total_batches:
+                print("\n=======================================")
+                print("Batch " + str(batches) + "/" + str(total_batches))
+                print("=======================================\n")
+                history = model.fit(train_dataset,
+                                    epochs=total_checkpoints,
+                                    callbacks=callbacks,
+                                    validation_data=val_dataset)
+                batches += 1
 
-        history = model.fit(train_dataset,
-                            epochs=epochs,
-                            callbacks=callbacks,
-                            validation_data=val_dataset)
+        else:
+            history = model.fit(train_dataset,
+                                epochs=epochs,
+                                callbacks=callbacks,
+                                validation_data=val_dataset)
 
+
+def remove_checkpoints(checkpoint_path, num_save_checks):
+    checkpoints = []
+    checkpoint_name = "yolov3_train_"
+    file_types = [".tf.index", ".tf.data-00000-of-00001"]
+    for file in checkpoint_path:
+        if file_types[0] in file:
+            print("found one: " + file)
+            file = file.split("train_")[0]
+            file = file.split(".")[0]
+            if file.isnumeric():
+              checkpoints.append(int(file))
+    while len(checkpoints) > num_save_checks:
+        lowest_check = checpointpath + checkpoint_name + str(find_lowest_check(checkpoints))
+        for types in file_types:
+            print("removing: " + lowest_check)
+            os.remove(lowest_check + type)
+
+def find_lowest_check(checkpoints):
+    lowest_check = checkpoints[0]
+    for checks in checkpoints:
+        if checks < lowest_check:
+            lowest_check = checks
+    return lowest_check
 
 if __name__ == '__main__':
     try:

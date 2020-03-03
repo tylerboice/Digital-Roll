@@ -8,7 +8,7 @@ dependencies:
   - cudnn
   - cudatoolkit==10.1.243
   - pip:
-    - tensorflow-gpu==2.0 --ignore-installed
+    - tensorflow-gpu==2.0
     - pandas
     - lxml
     - tqdm

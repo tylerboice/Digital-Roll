@@ -1,9 +1,0 @@
-Number of training steps
-training_steps: 20000
-
-Number of images you want to test the trained model on
-testing_images: 4
-
-If you train multiple times:
-this is the amount of your previous trained models that will be saved at once
-saved_models: 5
