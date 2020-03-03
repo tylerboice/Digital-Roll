@@ -58,8 +58,11 @@ class PhotoViewController: UIViewController {
     // Share button functionality
     
     @IBAction func sharePressed(_ sender: Any) {
+        // Dropbox only works with 1 arguement therefore pass just xml file
+        
         // Create activity view controller
-        let activityVC = UIActivityViewController(activityItems: [takenPhoto as Any, self.xAccel.text, self.yAccel.text, self.zAccel.text], applicationActivities: nil)
+        //let activityVC = UIActivityViewController(activityItems: [takenPhoto as Any, self.xAccel.text, self.yAccel.text, self.zAccel.text], applicationActivities: nil)
+        let activityVC = UIActivityViewController(activityItems: [takenPhoto], applicationActivities: nil)
         activityVC.popoverPresentationController?.sourceView = self.view
         
         self.present(activityVC, animated: true, completion: nil)
