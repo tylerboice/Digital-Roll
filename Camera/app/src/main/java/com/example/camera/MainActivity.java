@@ -7,6 +7,9 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -17,23 +20,34 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.OrientationEventListener;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.content.Context;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URI;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+
+import com.dropbox.core.DbxException;
+import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.UploadErrorException;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -42,6 +56,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private static final int SENSOR_DELAY = 500 * 1000; // 500ms
     private static final int FROM_RADS_TO_DEGS = -57;
+
+    final DbxRequestConfig config = new DbxRequestConfig("dropbox/java-tutorial", "en_US");
+
+    final DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);
+
+    private static final String ACCESS_TOKEN = "YDq4KfepLEAAAAAAAAAA9QrqC_pzTVR-Z_xyQxm9XLqNmRP4CyoYddnPhwSGpOpK";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +161,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private static boolean fM;
 
+    String currentPhotoPath;
+
+    private SimpleDrawingView draw;
+
+    private View drawing;
+
+    private File image;
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void addToGallery() {
+        Intent galleryIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(currentPhotoPath);
+        Uri picUri = Uri.fromFile(f);
+        galleryIntent.setData(picUri);
+        this.sendBroadcast(galleryIntent);
+    }
+
 
     @Override
     protected void onResume(){
@@ -149,29 +201,59 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             requestPermissions(PERMISSIONS, REQUEST_PERMISSIONS);
             return;
         }
+        drawing = findViewById(R.id.Drawing);
+        drawing.setVisibility(View.GONE);
+
         if(!isCameraInitialized){
             mCamera = Camera.open();
             mPreview = new CameraPreview(this, mCamera);
             preview = findViewById(R.id.camera_preview);
             preview.addView(mPreview);
             rotateCamera();
-            flashB = findViewById(R.id.flash);
-            if(hasFlash()){
-                flashB.setVisibility(View.GONE);
-            }
-            else{
-                flashB.setVisibility((View.GONE));
-            }
-            final File myimagesFolder = new File(getExternalFilesDir(null), "MyImages");
-            myimagesFolder.mkdirs();
+
+            //final File myimagesFolder = new File(getExternalFilesDir(null), "MyImages");
+            //myimagesFolder.mkdirs();
+
+
+
+
             final Button switchCameraButton = findViewById(R.id.switchCamera);
             switchCameraButton.setOnClickListener(new View.OnClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                 @Override
                 public void onClick(View v) {
 
+
+                    File image = null;
+                    try {
+                        image = createImageFile();
+                    }
+                    catch(IOException ex){
+
+                    }
+
+                    Uri uriSavedImage = FileProvider.getUriForFile(MainActivity.this,BuildConfig.APPLICATION_ID + ".provider", image);
+
+
                     Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivity(camera);
-                    mCamera.release();
+                    camera.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    camera.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    camera.putExtra(MediaStore.EXTRA_OUTPUT, uriSavedImage);
+                    addToGallery();
+                    startActivityForResult(camera, 1);
+                    try (InputStream in = new FileInputStream("test.txt")) {
+                        FileMetadata metadata = client.files().uploadBuilder("/test.txt")
+                                .uploadAndFinish(in);
+                    } catch (UploadErrorException e) {
+                        e.printStackTrace();
+                    } catch (DbxException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    //mCamera.release();
 
                 }
             });
@@ -204,6 +286,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             });
         }
+        if(image != null){
+            preview.setVisibility(View.GONE);
+            drawing.setVisibility(View.VISIBLE);
+            draw = new SimpleDrawingView(this, image);
+        }
+
+
     }
 
     private void switchCamera(){
@@ -315,5 +404,56 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    public class SimpleDrawingView extends View {
+        private final int paintColor = Color.BLACK;
+        private Paint drawPaint;
+        float pointX;
+        float pointY;
+        float startX;
+        float startY;
+
+        public SimpleDrawingView(Context context, File attrs) {
+            super(context, (AttributeSet) attrs);
+            setFocusable(true);
+            setFocusableInTouchMode(true);
+            setupPaint();
+        }
+
+        private void setupPaint() {
+// Setup paint with color and stroke styles
+            drawPaint = new Paint();
+            drawPaint.setColor(paintColor);
+            drawPaint.setAntiAlias(true);
+            drawPaint.setStrokeWidth(5);
+            drawPaint.setStyle(Paint.Style.STROKE);
+            drawPaint.setStrokeJoin(Paint.Join.ROUND);
+            drawPaint.setStrokeCap(Paint.Cap.ROUND);
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            pointX = event.getX();
+            pointY = event.getY();
+// Checks for the event that occurs
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    startX = pointX;
+                    startY = pointY;
+                    return true;
+                case MotionEvent.ACTION_MOVE:
+                    break;
+                default:
+                    return false;
+            }
+// Force a view to draw again
+            postInvalidate();
+            return true;
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            canvas.drawRect(startX, startY, pointX, pointY, drawPaint);
+        }
+    }
 
 }

@@ -6,7 +6,7 @@ from absl.flags import FLAGS
 import sys
 
 batch_size = defaults.check_preferences(defaults.BATCH_SIZE_VAR, defaults.FLAGS.batch_size, defaults.INT)
-checkpoint_output = defaults.check_preferences(defaults.CHECKPOINT_VAR, defaults.FLAGS.checkpoint_path, defaults.FILE)
+checkpoint_output = defaults.check_preferences(defaults.CHECKPOINT_VAR, defaults.FLAGS.checkpoints_path, defaults.FILE)
 classifier_file = defaults.check_preferences(defaults.CLASSIFIERS_VAR, defaults.FLAGS.classifiers, defaults.FILE)
 dataset_test = defaults.check_preferences(defaults.DATASET_TEST_VAR, defaults.FLAGS.dataset_test, defaults.FILE)
 dataset_train = defaults.check_preferences(defaults.DATASET_TRAIN_VAR, defaults.FLAGS.dataset_train, defaults.FILE)
@@ -30,20 +30,21 @@ FLAGS(sys.argv)
 weights = FLAGS.weights
 
 def print_pref():
+
     print("\tBatch Size............. " + str(batch_size))
-    print("\tCheckpoint Output...... " + checkpoint_output)
+    print("\tStarting Checkpoint.... " + checkpoint_output)
     print("\tClassifier file........ " + classifier_file)
-    print("\tDataSet-test........... " + dataset_test)
-    print("\tDataSet-train.......... " + dataset_train)
+    print("\tNumber of Classes...... " + str(num_classes))
+    print("\tDataset test........... " + dataset_test)
+    print("\tDataset train.......... " + dataset_train)
     print("\tEpochs................. " + str(epochs))
     print("\tImage Size............. " + str(image_size))
     print("\tLearning Rate.......... " + str(learning_rate))
     print("\tMode................... " + mode)
-    print("\tNumber of Classes...... " + str(num_classes))
     print("\tOutput Model........... " + output)
-    print("\tPreference File........ " + pref_file)
     print("\tTiny Weights........... " + str(tiny))
     print("\tTransfer............... " + transfer)
     print("\tValidate Image Input... " + validate_input)
-    print("\tWeighted Classes....... " + str(weight_num_classes))
     print("\tWeights Path........... " + weights)
+    print("\tWeighted Classes....... " + str(weight_num_classes))
+    print("\tPreference File........ " + pref_file)

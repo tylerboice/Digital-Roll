@@ -14,8 +14,9 @@ from yolov3_tf2.utils import draw_outputs
 def run_detect(classes, weights, tiny, size, image, output, num_classes):
     tfrecord = None
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
-    if len(physical_devices) > 0:
-        tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    #TODO figures this out is its important as this causing an error due to the physical device being initialized already
+    #if len(physical_devices) > 0:
+        #tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
     if tiny:
         yolo = YoloV3Tiny(classes=num_classes)

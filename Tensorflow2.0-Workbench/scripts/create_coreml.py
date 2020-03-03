@@ -8,6 +8,7 @@ def export_coreml(output):
     print(output)
     model = tfcoreml.convert(output,
                              mlmodel_path = output + "saved_model.mlmodel",
-                             input_name_shape_dict={'input_1': (1, 224, 224, 3)},
+                             input_name_shape_dict={'input_1': (1, 224, 224, 3),
+                                                    'input_55': (1, 224, 224, 3)},
                              output_feature_names=['Identity'],
                              minimum_ios_deployment_target='13')
