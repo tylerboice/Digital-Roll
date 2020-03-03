@@ -10,6 +10,8 @@ import UIKit
 import CoreMotion
 
 class PhotoViewController: UIViewController {
+    // Initalize File
+    var returnFile: URL?
     
     // Initalize photo window
     var takenPhoto:UIImage?
@@ -59,16 +61,35 @@ class PhotoViewController: UIViewController {
     
     @IBAction func sharePressed(_ sender: Any) {
         // Dropbox only works with 1 arguement therefore pass just xml file
+        convertXML(img: takenPhoto!, xAccel: self.xAccel.text!, yAccel: self.yAccel.text!, zAccel: self.zAccel.text!)
         
-        // Create activity view controller
-        //let activityVC = UIActivityViewController(activityItems: [takenPhoto as Any, self.xAccel.text, self.yAccel.text, self.zAccel.text], applicationActivities: nil)
-        let activityVC = UIActivityViewController(activityItems: [takenPhoto], applicationActivities: nil)
+        let activityVC = UIActivityViewController(activityItems: [returnFile as Any], applicationActivities: nil)
         activityVC.popoverPresentationController?.sourceView = self.view
         
         self.present(activityVC, animated: true, completion: nil)
         
     }
     
+    func convertXML(img: UIImage, xAccel: String, yAccel: String, zAccel: String){
+        // Create file name
+        let file = "test.xml"
+        
+        // Create xml formated code
+        let text = "<annotation>\n\t<filename>\(file)</filename>\n\t<img>\(img.toString())</img>\n\t<xAccel>\(xAccel)</xAccel>\n\t<yAccel>\(yAccel)</yAccel>\n\t<zAccel>\(zAccel)</zAccel>\n</annotation>"
+        
+        // Write file in phone directory
+        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = dir.appendingPathComponent(file)
+
+            // Write the XML if possible
+            do {
+                try text.write(to: fileURL, atomically: false, encoding: .utf8)
+            }
+            catch {}
+            returnFile = fileURL
+        }
+    }
+
     /*
     // MARK: - Navigation
 
@@ -79,4 +100,11 @@ class PhotoViewController: UIViewController {
     }
     */
 
+}
+
+extension UIImage {
+    func toString() -> String? {
+        let data: Data? = self.pngData()
+        return data?.base64EncodedString(options: .endLineWithLineFeed)
+    }
 }
