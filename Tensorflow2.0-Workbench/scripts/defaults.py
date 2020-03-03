@@ -24,6 +24,7 @@ TINY_PATH = os.path.join(DATA_PATH + "yolov3-tiny.weights")
 
 MIN_IMAGES = 50
 DEFAULT_NUM_VAL_IMAGES = 3
+DEFAULT_LEARN_RATE = .001
 
 # HARD CODED VALUES
 BOOL = -999
@@ -38,12 +39,6 @@ FLOAT = -996
 BATCH_SIZE_VAR = "batch_size"
 DEFAULT_BATCH_SIZE = 4
 flags.DEFINE_integer( BATCH_SIZE_VAR, DEFAULT_BATCH_SIZE, 'batch size')
-
-
-############################# CHECKPOINT PATH ###################################
-CHECKPOINT_VAR = "checkpoints"
-DEFAULT_CHECKPOINT_PATH = os.path.join(CWD_PATH , "checkpoints/")
-flags.DEFINE_string( CHECKPOINT_VAR, DEFAULT_CHECKPOINT_PATH, 'path to output')
 
 
 ################################ CLASSIFIERS ####################################
@@ -76,15 +71,9 @@ DEFAULT_IMAGE_SIZE = 416
 flags.DEFINE_integer( IMAGE_SIZE_VAR, DEFAULT_IMAGE_SIZE, 'image size')
 
 
-############################### LEARN RATE ######################################
-LEARN_RATE_VAR = "learn_rate"
-DEFAULT_LEARN_RATE = .001
-flags.DEFINE_float( LEARN_RATE_VAR, DEFAULT_LEARN_RATE, 'learning rate')
-
-
 ############################## MAX CHECKPOINTS ##################################
 MAX_CHECK_VAR = "max_checkpoints"
-DEFAULT_MAX_CHECK = 5
+DEFAULT_MAX_CHECK = 3
 flags.DEFINE_integer( MAX_CHECK_VAR, DEFAULT_MAX_CHECK, 'maximum checkpoints')
 
 
@@ -106,7 +95,7 @@ flags.DEFINE_enum(MODE_VAR, DEFAULT_MODE, MODE_OPTIONS,
 
 ################################ OUTPUT #########################################
 OUTPUT_VAR = "output"
-OUTPUT_PATH = os.path.join(CWD_PATH , "output/")
+OUTPUT_PATH = os.path.join(CWD_PATH , "current_session/")
 flags.DEFINE_string(OUTPUT_VAR, OUTPUT_PATH, 'output for the model and images')
 
 
@@ -117,7 +106,7 @@ flags.DEFINE_string( PREF_VAR, NO_PREF_PATH, 'prefences file path')
 
 ############################ SESSIONS PATH ###################################
 SAVED_SESS_VAR = "sessions"
-SAVED_SESS_PATH = os.path.join(CWD_PATH , "sessions/")
+SAVED_SESS_PATH = os.path.join(CWD_PATH , "saved_sessions/")
 flags.DEFINE_string(SAVED_SESS_VAR, SAVED_SESS_PATH, 'location to save sessions')
 
 ############################ TINY WEIGHTS #######################################

@@ -13,7 +13,7 @@ from scripts import create_tf_model
 from scripts import detect_img
 from scripts import create_coreml
 
-test_checkpoint = files.get_last_checkpoint(preferences.checkpoint_output)
+test_checkpoint = files.get_last_checkpoint(preferences.output)
 SPLIT_CHAR = "="
 START = 1001
 CONTINUE = 1002
@@ -63,9 +63,9 @@ def run_single_script():
             print("Weights file does not exist")
             exit()
         print("Converting records to checkpoint...\n")
-        files.save_checkpoints(preferences.checkpoint_output, preferences.sessions, preferences.max_saved_sess)
+        files.save_checkpoints(preferences.output, preferences.sessions, preferences.max_saved_sess)
         convert_weights.run_weight_convert(preferences.weights,
-                                           preferences.checkpoint_output,
+                                           preferences.output,
                                            preferences.tiny,
                                            preferences.weight_num_classes)
         print("Converted records to checkpoint!\n")
@@ -82,10 +82,10 @@ def run_single_script():
                                   preferences.image_size,
                                   preferences.epochs,
                                   preferences.batch_size,
-                                  preferences.learning_rate,
+                                  default.DEFAULT_LEARN_RATE,
                                   preferences.num_classes,
                                   preferences.weight_num_classes,
-                                  preferences.checkpoint_output,
+                                  preferences.output,
                                   preferences.max_checkpoints )
 
         print("\n\tTraining Complete!")
@@ -165,13 +165,6 @@ def load(pref_path):
                         print("ERROR: Bad batch size given, cannot convert value to int")
                         error = True
 
-                elif defaults.CHECKPOINT_VAR + SPLIT_CHAR in line:
-                    if path.exists(txt_input):
-                        preferences.checkpoint_output = txt_input
-                    else:
-                        print("ERROR: Bad checkpoint save directory given")
-                        error = True
-
                 elif defaults.TEST_CHECKPOINT_VAR + SPLIT_CHAR in line:
                     try:
                         this.test_checkpoint = txt_input
@@ -220,13 +213,6 @@ def load(pref_path):
                         preferences.image_size = int(txt_input)
                     except:
                         print("ERROR: Bad image size value given, cannot convert to int")
-                        error = True
-
-                elif defaults.LEARN_RATE_VAR + SPLIT_CHAR in line:
-                    try:
-                        preferences.image_size = float(txt_input)
-                    except:
-                        print("ERROR: Bad learning rate value given, cannot convert to float")
                         error = True
 
                 elif defaults.MAX_CHECK_VAR + SPLIT_CHAR in line:
@@ -317,14 +303,12 @@ def load(pref_path):
 def save(save_path):
     with open(save_path, "w") as f:
         f.write(defaults.BATCH_SIZE_VAR + "= " + str(preferences.batch_size) + "\n")
-        f.write(defaults.CHECKPOINT_VAR + "= " + str(preferences.checkpoint_output) + "\n")
         f.write(defaults.TEST_CHECKPOINT_VAR + "= " + str(test_checkpoint) + "\n")
         f.write(defaults.CLASSIFIERS_VAR + "= " + str(preferences.classifier_file) + "\n")
         f.write(defaults.DATASET_TEST_VAR + "= " + str(preferences.dataset_test) + "\n")
         f.write(defaults.DATASET_TRAIN_VAR + "= " + str(preferences.dataset_train) + "\n")
         f.write(defaults.EPOCH_NUM_VAR + "= " + str(preferences.epochs) + "\n")
         f.write(defaults.IMAGE_SIZE_VAR + "= " + str(preferences.image_size) + "\n")
-        f.write(defaults.LEARN_RATE_VAR + "= " + str(preferences.learning_rate) + "\n")
         f.write(defaults.MODE_VAR + "= " + str(preferences.mode) + "\n")
         f.write(defaults.MAX_CHECK_VAR + "= " + str(preferences.max_checkpoints) + "\n")
         f.write(defaults.MAX_SAVED_SESS_VAR + "= " + str(preferences.max_saved_sess) + "\n")
@@ -339,24 +323,26 @@ def run(start_from):
 
     single_script = False
     # check if necessary files exist
-    error = files.checkIfNecessaryPathsAndFilesExist(defaults.IMAGES_PATH,
-                                                     defaults.MIN_IMAGES,
-                                                     defaults.OUTPUT_PATH,
-                                                     defaults.TEST_IMAGE_PATH,
-                                                     defaults.TRAIN_IMAGE_PATH,
-                                                     defaults.VALIDATE_IMAGE_PATH,
-                                                     defaults.YOLO_PATH)
-
-    if not error:
-        return
-
     # run was called, start from beginning
+
     if start_from == START:
+        error = files.checkIfNecessaryPathsAndFilesExist(defaults.IMAGES_PATH,
+                                                         defaults.MIN_IMAGES,
+                                                         preferences.output,
+                                                         defaults.TEST_IMAGE_PATH,
+                                                         defaults.TRAIN_IMAGE_PATH,
+                                                         defaults.VALIDATE_IMAGE_PATH,
+                                                         defaults.YOLO_PATH)
+
+        if not error:
+            return
+
+
         # create classifiers.names
         print("\nGathering classifier data...")
         classifiers = files.get_classifiers(defaults.IMAGES_PATH)
         files.create_classifier_file(preferences.classifier_file, classifiers)
-        print("\n\tData successfuly classified!\n")
+        print("\n\tData successfuly classified!\n\n")
 
         # sort all the images
         print("Sorting images...")
@@ -366,7 +352,7 @@ def run(start_from):
                           defaults.TRAIN_IMAGE_PATH,
                           defaults.VALIDATE_IMAGE_PATH
                           )
-        print("\n\tAll images sorted!\n")
+        print("\n\tAll images sorted!\n\n")
 
         # generate tf records
         print("Generating images and xml files into tfrecords...\n")
@@ -374,23 +360,23 @@ def run(start_from):
                                       preferences.dataset_train)
         generate_tf.generate_tfrecords(defaults.TEST_IMAGE_PATH,
                                       preferences.dataset_test)
-        print("\n\tSuccessfully generated tf records!")
+        print("\n\tSuccessfully generated tf records!\n")
 
         # save previous sessions
         print("\nChecking for previous Sessions...\n")
-        files.save_checkpoints(preferences.checkpoint_output, defaults.SAVED_SESS_PATH, preferences.max_saved_sess)
-        print("\n\tDone!")
+        files.save_session(preferences.output, defaults.SAVED_SESS_PATH, preferences.max_saved_sess)
+        print("\tDone!\n")
 
         # convert to checkpoint
         print("\nConverting records to checkpoint...\n")
         blockPrint()
         convert_weights.run_weight_convert(preferences.weights,
-                                           preferences.checkpoint_output,
+                                           preferences.output,
                                            preferences.tiny,
                                            preferences.weight_num_classes)
         enablePrint()
 
-        print("\tCheckpoint Converted!")
+        print("\tCheckpoint Converted!\n")
 
         # train
         print("\nBegin Training... \n")
@@ -404,24 +390,25 @@ def run(start_from):
                                   preferences.image_size,
                                   preferences.epochs,
                                   preferences.batch_size,
-                                  preferences.learning_rate,
+                                  defaults.DEFAULT_LEARN_RATE,
                                   preferences.num_classes,
                                   preferences.weight_num_classes,
-                                  preferences.checkpoint_output,
+                                  preferences.output,
                                   preferences.max_checkpoints )
-        print("\n\tTraining Complete!")
+        print("\n\tTraining Complete!\n\n")
 
+    files.rename_checkpoints(preferences.output, preferences.max_checkpoints)
 
     # generating tensorflow models
     print("\nGenerating TensorFlow model...")
     try:
-        chkpnt_weights = files.get_last_checkpoint(preferences.checkpoint_output)
+        chkpnt_weights = files.get_last_checkpoint(preferences.output)
 
     except:
-        chkpnt_weights = preferences.checkpoint_output
+        chkpnt_weights = preferences.output
 
-    if not os.path.exists(chkpnt_weights):
-        print("\nERROR: checkpoint_output " + preferences.checkpoint_output + " does not exist\n")
+    if chkpnt_weights == "none":
+        print("ERROR checkpoint path does not exists")
         return
 
     print("\n\tUsing checkpoint: " + chkpnt_weights + "\n")
@@ -446,7 +433,7 @@ def run(start_from):
                                                           preferences.num_classes)
                 model_saved = True
 
-    print("\tTensorFlow model Generated!")
+    print("\tTensorFlow model Generated!\n")
 
     # generating tensorflow models
     print("\nTesting Images...")
@@ -491,10 +478,10 @@ def main():
             userInput = input("\n<WORKBENCH>: ")
             userInput.lower()
             userInput.strip()
-            if userInput == "help" or userInput == "h":
+            if userInput.replace(" ", "") == "help" or userInput.replace(" ", "") == "h":
                print_to_terminal.help()
 
-            elif userInput == "run" or userInput == "r":
+            elif userInput.replace(" ", "") == "run" or userInput.replace(" ", "") == "r":
                 run(START)
 
             elif userInput[0:5] == "test " or userInput[0:2] == "t ":
@@ -536,13 +523,13 @@ def main():
                 else:
                     print("ERROR: Could not find " + img_path)
 
-            elif userInput == "continue" or userInput == "c":
+            elif userInput.replace(" ", "") == "continue" or userInput.replace(" ", "") == "c":
                 run(CONTINUE)
 
-            elif userInput == "display" or userInput == "d":
+            elif userInput.replace(" ", "") == "display" or userInput.replace(" ", "") == "d":
                 print_to_terminal.current_pref()
 
-            elif userInput == "info" or userInput == "i":
+            elif userInput.replace(" ", "") == "info" or userInput.replace(" ", "") == "i":
                 print_to_terminal.info()
 
             elif userInput[0:5] == "load " or userInput[0:2] == "l ":
@@ -590,12 +577,6 @@ def main():
                                 print("ERROR: " + defaults.BATCH_SIZE_VAR + " taks an integer value")
                                 error = True
 
-                        elif userInputArr[1] == defaults.CHECKPOINT_VAR:
-                            if path.exists(userInputArr[2]):
-                                preferences.checkpoint_output = userInputArr[2]
-                            else:
-                                print("ERROR: Bad checkpoint output directory given")
-                                error = True
 
                         elif userInputArr[1] == "test_checkpoint":
                             if path.exists(userInputArr[2]):
@@ -642,14 +623,6 @@ def main():
                                 preferences.image_size = int(userInputArr[2])
                             except:
                                 print("ERROR: Please give an integer value")
-                                error = True
-
-
-                        elif userInputArr[1] == defaults.LEARN_RATE_VAR:
-                            try:
-                                preferences.learning_rate = float(userInputArr[2])
-                            except:
-                                print("ERROR: Please give an float value")
                                 error = True
 
                         elif userInputArr[1] == defaults.MAX_CHECK_VAR:
@@ -744,7 +717,7 @@ def main():
                 else:
                     print("Not enough arguments, please provide a variable and a value ie batch_size 3")
 
-            elif userInput == "quit" or userInput == "q":
+            elif userInput.replace(" ", "") == "quit" or userInput.replace(" ", "") == "q":
                 running = False
             else:
                 # end of cases, inform the user that their input was invalid

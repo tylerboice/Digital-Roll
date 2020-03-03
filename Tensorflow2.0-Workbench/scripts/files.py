@@ -1,10 +1,12 @@
 import os
 import random
 import shutil
+import time
 
 from os import path
-unlabelled_files = []
 
+unlabelled_files = []
+CHECKPOINT_KEYWORD = "train_"
 ########################## Checking FOR FILES #############################
 # checks if all necessary files exist
 def checkIfNecessaryPathsAndFilesExist(image_path, min_images, output_path, test_image_path,
@@ -205,18 +207,17 @@ def create_classifier_file(file, classifiers):
 ########################## GET_LAST_CHECKPOINT #############################
 # gets the name of the last classifier from training
 def get_last_checkpoint(checkpoint_path):
-    last_checkpoint_num = 0
+    last_checkpoint_num = -1
     last_checkpoint = ""
     if os.path.exists(checkpoint_path):
         for filename in os.listdir(checkpoint_path):
             if 'tf.index' and 'train' in filename:
                if 'of' not in filename:
-                   current = filename.split(".")[0]
-                   current = current.split('_')[2]
+                   current = get_checkpoint_int(filename)
                    if last_checkpoint_num < int(current):
                        last_checkpoint_num = int(current)
                        last_checkpoint = checkpoint_path + filename.split(".")[0] + ".tf"
-    if last_checkpoint_num == 0:
+    if last_checkpoint_num == -1:
         last_checkpoint = "none"
     return last_checkpoint
 
@@ -238,20 +239,20 @@ def get_num_classes(file):
     return num_classes
 
 ########################## SAVE CHECKPOINTS ##########################
-def save_checkpoints(checkpoint_output, save_sess_path, max_saved_sess):
+def save_session(checkpoint_output, save_sess_path, max_saved_sess):
     keyword = "saved_session-"
-    checkpoints = False
+    contents = False
     if not os.path.exists(save_sess_path):
         os.mkdir(save_sess_path)
     current_sess = remove_smallest_sess(save_sess_path, max_saved_sess, keyword) + 1
     current_sess = (save_sess_path + "/" + keyword + str(current_sess)).replace("\\", "/")
     current_sess = current_sess.replace("//", "/")
     for file in os.listdir(checkpoint_output):
-        if "train_" in file:
-            checkpoints = True
-    if checkpoints:
+        if CHECKPOINT_KEYWORD in file or ".pb" in file or ".mlmodel" in file:
+            contents = True
+    if contents:
         os.mkdir(current_sess)
-        print("\tPrevious session stored in " + split_path(current_sess))
+        print("\tPrevious session stored in " + split_path(current_sess) + "\n")
         for file in os.listdir(checkpoint_output):
             shutil.move(checkpoint_output + file, current_sess)
 
@@ -273,7 +274,7 @@ def remove_smallest_sess(save_sess_path, max_saved_sess, keyword):
         oldest_sess = save_sess_path + keyword + str(oldest_file)
         shutil. rmtree(oldest_sess)
         session_values.remove(oldest_file)
-        print("\tOldest session: " + split_path(oldest_sess) + " was removed")
+        print("\tOldest session: " + split_path(oldest_sess) + " was removed\n")
 
     # get newest value
     if len(session_values) > 0:
@@ -298,3 +299,106 @@ def split_path(path):
             return path
     except:
         return path
+
+
+
+############################ GET CHECKPONT EXTENSION ###############################
+# Example: yolov3_train_1.tf.index
+# returns: .tf.index
+def rename_checkpoints(checkpoint_path, max_checkpoints):
+    files_renamed = 0
+    oldest_file = get_oldest_checkpoint(checkpoint_path)
+    oldest_file_int = get_checkpoint_int(oldest_file)
+    oldest_file_diff = max_checkpoints - oldest_file_int
+    while oldest_file_diff != 0:
+        oldest_file_int += 1
+        for file in os.listdir(checkpoint_path):
+            if CHECKPOINT_KEYWORD in file:
+                if get_checkpoint_name(file) + str(oldest_file_int) in file:
+                    old_file = checkpoint_path + file
+                    new_file = checkpoint_path + get_checkpoint_name(file) + str(files_renamed) + file.split("_" + str(get_checkpoint_int(file)))[1]
+                    os.rename(old_file, new_file)
+        files_renamed -= 1
+        oldest_file_diff -= 1
+    current_checkpoint = max_checkpoints + files_renamed
+    set_to_value = max_checkpoints\
+
+    while set_to_value > 0:
+        for file in os.listdir(checkpoint_path):
+            if CHECKPOINT_KEYWORD + str(current_checkpoint) in file:
+                old_file = checkpoint_path + file
+                new_file = checkpoint_path + get_checkpoint_name(file) + str(set_to_value) + file.split("_" + str(current_checkpoint))[1]
+                os.rename(old_file, new_file)
+        set_to_value -= 1
+        current_checkpoint -= 1
+
+
+
+
+############################ GET CHECKPOINT NAME ###############################
+# Example: yolov3_train_1.tf.index
+# returns: yolov3_train_
+def get_checkpoint_name(file):
+    try:
+        file_name = file.split(".")[0].split("_")
+        file_name = file_name[0] + "_" + file_name[1] + "_"
+        return file_name
+    except:
+        return file
+
+############################ GET CHECKPOINT INT ###############################
+# Example: yolov3_train_1.tf.index
+# returns: 1
+def get_checkpoint_int(file):
+    try:
+        file_name = file.split(".")[0]
+        oldest_file_int = int(file_name.split("_")[2])
+        return oldest_file_int
+    except:
+        return 0
+
+############################ GET OLDEST CHECKPOINT ###############################
+# return the checkpoint with the oldest "last_modified" value
+def get_oldest_checkpoint(checkpoint_path):
+    oldest = -1;
+    checkpoint = checkpoint_path
+    oldest_file = ""
+    for file in os.listdir(checkpoint_path):
+        if CHECKPOINT_KEYWORD in file:
+            last_modified = time.ctime(os.path.getmtime(checkpoint + file)).split(' ')
+            last_modified = int(str(last_modified[5]) + str(get_month(last_modified[1])) + str(last_modified[3]) +  str(last_modified[4]).replace(":", ""))
+            if last_modified > oldest:
+                oldest_file = file
+                oldest = last_modified
+    return oldest_file
+
+############################ GET MONTH ###############################
+# takes three letter abreviation of month and returns it month number
+# if invalid string, returns 0
+def get_month( month ):
+    month = str(month).lower()
+    if month == 'jan':
+        return 1
+    elif month == 'feb':
+        return 2
+    elif month == 'mar':
+        return 3
+    elif month == 'apr':
+        return 4
+    elif month == 'may':
+        return 5
+    elif month == 'jun':
+        return 6
+    elif month == 'jul':
+        return 7
+    elif month == 'aug':
+        return 8
+    elif month == 'sep':
+        return 9
+    elif month == 'oct':
+        return 10
+    elif month == 'nov':
+        return 11
+    elif month == 'dec':
+        return 12
+    return 0

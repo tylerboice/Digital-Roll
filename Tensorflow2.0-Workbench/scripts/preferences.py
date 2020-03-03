@@ -10,9 +10,6 @@ batch_size = defaults.check_preferences(defaults.BATCH_SIZE_VAR,
                                         defaults.FLAGS.batch_size,
                                         defaults.INT)
 
-checkpoint_output = defaults.check_preferences(defaults.CHECKPOINT_VAR,
-                                               defaults.FLAGS.checkpoints,
-                                               defaults.FILE)
 
 classifier_file = defaults.check_preferences(defaults.CLASSIFIERS_VAR,
                                              defaults.FLAGS.classifiers,
@@ -42,9 +39,6 @@ max_saved_sess = defaults.check_preferences(defaults.MAX_SESS_VAR,
                                             defaults.FLAGS.max_sessions,
                                             defaults.INT)
 
-learning_rate = defaults.check_preferences(defaults.LEARN_RATE_VAR,
-                                           defaults.FLAGS.learn_rate,
-                                           defaults.FLOAT)
 
 mode = defaults.check_preferences(defaults.MODE_VAR,
                                   defaults.FLAGS.mode,

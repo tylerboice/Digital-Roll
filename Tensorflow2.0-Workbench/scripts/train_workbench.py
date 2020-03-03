@@ -1,6 +1,7 @@
 
 import tensorflow as tf
 import numpy as np
+import math
 import cv2
 from tensorflow.keras.callbacks import (
     ReduceLROnPlateau,
@@ -146,24 +147,31 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
             avg_loss.reset_states()
             avg_val_loss.reset_states()
             model.save_weights(
-                'checkpoints/yolov3_train_{}.tf'.format(epoch))
+                checpoint_path +'yolov3_train_{}.tf'.format(epoch))
     else:
         model.compile(optimizer=optimizer, loss=loss,
                       run_eagerly=(mode == 'eager_fit'))
         callbacks = [
             ReduceLROnPlateau(verbose=1),
             EarlyStopping(patience=3, verbose=1),
-            ModelCheckpoint('checkpoints/yolov3_train_{epoch}.tf',
+            ModelCheckpoint(checpoint_path + 'yolov3_train_{epoch}.tf',
                             verbose=1, save_weights_only=True),
             TensorBoard(log_dir='logs')
         ]
-        total_batches = round(epochs/total_checkpoints)
+        total_batches = math.floor(epochs/total_checkpoints)
+        batch_remainder = epochs % total_checkpoints
         batches = 1
+
+        if batch_remainder != 0:
+            extra_batch = 1
+        else:
+            extra_batch = 0
+
         if total_checkpoints != 0:
-            print("Training in batches to save memory")
+            print("\tTraining in batches to save memory")
             while batches <= total_batches:
                 print("\n=======================================")
-                print("Batch " + str(batches) + "/" + str(total_batches))
+                print("Batch " + str(batches) + "/" + str(total_batches + extra_batch))
                 print("=======================================\n")
                 history = model.fit(train_dataset,
                                     epochs=total_checkpoints,
@@ -171,11 +179,21 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
                                     validation_data=val_dataset)
                 batches += 1
 
+            if batch_remainder != 0:
+                 print("\n=======================================")
+                 print("Batch " + str(batches) + "/" + str(total_batches + extra_batch))
+                 print("=======================================\n")
+                 history = model.fit(train_dataset,
+                                     epochs=batch_remainder,
+                                     callbacks=callbacks,
+                                     validation_data=val_dataset)
+
         else:
             history = model.fit(train_dataset,
                                 epochs=epochs,
                                 callbacks=callbacks,
                                 validation_data=val_dataset)
+
 
 
 def remove_checkpoints(checkpoint_path, num_save_checks):
