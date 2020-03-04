@@ -12,6 +12,7 @@ from scripts import train_workbench
 from scripts import create_tf_model
 from scripts import detect_img
 from scripts import create_coreml
+import tensorflow as tf
 
 test_checkpoint = files.get_last_checkpoint(preferences.output)
 SPLIT_CHAR = "="
@@ -483,6 +484,12 @@ def main():
 
             elif userInput.replace(" ", "") == "run" or userInput.replace(" ", "") == "r":
                 run(START)
+
+            elif userInput.replace(" ", "") == "lite" or userInput.replace(" ", "") == "l":
+                # convert model to tensorflow lite for android use
+                converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
+                tflite_model = converter.convert()
+                open("converted_model.tflite", "wb").write(tflite_model)
 
             elif userInput[0:5] == "test " or userInput[0:2] == "t ":
                 error = False

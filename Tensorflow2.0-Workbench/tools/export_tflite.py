@@ -18,9 +18,9 @@ flags.DEFINE_string('weights', './checkpoints/yolov3.tf',
 flags.DEFINE_boolean('tiny', False, 'yolov3 or yolov3-tiny')
 flags.DEFINE_string('output', './checkpoints/yolov3.tflite',
                     'path to saved_model')
-flags.DEFINE_string('classes', './data/coco.names', 'path to classes file')
-flags.DEFINE_string('image', './data/girl.png', 'path to input image')
-flags.DEFINE_integer('num_classes', 80, 'number of classes in the model')
+flags.DEFINE_string('classes', './data/classifier.names', 'path to classes file')
+flags.DEFINE_string('image', './data/dice.png', 'path to input image')
+flags.DEFINE_integer('num_classes', 18, 'number of classes in the model')
 flags.DEFINE_integer('size', 416, 'image size')
 
 # TODO: This is broken DOES NOT WORK !!
