@@ -48,17 +48,14 @@ https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
 # Tensorflow CPU
 conda env create -f conda-cpu.yml
 conda activate cpu
+pip install -r requirements-cpu.txt
 
 # Tensorflow GPU
 conda env create -f conda-gpu.yml
 conda activate gpu
+pip install -r requirements-gpu.txt
 ```
 
-#### install packages
-```bash
-# install packages
-pip install -r requirements.txt
-```
 
 ### Nvidia Driver (For GPU)
 ```bash

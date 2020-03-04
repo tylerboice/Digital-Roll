@@ -19,7 +19,7 @@ import yolov3_tf2.dataset as dataset
 
 def run_train(train_dataset_in, val_dataset_in, tiny,
               weights, classifiers, mode, transfer, size, epochs, batch_size,
-              learning_rate, num_classes, weights_num_classes, checpoint_path, total_checkpoints):
+              learning_rate, num_classes, weights_num_classes, checkpoint_path, total_checkpoints):
 
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     if len(physical_devices) > 0:
@@ -147,14 +147,14 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
             avg_loss.reset_states()
             avg_val_loss.reset_states()
             model.save_weights(
-                checpoint_path +'yolov3_train_{}.tf'.format(epoch))
+                checkpoint_path +'yolov3_train_{}.tf'.format(epoch))
     else:
         model.compile(optimizer=optimizer, loss=loss,
                       run_eagerly=(mode == 'eager_fit'))
         callbacks = [
             ReduceLROnPlateau(verbose=1),
             EarlyStopping(patience=3, verbose=1),
-            ModelCheckpoint(checpoint_path + 'yolov3_train_{epoch}.tf',
+            ModelCheckpoint(checkpoint_path + 'yolov3_train_{epoch}.tf',
                             verbose=1, save_weights_only=True),
             TensorBoard(log_dir='logs')
         ]
@@ -167,7 +167,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
         else:
             extra_batch = 0
 
-        if total_checkpoints != 0:
+        if total_checkpoints > 0 and total_checkpoints < epochs:
             print("\tTraining in batches to save memory")
             while batches <= total_batches:
                 print("\n=======================================")
@@ -196,22 +196,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
 
 
 
-def remove_checkpoints(checkpoint_path, num_save_checks):
-    checkpoints = []
-    checkpoint_name = "yolov3_train_"
-    file_types = [".tf.index", ".tf.data-00000-of-00001"]
-    for file in checkpoint_path:
-        if file_types[0] in file:
-            print("found one: " + file)
-            file = file.split("train_")[0]
-            file = file.split(".")[0]
-            if file.isnumeric():
-              checkpoints.append(int(file))
-    while len(checkpoints) > num_save_checks:
-        lowest_check = checpointpath + checkpoint_name + str(find_lowest_check(checkpoints))
-        for types in file_types:
-            print("removing: " + lowest_check)
-            os.remove(lowest_check + type)
+
 
 def find_lowest_check(checkpoints):
     lowest_check = checkpoints[0]

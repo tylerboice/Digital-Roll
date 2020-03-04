@@ -38,20 +38,22 @@ def modify_commands():
 
 def help():
     print("\n COMMANDS")
-    print("\n continue or c                  ==> Continue workench if training was manually stopped")
+    print("\n continue or c                  ==> Continue workbench if training was manually stopped")
+    print("\n                                        You can also continue from previous checkpoint or session")
+    print("\n                                        example: continue ./saved_session/session_1")
     print("\n display or d                   ==> Displays current settings")
-    print("\n                                  example: change batch_size 3")
+    print("\n                                        example: change batch_size 3")
     print("\n help or h                      ==> Brings up this help display")
     print("\n info or i                      ==> Displays information on the worbench values")
     print("\n modify or m <variable> <value> ==> Modifys the setting variable to a new value")
-    print("\n                                    For lists of values use the modify(m) command and use ? as your variable")
+    print("\n                                        For lists of values use the modify(m) command and use ? as your variable")
     print("\n load or l <path to pref.txt>   ==> Loads a given .txt file as the current preference text")
     print("\n quit or q                      ==> Exits the Workbench")
     print("\n run or r                       ==> Starts the process of training and validation")
     print("\n                                  + Saves the model at given output location")
     print("\n                                    and creates a Apple CoreML converted version")
-    print("\n save or s <new .txt path>      ==> saves the current settings to the path + name given")
-    print("\n                                  example: save C:\\Users\\new_pref.txt")
+    print("\n save or s <new .txt path>      ==> Saves the current settings to the path + name given")
+    print("\n                                        example: save C:\\Users\\new_pref.txt")
     print("\n test or t <path to image>      ==> Tests a given image using the last checkpoint")
 
 def info():

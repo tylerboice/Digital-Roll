@@ -7,6 +7,7 @@ from os import path
 
 unlabelled_files = []
 CHECKPOINT_KEYWORD = "train_"
+ERROR = "ERROR_MESSAGE"
 ########################## Checking FOR FILES #############################
 # checks if all necessary files exist
 def checkIfNecessaryPathsAndFilesExist(image_path, min_images, output_path, test_image_path,
@@ -209,16 +210,22 @@ def create_classifier_file(file, classifiers):
 def get_last_checkpoint(checkpoint_path):
     last_checkpoint_num = -1
     last_checkpoint = ""
+    if checkpoint_path[:-1] != "/":
+        checkpoint_path += "/"
     if os.path.exists(checkpoint_path):
         for filename in os.listdir(checkpoint_path):
+            if os.path.isdir(filename):
+                temp_check = get_last_checkpoint(filename)
+                if  last_checkpoint_num < get_checkpoint_int(temp_check):
+                    last_checkpoint = checkpoint_path + temp_check.split(".")[0] + ".tf.index"
             if 'tf.index' and 'train' in filename:
                if 'of' not in filename:
                    current = get_checkpoint_int(filename)
                    if last_checkpoint_num < int(current):
                        last_checkpoint_num = int(current)
-                       last_checkpoint = checkpoint_path + filename.split(".")[0] + ".tf"
+                       last_checkpoint = checkpoint_path + filename.split(".")[0] + ".tf.index"
     if last_checkpoint_num == -1:
-        last_checkpoint = "none"
+        last_checkpoint = ERROR
     return last_checkpoint
 
 ########################## GET INPUT ###########################
@@ -252,7 +259,7 @@ def save_session(checkpoint_output, save_sess_path, max_saved_sess):
             contents = True
     if contents:
         os.mkdir(current_sess)
-        print("\tPrevious session stored in " + split_path(current_sess) + "\n")
+        print("\tPrevious session stored in: " + split_path(current_sess) + "\n")
         for file in os.listdir(checkpoint_output):
             shutil.move(checkpoint_output + file, current_sess)
 
@@ -331,6 +338,17 @@ def rename_checkpoints(checkpoint_path, max_checkpoints):
                 os.rename(old_file, new_file)
         set_to_value -= 1
         current_checkpoint -= 1
+
+
+def write_to_checkpoint(checkpoint_name, filename):
+    quote = '"'
+    checkpoint_name = "yolov3_train" + checkpoint_name.split("yolov3_train")[1]
+    models = "model_checkpoint_path: "
+    all_models = "all_model_checkpoint_paths: "
+    with open(filename, "w") as f:
+        f.write(models + quote + checkpoint_name + quote)
+        f.write("\n")
+        f.write(all_models + quote + checkpoint_name + quote)
 
 
 

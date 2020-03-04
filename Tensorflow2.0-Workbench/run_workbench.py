@@ -372,19 +372,42 @@ def run(start_from):
         print("\nConverting records to checkpoint...\n")
         blockPrint()
         convert_weights.run_weight_convert(preferences.weights,
-                                           preferences.output,
+                                           preferences.output + "/yolov3.tf",
                                            preferences.tiny,
                                            preferences.weight_num_classes)
         enablePrint()
+        weights = preferences.output + "/yolov3.tf"
 
         print("\tCheckpoint Converted!\n")
 
-        # train
-        print("\nBegin Training... \n")
+
+    if(start_from != CONTINUE):
+
+        # continue training from previous checkpoint
+        if(start_from != START):
+            weights = start_from
+            if os.path.isdir(weights):
+                weights = files.get_last_checkpoint(weights)
+                weights = (weights.split(".tf")[0] + ".tf").replace("//", "/")
+            if ".tf" not in weights:
+                print("\nERROR: File is not a  checkpoint")
+                print("\n\tCheckpoint Example: yolov3_train_3.tf")
+                return
+            weights = (weights).replace("//", "/")
+            weight_num = preferences.num_classes
+            print("\n\tContinuing from " + weights)
+            print("\nResume Training... \n")
+
+        # train from scratch
+        else:
+            print("\nBegin Training... \n")
+            weight_num = preferences.weight_num_classes
+
+        # start training
         train_workbench.run_train(preferences.dataset_train,
                                   preferences.dataset_test,
                                   preferences.tiny,
-                                  preferences.weights,
+                                  weights,
                                   preferences.classifier_file,
                                   preferences.mode,
                                   preferences.transfer,
@@ -393,22 +416,23 @@ def run(start_from):
                                   preferences.batch_size,
                                   defaults.DEFAULT_LEARN_RATE,
                                   preferences.num_classes,
-                                  preferences.weight_num_classes,
+                                  weight_num,
                                   preferences.output,
                                   preferences.max_checkpoints )
         print("\n\tTraining Complete!\n\n")
 
+    # update checkpoint file
     files.rename_checkpoints(preferences.output, preferences.max_checkpoints)
 
     # generating tensorflow models
     print("\nGenerating TensorFlow model...")
-    try:
-        chkpnt_weights = files.get_last_checkpoint(preferences.output)
 
-    except:
-        chkpnt_weights = preferences.output
+    chkpnt_weights = files.get_last_checkpoint(preferences.output)
+    chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("//", "/")
 
-    if chkpnt_weights == "none":
+    files.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("//", "/"))
+
+    if chkpnt_weights == files.ERROR:
         print("ERROR checkpoint path does not exists")
         return
 
@@ -416,28 +440,48 @@ def run(start_from):
 
     if path.isfile(preferences.validate_input):
         create_tf_model.run_export_tfserving(chkpnt_weights,
-                                                  preferences.tiny,
-                                                  preferences.output,
-                                                  preferences.classifier_file,
-                                                  preferences.validate_input,
-                                                  preferences.num_classes)
+                                              preferences.tiny,
+                                              preferences.output,
+                                              preferences.classifier_file,
+                                              preferences.validate_input,
+                                              preferences.num_classes)
     else:
         model_saved = False
 
         for file in os.listdir(preferences.validate_input):
             if '.jpg' in file and not model_saved:
                 create_tf_model.run_export_tfserving(chkpnt_weights,
-                                                          preferences.tiny,
-                                                          preferences.output,
-                                                          preferences.classifier_file,
-                                                          preferences.validate_input + file,
-                                                          preferences.num_classes)
+                                                      preferences.tiny,
+                                                      preferences.output,
+                                                      preferences.classifier_file,
+                                                      preferences.validate_input + file,
+                                                      preferences.num_classes)
                 model_saved = True
 
-    print("\tTensorFlow model Generated!\n")
+    print("\n\tTensorFlow model Generated!\n")
+
+
+    # create Tensorflow Lite model
+    '''
+    print("\nCreating a Tensorflow Lite model...\n")
+
+    converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
+    tflite_model = converter.convert()
+    open("converted_model.tflite", "wb").write(tflite_model)
+
+    print("\n\tTensorflow Lite model created!")
+    '''
+
+    # Create Core ML Model
+    print("\nCreating a CoreML model...\n")
+
+    create_coreml.export_coreml(preferences.output)
+
+    print("\n\tCore ML model created!")
 
     # generating tensorflow models
     print("\nTesting Images...")
+
     if path.isfile(preferences.validate_input):
         detect_img.run_detect(preferences.classifier_file,
                                chkpnt_weights,
@@ -456,13 +500,6 @@ def run(start_from):
                                        preferences.validate_input + file,
                                        preferences.output + file + "_output.jpg",
                                        preferences.num_classes)
-    print("\n\tImages Tested and preferences stored in " + preferences.output)
-
-    print("\nCreating a CoreML model...")
-    blockPrint()
-    create_coreml.export_coreml(preferences.output)
-    enablePrint()
-    print("\n\tCore ML model created!")
 
     print("\n=============================== Workbench Successful! ===============================")
     print("\n\tAll models and images saved in " + preferences.output)
@@ -532,6 +569,13 @@ def main():
 
             elif userInput.replace(" ", "") == "continue" or userInput.replace(" ", "") == "c":
                 run(CONTINUE)
+
+            elif userInput[0:5] == "continue " or userInput[0:2] == "c ":
+                if userInput[0:2] == "c ":
+                    prev_check = userInput[2:]
+                else:
+                    prev_check = userInput[5:]
+                run(prev_check)
 
             elif userInput.replace(" ", "") == "display" or userInput.replace(" ", "") == "d":
                 print_to_terminal.current_pref()
