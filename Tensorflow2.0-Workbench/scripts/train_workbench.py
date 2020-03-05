@@ -1,3 +1,5 @@
+from absl import app, flags, logging
+from absl.flags import FLAGS
 
 import tensorflow as tf
 import numpy as np
@@ -17,11 +19,14 @@ from yolov3_tf2.models import (
 from yolov3_tf2.utils import freeze_all
 import yolov3_tf2.dataset as dataset
 
+
+
 def run_train(train_dataset_in, val_dataset_in, tiny,
               weights, classifiers, mode, transfer, size, epochs, batch_size,
               learning_rate, num_classes, weights_num_classes, checkpoint_path, total_checkpoints):
 
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+    checkpoint_path = checkpoint_path.replace("//", "/")
     if len(physical_devices) > 0:
         True
         # TODO fix this it causes an error that the device is already initialized
@@ -153,7 +158,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
                       run_eagerly=(mode == 'eager_fit'))
         callbacks = [
             ReduceLROnPlateau(verbose=1),
-            EarlyStopping(patience=3, verbose=1),
+            EarlyStopping(patience=3, monitor='val_loss', verbose=1),
             ModelCheckpoint(checkpoint_path + 'yolov3_train_{epoch}.tf',
                             verbose=1, save_weights_only=True),
             TensorBoard(log_dir='logs')
@@ -171,7 +176,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
             print("\tTraining in batches to save memory")
             while batches <= total_batches:
                 print("\n=======================================")
-                print("Batch " + str(batches) + "/" + str(total_batches + extra_batch))
+                print("             Batch " + str(batches) + "/" + str(total_batches + extra_batch))
                 print("=======================================\n")
                 history = model.fit(train_dataset,
                                     epochs=total_checkpoints,
@@ -180,10 +185,10 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
                 batches += 1
 
             if batch_remainder != 0:
-                 print("\n=======================================")
-                 print("Batch " + str(batches) + "/" + str(total_batches + extra_batch))
-                 print("=======================================\n")
-                 history = model.fit(train_dataset,
+                print("\n\t=======================================")
+                print("\t           Batch " + str(batches) + "/" + str(total_batches + extra_batch))
+                print("\t=======================================\n")
+                history = model.fit(train_dataset,
                                      epochs=batch_remainder,
                                      callbacks=callbacks,
                                      validation_data=val_dataset)

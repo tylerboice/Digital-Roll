@@ -6,7 +6,7 @@ import time
 from os import path
 
 unlabelled_files = []
-CHECKPOINT_KEYWORD = "train_"
+CHECKPOINT_KEYWORD = "yolov3_train_"
 ERROR = "ERROR_MESSAGE"
 ########################## Checking FOR FILES #############################
 # checks if all necessary files exist
@@ -217,13 +217,11 @@ def get_last_checkpoint(checkpoint_path):
             if os.path.isdir(filename):
                 temp_check = get_last_checkpoint(filename)
                 if  last_checkpoint_num < get_checkpoint_int(temp_check):
-                    last_checkpoint = checkpoint_path + temp_check.split(".")[0] + ".tf.index"
-            if 'tf.index' and 'train' in filename:
-               if 'of' not in filename:
-                   current = get_checkpoint_int(filename)
-                   if last_checkpoint_num < int(current):
-                       last_checkpoint_num = int(current)
-                       last_checkpoint = checkpoint_path + filename.split(".")[0] + ".tf.index"
+                    last_checkpoint = checkpoint_path + temp_check
+            if CHECKPOINT_KEYWORD and '.tf.index' in filename:
+               if last_checkpoint_num < get_checkpoint_int(filename):
+                   last_checkpoint_num = get_checkpoint_int(filename)
+                   last_checkpoint = checkpoint_path + filename
     if last_checkpoint_num == -1:
         last_checkpoint = ERROR
     return last_checkpoint
@@ -246,7 +244,7 @@ def get_num_classes(file):
     return num_classes
 
 ########################## SAVE CHECKPOINTS ##########################
-def save_session(checkpoint_output, save_sess_path, max_saved_sess):
+def save_session(default_output, checkpoint_output, save_sess_path, max_saved_sess):
     keyword = "saved_session-"
     contents = False
     if not os.path.exists(save_sess_path):
@@ -259,9 +257,10 @@ def save_session(checkpoint_output, save_sess_path, max_saved_sess):
             contents = True
     if contents:
         os.mkdir(current_sess)
-        print("\tPrevious session stored in: " + split_path(current_sess) + "\n")
-        for file in os.listdir(checkpoint_output):
-            shutil.move(checkpoint_output + file, current_sess)
+        print("\tPrevious session stored in: " + from_workbench(current_sess) + "\n")
+        if checkpoint_output == default_output:
+            for file in os.listdir(checkpoint_output):
+                shutil.move(checkpoint_output + file, current_sess)
 
 
 ########################## REMOVE SMALLEST SESS ##########################
@@ -281,7 +280,7 @@ def remove_smallest_sess(save_sess_path, max_saved_sess, keyword):
         oldest_sess = save_sess_path + keyword + str(oldest_file)
         shutil. rmtree(oldest_sess)
         session_values.remove(oldest_file)
-        print("\tOldest session: " + split_path(oldest_sess) + " was removed\n")
+        print("\tOldest session: " + from_workbench(oldest_sess) + " was removed\n")
 
     # get newest value
     if len(session_values) > 0:
@@ -295,7 +294,7 @@ def remove_smallest_sess(save_sess_path, max_saved_sess, keyword):
 
 ###### Split path
 # Takes a path and returns everying after the workbench directory
-def split_path(path):
+def from_workbench(path):
     keyword = "Workbench"
     if isinstance(path, int) or isinstance(path, float):
         return str(path)
@@ -313,6 +312,10 @@ def split_path(path):
 # Example: yolov3_train_1.tf.index
 # returns: .tf.index
 def rename_checkpoints(checkpoint_path, max_checkpoints):
+    checkpoint_count = get_checkpoint_count(checkpoint_path)
+    if checkpoint_count != max_checkpoints:
+        return
+
     files_renamed = 0
     oldest_file = get_oldest_checkpoint(checkpoint_path)
     oldest_file_int = get_checkpoint_int(oldest_file)
@@ -328,7 +331,7 @@ def rename_checkpoints(checkpoint_path, max_checkpoints):
         files_renamed -= 1
         oldest_file_diff -= 1
     current_checkpoint = max_checkpoints + files_renamed
-    set_to_value = max_checkpoints\
+    set_to_value = max_checkpoints
 
     while set_to_value > 0:
         for file in os.listdir(checkpoint_path):
@@ -339,10 +342,10 @@ def rename_checkpoints(checkpoint_path, max_checkpoints):
         set_to_value -= 1
         current_checkpoint -= 1
 
-
+##################### WRITE TO CHECKPOINT FILE ########################
 def write_to_checkpoint(checkpoint_name, filename):
     quote = '"'
-    checkpoint_name = "yolov3_train" + checkpoint_name.split("yolov3_train")[1]
+    checkpoint_name = CHECKPOINT_KEYWORD + checkpoint_name.split(CHECKPOINT_KEYWORD)[1]
     models = "model_checkpoint_path: "
     all_models = "all_model_checkpoint_paths: "
     with open(filename, "w") as f:
@@ -370,8 +373,7 @@ def get_checkpoint_name(file):
 def get_checkpoint_int(file):
     try:
         file_name = file.split(".")[0]
-        oldest_file_int = int(file_name.split("_")[2])
-        return oldest_file_int
+        return int(file_name.split(CHECKPOINT_KEYWORD)[1])
     except:
         return 0
 
@@ -389,6 +391,15 @@ def get_oldest_checkpoint(checkpoint_path):
                 oldest_file = file
                 oldest = last_modified
     return oldest_file
+
+
+##################### GET CHECKPOINT COUNT ###############################
+def get_checkpoint_count(path):
+    chekpoint_count = 0
+    for files in os.listdir(path):
+        if CHECKPOINT_KEYWORD in files and ".tf.index" in files:
+            chekpoint_count += 1
+    return chekpoint_count
 
 ############################ GET MONTH ###############################
 # takes three letter abreviation of month and returns it month number
