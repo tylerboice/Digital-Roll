@@ -270,7 +270,14 @@ def load(pref_path):
                         print("\n\t       ==> none, darknet, no_output, frozen, fine_tune")
                         error = True
 
-                elif defaults.VALID_IN_VAR + "=" in line:
+                elif defaults.VALID_IMGS_VAR + SPLIT_CHAR in line:
+                    try:
+                        preferences.validate_img_num = int(txt_input)
+                    except:
+                        err_message("Bad valid image value given, cannot convert to int")
+                        error = True
+
+                elif defaults.VALID_IN_VAR + SPLIT_CHAR in line:
                     txt_input = line.split("=")[1]
                     txt_input = txt_input.strip()
                     if path.exists(txt_input):
@@ -279,7 +286,7 @@ def load(pref_path):
                         err_message("Failed to find directory for validation")
                         error = True
 
-                elif defaults.WEIGHTS_PATH_VAR + "=" in line:
+                elif defaults.WEIGHTS_PATH_VAR + SPLIT_CHAR in line:
                     txt_input = line.split("=")[1]
                     txt_input = txt_input.strip()
                     if path.exists(txt_input):
@@ -320,6 +327,7 @@ def save(save_path):
         f.write(defaults.OUTPUT_VAR + "= " + str(preferences.output) + "\n")
         f.write(defaults.TINY_WEIGHTS_VAR + "= " + str(preferences.tiny) + "\n")
         f.write(defaults.TRANSFER_VAR + "= " + str(preferences.transfer) + "\n")
+        f.write(defaults.VALID_IMG_VAR + "= " + str(preferences.validate_img_num) + "\n")
         f.write(defaults.VALID_IN_VAR + "= " + str(preferences.validate_input) + "\n")
         f.write(defaults.WEIGHTS_CLASS_VAR + "= " + str(preferences.weight_num_classes) + "\n")
 
@@ -331,7 +339,7 @@ def run(start_from):
     # run was called, start from beginning
 
     if start_from == START:
-        error = files.checkIfNecessaryPathsAndFilesExist(defaults.IMAGES_PATH,
+        total_images = files.checkIfNecessaryPathsAndFilesExist(defaults.IMAGES_PATH,
                                                          defaults.MIN_IMAGES,
                                                          preferences.output,
                                                          defaults.TEST_IMAGE_PATH,
@@ -339,7 +347,15 @@ def run(start_from):
                                                          defaults.VALIDATE_IMAGE_PATH,
                                                          defaults.YOLO_PATH)
 
-        if not error:
+        if total_images == 0:
+            err_message("No images have been found in the image folder")
+            print("\t\tImage Folder Location: " + defaults.IMAGES_PATH)
+            print("\n\t\tFor an example set, look at the Pre_Labeled_Images folder in the repository or at https://github.com/tylerboice/Digital-Roll\n")
+            return
+
+        elif total_images < defaults.MIN_IMAGES:
+            err_message("Workbench needs at minimum " + str(defaults.MIN_IMAGES) + " to train" )
+            print("\t       However it is recommended you have around 1000 per classifier")
             return
 
 
@@ -351,15 +367,20 @@ def run(start_from):
 
         # sort all the images
         print("Sorting images...")
-        files.sort_images(defaults.DEFAULT_NUM_VAL_IMAGES,
+        files.sort_images(preferences.validate_img_num,
                           defaults.IMAGES_PATH,
                           defaults.TEST_IMAGE_PATH,
                           defaults.TRAIN_IMAGE_PATH,
-                          defaults.VALIDATE_IMAGE_PATH
+                          preferences.validate_input,
+                          total_images
                           )
         print("\n\tAll images sorted!\n\n")
 
         # generate tf records
+        if len(classifiers) == 0:
+            err_message("No Classifiers found, make sure you labelled the images")
+            return
+
         print("Generating images and xml files into tfrecords...\n")
         generate_tf.generate_tfrecords(defaults.TRAIN_IMAGE_PATH,
                                       preferences.dataset_train)
@@ -374,12 +395,12 @@ def run(start_from):
 
         # convert to checkpoint
         print("\nConverting records to checkpoint...\n")
-        #blockPrint()
+        blockPrint()
         convert_weights.run_weight_convert(preferences.weights,
                                            preferences.output + "/yolov3.tf",
                                            preferences.tiny,
                                            preferences.weight_num_classes)
-        #enablePrint()
+        enablePrint()
         weights = (preferences.output + "/yolov3.tf").replace("//", "/")
 
         print("\tCheckpoint Converted!\n")
@@ -400,12 +421,13 @@ def run(start_from):
             weight_num = preferences.num_classes
             print("\n\tContinuing from " + weights)
             print("\nResume Training... \n")
+            transfer_mode = "fine_tune"
 
         # train from scratch
         else:
             print("\nBegin Training... \n")
             weight_num = preferences.weight_num_classes
-
+            transfer_mode = preferences.transfer
 
         # start training
         train_workbench.run_train(preferences.dataset_train,
@@ -414,7 +436,7 @@ def run(start_from):
                                   convert_weights,
                                   preferences.classifier_file,
                                   preferences.mode,
-                                  preferences.transfer,
+                                  transfer_mode,
                                   preferences.image_size,
                                   preferences.epochs,
                                   preferences.batch_size,
@@ -460,12 +482,10 @@ def run(start_from):
 
     # create Tensorflow Lite model
     try:
-
-        yolo = YoloV3(preferences.image_size, True, preferences.num_classes)
-        yolo.load_weights(chkpnt_weights)
-        converter = tf.lite.TFLiteConverter.from_keras_model(yolo)
+        # convert model to tensorflow lite for android use
+        converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
         tflite_model = converter.convert()
-        open(tflite_model_path, 'wb').write(tflite_model)
+        open("converted_model.tflite", "wb").write(tflite_model)
 
         print("\n\tTensorflow Lite model created!")
 
@@ -731,6 +751,13 @@ def main():
                                 print("\t\n       ==> none, darknet, no_output, frozen, fine_tune")
                                 error = True
 
+                        elif userInputArr[1] == defaults.VALID_IMGS_VAR:
+                            try:
+                                preferences.validate_img_num = int(userInputArr[2])
+                            except:
+                                err_message("Please give an integer value")
+                                error = True
+                                
                         elif userInputArr[1] == defaults.VALID_IN_VAR:
                             if path.exists(userInputArr[2]):
                                 preferences.validate_input = userInputArr[2]

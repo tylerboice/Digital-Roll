@@ -65,8 +65,12 @@ transfer = defaults.check_preferences(defaults.TRANSFER_VAR,
                                       defaults.FLAGS.transfer,
                                       defaults.TRANSFER_OPTIONS)
 
+validate_img_num = defaults.check_preferences(defaults.VALID_IMGS_VAR,
+                                              defaults.FLAGS.val_img_num,
+                                              defaults.INT)
+
 validate_input = defaults.check_preferences(defaults.VALID_IN_VAR,
-                                            defaults.FLAGS.val_image,
+                                            defaults.FLAGS.val_image_path,
                                             defaults.FILE)
 
 weight_num_classes = defaults.check_preferences(defaults.WEIGHTS_NUM_VAR,

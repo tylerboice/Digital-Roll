@@ -166,11 +166,10 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
         total_batches = math.floor(epochs/total_checkpoints)
         batch_remainder = epochs % total_checkpoints
         batches = 1
+        extra_batch = 0
 
         if batch_remainder != 0:
             extra_batch = 1
-        else:
-            extra_batch = 0
 
         if total_checkpoints > 0 and total_checkpoints < epochs:
             print("\tTraining in batches to save memory")
@@ -185,9 +184,9 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
                 batches += 1
 
             if batch_remainder != 0:
-                print("\n\t=======================================")
-                print("\t           Batch " + str(batches) + "/" + str(total_batches + extra_batch))
-                print("\t=======================================\n")
+                print("\n=======================================")
+                print("             Batch " + str(batches) + "/" + str(total_batches + extra_batch))
+                print("=======================================\n")
                 history = model.fit(train_dataset,
                                      epochs=batch_remainder,
                                      callbacks=callbacks,
