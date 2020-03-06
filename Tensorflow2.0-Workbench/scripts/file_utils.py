@@ -4,6 +4,7 @@ import shutil
 import time
 import xml.etree.ElementTree as ET
 import base64
+from scripts import defaults
 
 from os import path
 
@@ -29,8 +30,8 @@ def checkIfNecessaryPathsAndFilesExist(image_path, min_images, output_path, test
     images_found = check_for_images(image_path, min_images)
     if images_found != 0:
         ####### DATA PATH #######
-        if not os.path.exists(DATA_PATH):
-            os.mkdir(DATA_PATH)
+        if not os.path.exists(defaults.DATA_PATH):
+            os.mkdir(defaults.DATA_PATH)
 
         ####### OUTPUT MODEL PATH #######
         if not os.path.exists(output_path):
