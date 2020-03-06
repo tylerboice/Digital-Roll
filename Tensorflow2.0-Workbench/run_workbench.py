@@ -485,9 +485,12 @@ def main():
             elif userInput.replace(" ", "") == "run" or userInput.replace(" ", "") == "r":
                 run(START)
 
-            elif userInput.replace(" ", "") == "lite" or userInput.replace(" ", "") == "l":
+            elif userInput.replace(" ", "") == "tflite" or userInput.replace(" ", "") == "i":
                 # convert model to tensorflow lite for android use
-                converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
+                model = tf.saved_model.load(preferences.output)
+                concrete_func = model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
+                concrete_func.outputs[0] = [1, 1000, 4]
+                converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
                 tflite_model = converter.convert()
                 open("converted_model.tflite", "wb").write(tflite_model)
 

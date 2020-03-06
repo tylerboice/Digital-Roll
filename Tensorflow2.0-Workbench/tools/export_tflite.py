@@ -1,3 +1,4 @@
+import os
 import time
 from absl import app, flags, logging
 from absl.flags import FLAGS
@@ -12,30 +13,37 @@ from yolov3_tf2.dataset import transform_images
 from tensorflow.python.eager import def_function
 from tensorflow.python.framework import tensor_spec
 from tensorflow.python.util import nest
+from os import path
 
-flags.DEFINE_string('weights', './checkpoints/yolov3.tf',
-                    'path to weights file')
-flags.DEFINE_boolean('tiny', False, 'yolov3 or yolov3-tiny')
-flags.DEFINE_string('output', './checkpoints/yolov3.tflite',
+os.chdir("..")
+
+CWD_PATH = os.getcwd().replace("\\", "/") + "/"
+
+flags.DEFINE_string('model', CWD_PATH + 'current_session/',
+                    'path to model file')
+flags.DEFINE_string('output', CWD_PATH + 'current_session/yolov3.tflite',
                     'path to saved_model')
-flags.DEFINE_string('classes', './data/classifier.names', 'path to classes file')
-flags.DEFINE_string('image', './data/dice.png', 'path to input image')
+flags.DEFINE_string('classes', CWD_PATH + 'data/classifier.names', 'path to classes file')
+flags.DEFINE_string('image', CWD_PATH + 'data/dice.jpg', 'path to input image')
 flags.DEFINE_integer('num_classes', 18, 'number of classes in the model')
-flags.DEFINE_integer('size', 416, 'image size')
+flags.DEFINE_integer('size', 224, 'image size')
 
-# TODO: This is broken DOES NOT WORK !!
 def main(_argv):
-    if FLAGS.tiny:
-        yolo = YoloV3Tiny(size=FLAGS.size, classes=FLAGS.num_classes)
-    else:
-        yolo = YoloV3(size=FLAGS.size, classes=FLAGS.num_classes)
+    model = tf.saved_model.load(FLAGS.model)
+    print("Model Loaded")
 
-    yolo.load_weights(FLAGS.weights)
-    logging.info('weights loaded')
+    concrete_func = model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
+    print("Output Shape: " + concrete_func.structured_outputs)
+    # Methods of changing output shape attempted:
+        # tf.expand_dims(concrete_func.outputs[0], 0) --x> TypeError, an op outside of the function building...
+        # concrete_func = tf.reshape(concrete_func.outputs, [1, 1000, 4]) --x> TypeError, an op outside of the function building...
+        # tf.expand_dims(concrete_func.outputs[0], 0) --x> TypeError, an op outside of the function building...
+        # also added experimental_run_tf_function=False to the .comile call in train_workbench, did not fix above errors
 
-    converter = tf.lite.TFLiteConverter.from_keras_model(yolo)
+    converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
     tflite_model = converter.convert()
-    open(FLAGS.output, 'wb').write(tflite_model)
+    open(FLAGS.output, "wb").write(tflite_model)
+
     logging.info("model saved to: {}".format(FLAGS.output))
 
     interpreter = tf.lite.Interpreter(model_path=FLAGS.output)
@@ -50,7 +58,7 @@ def main(_argv):
 
     img = tf.image.decode_image(open(FLAGS.image, 'rb').read(), channels=3)
     img = tf.expand_dims(img, 0)
-    img = transform_images(img, 416)
+    img = transform_images(img, 224)
 
     t1 = time.time()
     outputs = interpreter.set_tensor(input_details[0]['index'], img)

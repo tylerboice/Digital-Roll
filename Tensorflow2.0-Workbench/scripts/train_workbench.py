@@ -150,7 +150,8 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
                 checpoint_path +'yolov3_train_{}.tf'.format(epoch))
     else:
         model.compile(optimizer=optimizer, loss=loss,
-                      run_eagerly=(mode == 'eager_fit'))
+                      run_eagerly=(mode == 'eager_fit'),
+                      experimental_run_tf_function=False)
         callbacks = [
             ReduceLROnPlateau(verbose=1),
             EarlyStopping(patience=3, verbose=1),
