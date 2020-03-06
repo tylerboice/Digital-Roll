@@ -1,49 +1,52 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import codecs
-import distutils.spawn
-import os.path
-import platform
-import re
-import sys
-import subprocess
-
-from functools import partial
-from collections import defaultdict
-
 try:
-    from PyQt5.QtGui import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtWidgets import *
-except ImportError:
-    # needed for py3+qt4
-    # Ref:
-    # http://pyqt.sourceforge.net/Docs/PyQt4/incompatible_apis.html
-    # http://stackoverflow.com/questions/21217399/pyqt4-qtcore-qvariant-object-instead-of-a-string
-    if sys.version_info.major >= 3:
-        import sip
-        sip.setapi('QVariant', 2)
-    from PyQt4.QtGui import *
-    from PyQt4.QtCore import *
+    import codecs
+    import distutils.spawn
+    import os.path
+    import platform
+    import re
+    import sys
+    import subprocess
 
-from libs.resources import *
-from libs.constants import *
-from libs.utils import *
-from libs.settings import Settings
-from libs.shape import Shape, DEFAULT_LINE_COLOR, DEFAULT_FILL_COLOR
-from libs.stringBundle import StringBundle
-from libs.canvas import Canvas
-from libs.zoomWidget import ZoomWidget
-from libs.labelDialog import LabelDialog
-from libs.colorDialog import ColorDialog
-from libs.labelFile import LabelFile, LabelFileError
-from libs.toolBar import ToolBar
-from libs.pascal_voc_io import PascalVocReader
-from libs.pascal_voc_io import XML_EXT
-from libs.yolo_io import YoloReader
-from libs.yolo_io import TXT_EXT
-from libs.ustr import ustr
-from libs.hashableQListWidgetItem import HashableQListWidgetItem
+    from functools import partial
+    from collections import defaultdict
+
+    try:
+        from PyQt5.QtGui import *
+        from PyQt5.QtCore import *
+        from PyQt5.QtWidgets import *
+    except ImportError:
+        # needed for py3+qt4
+        # Ref:
+        # http://pyqt.sourceforge.net/Docs/PyQt4/incompatible_apis.html
+        # http://stackoverflow.com/questions/21217399/pyqt4-qtcore-qvariant-object-instead-of-a-string
+        if sys.version_info.major >= 3:
+            import sip
+            sip.setapi('QVariant', 2)
+        from PyQt4.QtGui import *
+        from PyQt4.QtCore import *
+
+    from libs.resources import *
+    from libs.constants import *
+    from libs.utils import *
+    from libs.settings import Settings
+    from libs.shape import Shape, DEFAULT_LINE_COLOR, DEFAULT_FILL_COLOR
+    from libs.stringBundle import StringBundle
+    from libs.canvas import Canvas
+    from libs.zoomWidget import ZoomWidget
+    from libs.labelDialog import LabelDialog
+    from libs.colorDialog import ColorDialog
+    from libs.labelFile import LabelFile, LabelFileError
+    from libs.toolBar import ToolBar
+    from libs.pascal_voc_io import PascalVocReader
+    from libs.pascal_voc_io import XML_EXT
+    from libs.yolo_io import YoloReader
+    from libs.yolo_io import TXT_EXT
+    from libs.ustr import ustr
+    from libs.hashableQListWidgetItem import HashableQListWidgetItem
+except:
+    print("\nERROR: run: \n\tpip instlal  pyqt5 \n\tpyrcc5 -o libs/resources.py resources.qrc")
 
 __appname__ = 'labelImg'
 

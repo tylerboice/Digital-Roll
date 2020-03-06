@@ -2,23 +2,36 @@ import os
 import random
 import shutil
 import time
+import xml.etree.ElementTree as ET
+import base64
 
 from os import path
 
-unlabelled_files = []
-CHECKPOINT_KEYWORD = "train_"
+# Global variables
+unlabelled_files = []                # all imgs found that don't have correspoding xml
+CHECKPOINT_KEYWORD = "yolov3_train_" # prefix to all checkpoints
+ERROR = "ERROR_MESSAGE"              # Error message value
+
+
 ########################## Checking FOR FILES #############################
 # checks if all necessary files exist
 def checkIfNecessaryPathsAndFilesExist(image_path, min_images, output_path, test_image_path,
                                        train_image_path, val_image_path, weights_path):
 
+    image_path = (image_path + "/").replace("//", "/")
+
     ####### IMAGE PATH #######
     if not os.path.exists(image_path):
         os.mkdir(image_path)
-
+    extract_img_from_xml(image_path)
+    extract_sub_dirs(image_path, image_path)
+    remove_empty_folders(image_path)
     images_found = check_for_images(image_path, min_images)
+    if images_found != 0:
+        ####### DATA PATH #######
+        if not os.path.exists(DATA_PATH):
+            os.mkdir(DATA_PATH)
 
-    if images_found:
         ####### OUTPUT MODEL PATH #######
         if not os.path.exists(output_path):
             os.mkdir(output_path)
@@ -48,7 +61,6 @@ def checkIfNecessaryPathsAndFilesExist(image_path, min_images, output_path, test
 def check_for_images(path, min_images):
 
     total_images = get_img_count(path)
-
     # print total image count
     print("\nTotal images = " + str(total_images))
     print("Images not labelled = " + str(len(unlabelled_files)))
@@ -57,65 +69,104 @@ def check_for_images(path, min_images):
         for item in unlabelled_files:
             print("\t" + item)
 
-    # No images Found
-    if total_images == 0:
-        print("\nERROR: No images have been found in the image folder")
-        print("\n\tImage Folder Location: " + path)
-        print("\n\tFor an example set, look at the Pre_Labeled_Images folder in the repository or at https://github.com/tylerboice/Digital-Roll")
-        return False
+    return total_images
 
-    # total images must be greater than pre-defined count to train on
-    elif total_images < min_images:
-        print("\n\nTensorflow needs at least " + str(min_images) + " images to train")
-        return False
+########################## GET_IMAGE_COUNT #############################
+# recursivly checks driectory for images
+def extract_sub_dirs(image_path, current_path):
+    current_path = (current_path + "/").replace("//", "/")
+    new_images = False
+    for filename in os.listdir(current_path):
+        if '.jpg' in filename:
+            new_images = True
+    if new_images:
+        for filename in os.listdir(current_path):
+            if os.path.isdir(current_path + filename):
+                extract_sub_dirs(image_path, current_path + filename)
+            elif '.jpg' in filename or ".xml" in filename:
+                shutil.move(current_path + filename, image_path + filename)
 
-    return True
+
+###################### EXTRACT IMG FROM XML #############################
+def extract_img_from_xml(path):
+    if os.path.isdir(path):
+        path = (path + "/").replace("//", "/")
+        for file in os.listdir(path):
+            extract_img_from_xml(path + file)
+
+    elif ".xml" in path:
+        tree = ET.parse(path)
+        root = tree.getroot()
+        for img in root.findall('img'):
+            base64_str = img.text.replace('Optional("', "").replace('=")', "")
+            base64_remainder = len(base64_str) % 4
+            while base64_remainder > 0:
+                base64_str += "="
+                base64_remainder -= 1
+            filename = path.replace(".xml", ".jpg")
+            decoded_str = base64.b64decode(base64_str)
+
+            with open(filename, 'wb') as f:
+                f.write(decoded_str)
+
+
+########################## REMOVE_EMPTY_FOLDERS #############################
+# recursivly checks driectory for images
+def remove_empty_folders(path):
+    for file in os.listdir(path):
+        if os.path.isdir(path + file):
+            file_path = path + file
+            if len(os.listdir(file_path)) == 0:
+                os.rmdir(file_path)
+
 
 ########################## GET_IMAGE_COUNT #############################
 # recursivly checks driectory for images
 def get_img_count(path):
     # Method Variables
+
     total_images = 0
-
     # For every file image in the image dir, check if it has an xml file and move it
-    for filename in os.listdir(path):
-        if os.path.isdir(path + filename):
+    if os.path.isdir(path):
+        path = (path + "/").replace("//", "/")
+        for filename in os.listdir(path):
             total_images += get_img_count(path + filename)
-        elif '.png' in filename or '.jpg' in filename or '.jpeg' in filename:
-            found_label = False
-            xml_version = "/" +filename.split(".")[0] + ".xml"
-            total_images += 1
-            # check if cml for image was found
-            if os.path.exists(path + xml_version):
-                found_label = True
+    if  '.jpg' in path:
+        found_label = False
+        xml_version = path.split(".jpg")[0] + ".xml"
+        total_images += 1
+        # check if xml for image was found
+        if os.path.exists(xml_version):
+            found_label = True
 
-            # if image was found but label was not:
-            if found_label == False:
-                unlabelled_files.append(filename)
+        # if image was found but label was not:
+        if found_label == False:
+            unlabelled_files.append(path)
     return total_images
+
 
 ########################## SORT IMAGES #############################
 # Takes all the images in the image folder and places them in test, train and validate
 # Train = 90% of the images
 # Test = 10% of the images
 # Validate = takes user spicifed amount of files out of train (num_validate)
-def sort_images(num_validate, image_path, test_image_path, train_image_path, val_image_path):
+def sort_images(num_validate, image_path, test_image_path, train_image_path, val_image_path, total_images):
 
     # Method Variables
-    total_images = 0
+    current_image = 0
     train_images = 0
     valid_images = []
     get_valid = False
 
     # For every file image in the image dir, check if it has an xml file and move it
     for filename in os.listdir(image_path):
-        if '.png' in filename or '.jpg' in filename or '.jpeg' in filename:
+        if '.jpg' in filename:
             found_label = False
             xml_version = filename.split(".")[0] + ".xml"
-            total_images += 1
+            current_image += 1
 
             # move to test
-            if total_images % 10 == 0:
+            if (current_image % 10 == 0) or (total_images < 10 and current_image == total_images):
                 if path.exists(image_path + xml_version):
                     if not path.exists(test_image_path + filename) and not path.exists(test_image_path + xml_version):
                         shutil.move(image_path + filename, test_image_path)
@@ -130,15 +181,10 @@ def sort_images(num_validate, image_path, test_image_path, train_image_path, val
                         shutil.move(image_path + xml_version, train_image_path)
                         found_label = True
 
-    # count all image and .xml files in test
-    for filename in os.listdir(test_image_path):
-        if '.png' in filename or '.jpg' in filename or '.jpeg' in filename:
-            total_images += 1
 
     # count all image and .xml files in train
     for filename in os.listdir(train_image_path):
         if '.png' in filename or '.jpg' in filename or '.jpeg' in filename:
-            total_images += 1
             train_images += 1
 
     # move all files in validate to train
@@ -146,10 +192,11 @@ def sort_images(num_validate, image_path, test_image_path, train_image_path, val
         shutil.move(val_image_path + file, train_image_path)
 
     # gather all valid images from train
-    while len(valid_images) < num_validate:
-        next_valid = random.randint(1, train_images)
-        if next_valid not in valid_images:
-            valid_images.append(next_valid)
+    if train_images - 1 > num_validate:
+        while len(valid_images) < num_validate:
+            next_valid = random.randint(1, train_images)
+            if next_valid not in valid_images:
+                valid_images.append(next_valid)
 
     # move random valid images from train to validate
     file_count = 0
@@ -162,35 +209,30 @@ def sort_images(num_validate, image_path, test_image_path, train_image_path, val
                 if path.exists(train_image_path + xml_version):
                     shutil.move(train_image_path + xml_version, val_image_path)
 
+
 ########################## GET CLASSIFIERS #############################
 # Reads all the xml files and gathers all the unique classifiers
 def get_classifiers(data_dir):
     class_counter = 0
     classifiers = []
-    name_tag = "<name>"
-    name_end_tag = "</name>"
-    for file in os.listdir(data_dir):
-        if path.isfile(data_dir + file) == False:
-            dir = data_dir + file + "/"
-            nested_folder = get_classifiers(dir)
-            if classifiers == None or classifiers == []:
+    if os.path.isdir(data_dir):
+        data_dir = (data_dir + "/").replace("//", "/")
+        for file in os.listdir(data_dir):
+            nested_folder = get_classifiers(data_dir + "/" + file)
+            if classifiers == []:
                 classifiers = nested_folder
             else:
                 classifiers = classifiers + list(set(nested_folder) - set(classifiers))
 
-        if ".xml" in file:
-            with open(data_dir + file, "r") as f:
-                for line in f.readlines():
-                    if name_tag in line:
-                        name = line.replace(name_end_tag, "")
-                        name = name.replace(name_tag, "")
-                        name = name.replace("\t", "")
-                        name = name.replace("\n", "")
-                        if name not in classifiers:
-                            classifiers.append(name)
-                            classifiers.sort()
+    if ".xml" in data_dir:
+        tree = ET.parse(data_dir)
+        root = tree.getroot()
+        for object in root.findall('object'):
+            for name in object.findall('name'):
+                if name.text not in classifiers:
+                    classifiers.append(name.text)
+                    classifiers.sort()
     return classifiers
-
 
 
 ########################## CREATE_CLASSIFIER_NAMES #############################
@@ -209,23 +251,29 @@ def create_classifier_file(file, classifiers):
 def get_last_checkpoint(checkpoint_path):
     last_checkpoint_num = -1
     last_checkpoint = ""
+    if checkpoint_path[:-1] != "/":
+        checkpoint_path += "/"
     if os.path.exists(checkpoint_path):
         for filename in os.listdir(checkpoint_path):
-            if 'tf.index' and 'train' in filename:
-               if 'of' not in filename:
-                   current = get_checkpoint_int(filename)
-                   if last_checkpoint_num < int(current):
-                       last_checkpoint_num = int(current)
-                       last_checkpoint = checkpoint_path + filename.split(".")[0] + ".tf"
+            if os.path.isdir(filename):
+                temp_check = get_last_checkpoint(filename)
+                if  last_checkpoint_num < get_checkpoint_int(temp_check):
+                    last_checkpoint = checkpoint_path + temp_check
+            if CHECKPOINT_KEYWORD and '.tf.index' in filename:
+               if last_checkpoint_num < get_checkpoint_int(filename):
+                   last_checkpoint_num = get_checkpoint_int(filename)
+                   last_checkpoint = checkpoint_path + filename
     if last_checkpoint_num == -1:
-        last_checkpoint = "none"
+        last_checkpoint = ERROR
     return last_checkpoint
+
 
 ########################## GET INPUT ###########################
 def get_input(input, split_char):
     input = line.split(split_char)[1]
     input = input.strip()
     return input
+
 
 ########################## GET NUM CLASSES ##########################
 def get_num_classes(file):
@@ -238,8 +286,9 @@ def get_num_classes(file):
                 num_classes = num_classes + 1
     return num_classes
 
+
 ########################## SAVE CHECKPOINTS ##########################
-def save_session(checkpoint_output, save_sess_path, max_saved_sess):
+def save_session(default_output, checkpoint_output, save_sess_path, max_saved_sess):
     keyword = "saved_session-"
     contents = False
     if not os.path.exists(save_sess_path):
@@ -252,9 +301,10 @@ def save_session(checkpoint_output, save_sess_path, max_saved_sess):
             contents = True
     if contents:
         os.mkdir(current_sess)
-        print("\tPrevious session stored in " + split_path(current_sess) + "\n")
-        for file in os.listdir(checkpoint_output):
-            shutil.move(checkpoint_output + file, current_sess)
+        print("\tPrevious session stored in: " + from_workbench(current_sess) + "\n")
+        if checkpoint_output == default_output:
+            for file in os.listdir(checkpoint_output):
+                shutil.move(checkpoint_output + file, current_sess)
 
 
 ########################## REMOVE SMALLEST SESS ##########################
@@ -274,7 +324,7 @@ def remove_smallest_sess(save_sess_path, max_saved_sess, keyword):
         oldest_sess = save_sess_path + keyword + str(oldest_file)
         shutil. rmtree(oldest_sess)
         session_values.remove(oldest_file)
-        print("\tOldest session: " + split_path(oldest_sess) + " was removed\n")
+        print("\tOldest session: " + from_workbench(oldest_sess) + " was removed\n")
 
     # get newest value
     if len(session_values) > 0:
@@ -286,9 +336,10 @@ def remove_smallest_sess(save_sess_path, max_saved_sess, keyword):
     else:
         return 0
 
+
 ###### Split path
 # Takes a path and returns everying after the workbench directory
-def split_path(path):
+def from_workbench(path):
     keyword = "Workbench"
     if isinstance(path, int) or isinstance(path, float):
         return str(path)
@@ -301,11 +352,14 @@ def split_path(path):
         return path
 
 
-
 ############################ GET CHECKPONT EXTENSION ###############################
 # Example: yolov3_train_1.tf.index
 # returns: .tf.index
 def rename_checkpoints(checkpoint_path, max_checkpoints):
+    checkpoint_count = get_checkpoint_count(checkpoint_path)
+    if checkpoint_count != max_checkpoints:
+        return
+
     files_renamed = 0
     oldest_file = get_oldest_checkpoint(checkpoint_path)
     oldest_file_int = get_checkpoint_int(oldest_file)
@@ -321,7 +375,7 @@ def rename_checkpoints(checkpoint_path, max_checkpoints):
         files_renamed -= 1
         oldest_file_diff -= 1
     current_checkpoint = max_checkpoints + files_renamed
-    set_to_value = max_checkpoints\
+    set_to_value = max_checkpoints
 
     while set_to_value > 0:
         for file in os.listdir(checkpoint_path):
@@ -333,6 +387,16 @@ def rename_checkpoints(checkpoint_path, max_checkpoints):
         current_checkpoint -= 1
 
 
+##################### WRITE TO CHECKPOINT FILE ########################
+def write_to_checkpoint(checkpoint_name, filename):
+    quote = '"'
+    checkpoint_name = CHECKPOINT_KEYWORD + checkpoint_name.split(CHECKPOINT_KEYWORD)[1]
+    models = "model_checkpoint_path: "
+    all_models = "all_model_checkpoint_paths: "
+    with open(filename, "w") as f:
+        f.write(models + quote + checkpoint_name + quote)
+        f.write("\n")
+        f.write(all_models + quote + checkpoint_name + quote)
 
 
 ############################ GET CHECKPOINT NAME ###############################
@@ -346,16 +410,17 @@ def get_checkpoint_name(file):
     except:
         return file
 
+
 ############################ GET CHECKPOINT INT ###############################
 # Example: yolov3_train_1.tf.index
 # returns: 1
 def get_checkpoint_int(file):
     try:
         file_name = file.split(".")[0]
-        oldest_file_int = int(file_name.split("_")[2])
-        return oldest_file_int
+        return int(file_name.split(CHECKPOINT_KEYWORD)[1])
     except:
         return 0
+
 
 ############################ GET OLDEST CHECKPOINT ###############################
 # return the checkpoint with the oldest "last_modified" value
@@ -371,6 +436,16 @@ def get_oldest_checkpoint(checkpoint_path):
                 oldest_file = file
                 oldest = last_modified
     return oldest_file
+
+
+##################### GET CHECKPOINT COUNT ###############################
+def get_checkpoint_count(path):
+    chekpoint_count = 0
+    for files in os.listdir(path):
+        if CHECKPOINT_KEYWORD in files and ".tf.index" in files:
+            chekpoint_count += 1
+    return chekpoint_count
+
 
 ############################ GET MONTH ###############################
 # takes three letter abreviation of month and returns it month number
@@ -402,3 +477,9 @@ def get_month( month ):
     elif month == 'dec':
         return 12
     return 0
+
+
+############################ FILE IS VALID ###########################
+# Returns true if the file exists and is not empty, else false
+def is_valid(file):
+    return os.path.exists(file) and os.stat(file).st_size != 0

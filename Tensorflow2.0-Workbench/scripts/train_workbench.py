@@ -1,3 +1,5 @@
+from absl import app, flags, logging
+from absl.flags import FLAGS
 
 import tensorflow as tf
 import numpy as np
@@ -17,11 +19,14 @@ from yolov3_tf2.models import (
 from yolov3_tf2.utils import freeze_all
 import yolov3_tf2.dataset as dataset
 
-def run_train(train_dataset_in, val_dataset_in, tiny,
+
+
+def run_train(train_dataset_in, val_dataset_in, tiny, images,
               weights, classifiers, mode, transfer, size, epochs, batch_size,
-              learning_rate, num_classes, weights_num_classes, checpoint_path, total_checkpoints):
+              learning_rate, num_classes, weights_num_classes, checkpoint_path, total_checkpoints):
 
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+    checkpoint_path = checkpoint_path.replace("//", "/")
     if len(physical_devices) > 0:
         True
         # TODO fix this it causes an error that the device is already initialized
@@ -36,8 +41,10 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
         model = YoloV3(size, training=True, classes=num_classes)
         anchors = yolo_anchors
         anchor_masks = yolo_anchor_masks
-
-    train_dataset = dataset.load_fake_dataset()
+    try:
+        train_dataset = dataset.load_fake_dataset(images)
+    except:
+        return
     if train_dataset_in:
         train_dataset = dataset.load_tfrecord_dataset(
             train_dataset_in, classifiers, size)
@@ -49,7 +56,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
     train_dataset = train_dataset.prefetch(
         buffer_size=tf.data.experimental.AUTOTUNE)
 
-    val_dataset = dataset.load_fake_dataset()
+    val_dataset = dataset.load_fake_dataset(images)
     if val_dataset_in:
         val_dataset = dataset.load_tfrecord_dataset(
             val_dataset_in, classifiers, size)
@@ -147,32 +154,31 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
             avg_loss.reset_states()
             avg_val_loss.reset_states()
             model.save_weights(
-                checpoint_path +'yolov3_train_{}.tf'.format(epoch))
+                checkpoint_path +'yolov3_train_{}.tf'.format(epoch))
     else:
         model.compile(optimizer=optimizer, loss=loss,
                       run_eagerly=(mode == 'eager_fit'),
                       experimental_run_tf_function=False)
         callbacks = [
             ReduceLROnPlateau(verbose=1),
-            EarlyStopping(patience=3, verbose=1),
-            ModelCheckpoint(checpoint_path + 'yolov3_train_{epoch}.tf',
+            EarlyStopping(patience=3, monitor='val_loss', verbose=1),
+            ModelCheckpoint(checkpoint_path + 'yolov3_train_{epoch}.tf',
                             verbose=1, save_weights_only=True),
             TensorBoard(log_dir='logs')
         ]
         total_batches = math.floor(epochs/total_checkpoints)
         batch_remainder = epochs % total_checkpoints
         batches = 1
+        extra_batch = 0
 
         if batch_remainder != 0:
             extra_batch = 1
-        else:
-            extra_batch = 0
 
-        if total_checkpoints != 0:
+        if total_checkpoints > 0 and total_checkpoints < epochs:
             print("\tTraining in batches to save memory")
             while batches <= total_batches:
                 print("\n=======================================")
-                print("Batch " + str(batches) + "/" + str(total_batches + extra_batch))
+                print("             Batch " + str(batches) + "/" + str(total_batches + extra_batch))
                 print("=======================================\n")
                 history = model.fit(train_dataset,
                                     epochs=total_checkpoints,
@@ -181,10 +187,10 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
                 batches += 1
 
             if batch_remainder != 0:
-                 print("\n=======================================")
-                 print("Batch " + str(batches) + "/" + str(total_batches + extra_batch))
-                 print("=======================================\n")
-                 history = model.fit(train_dataset,
+                print("\n=======================================")
+                print("             Batch " + str(batches) + "/" + str(total_batches + extra_batch))
+                print("=======================================\n")
+                history = model.fit(train_dataset,
                                      epochs=batch_remainder,
                                      callbacks=callbacks,
                                      validation_data=val_dataset)
@@ -197,22 +203,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
 
 
 
-def remove_checkpoints(checkpoint_path, num_save_checks):
-    checkpoints = []
-    checkpoint_name = "yolov3_train_"
-    file_types = [".tf.index", ".tf.data-00000-of-00001"]
-    for file in checkpoint_path:
-        if file_types[0] in file:
-            print("found one: " + file)
-            file = file.split("train_")[0]
-            file = file.split(".")[0]
-            if file.isnumeric():
-              checkpoints.append(int(file))
-    while len(checkpoints) > num_save_checks:
-        lowest_check = checpointpath + checkpoint_name + str(find_lowest_check(checkpoints))
-        for types in file_types:
-            print("removing: " + lowest_check)
-            os.remove(lowest_check + type)
+
 
 def find_lowest_check(checkpoints):
     lowest_check = checkpoints[0]

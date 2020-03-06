@@ -5,7 +5,9 @@ import sys
 from yolov3_tf2.models import YoloV3, YoloV3Tiny
 from yolov3_tf2.utils import load_darknet_weights
 
+
 def run_weight_convert(weights, output, tiny, num_classes):
+    output = output.replace("//", "/")
 
     if tiny:
         yolo = YoloV3Tiny(classes=num_classes)

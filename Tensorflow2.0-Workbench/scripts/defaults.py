@@ -10,6 +10,8 @@ CWD_PATH = os.getcwd().replace("\\", "/") + "/"
 
 # DATA PATHS
 DATA_PATH = os.path.join(CWD_PATH , "data/")
+if not os.path.exists(DATA_PATH):
+    os.mkdir(DATA_PATH)
 
 # IMAGE SET PATHS
 IMAGES_PATH = os.path.join(CWD_PATH , "images/")
@@ -22,8 +24,7 @@ VALIDATE_IMAGE_PATH = os.path.join(IMAGES_PATH , "validate/")
 YOLO_PATH = os.path.join(DATA_PATH + "yolov3.weights")
 TINY_PATH = os.path.join(DATA_PATH + "yolov3-tiny.weights")
 
-MIN_IMAGES = 50
-DEFAULT_NUM_VAL_IMAGES = 3
+MIN_IMAGES = 3
 DEFAULT_LEARN_RATE = .001
 
 # HARD CODED VALUES
@@ -126,9 +127,13 @@ flags.DEFINE_enum( TRANSFER_VAR, DFEAULT_TRANSFER_TYPE, TRANSFER_OPTIONS,
                   'frozen: Transfer and freeze all, '
                   'fine_tune: Transfer all and freeze darknet only')
 
+############################## VALID IMAGE EXTRACTION ##################################
+VALID_IMGS_VAR = "val_img_num"
+DEFAULT_VALID_IMGS = 1
+flags.DEFINE_integer( VALID_IMGS_VAR, DEFAULT_VALID_IMGS, 'images to extract')
 
 ########################### VALID IMAGE PATH ####################################
-VALID_IN_VAR = "val_image"
+VALID_IN_VAR = "val_image_path"
 INPUT_IMAGE_PATH = os.path.join(IMAGES_PATH , "validate/")
 flags.DEFINE_string(VALID_IN_VAR, INPUT_IMAGE_PATH, 'path to image output')
 

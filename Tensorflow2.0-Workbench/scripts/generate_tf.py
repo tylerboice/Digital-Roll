@@ -84,23 +84,26 @@ def parse_xml(xml):
 
 ########################## GENERATE TFRECORDS #############################
 def generate_tfrecords(input_folder, output_file):
-    class_map = {name: idx for idx, name in enumerate(
-        open(preferences.classifier_file).read().splitlines())}
-    logging.info("Class mapping loaded: %s", class_map)
+    try:
+        class_map = {name: idx for idx, name in enumerate(
+            open(preferences.classifier_file).read().splitlines())}
+        logging.info("Class mapping loaded: %s", class_map)
 
-    writer = tf.io.TFRecordWriter(output_file)
-    image_list = []
-    # r=root, d=directories, f = files
-    for file in os.listdir(input_folder):
-        if '.jpg' in file:
-            image_list.append(file) #remove .jpg suffix
-    logging.info("Image list loaded: %d", len(image_list))
-    for image in tqdm.tqdm(image_list):
-        name = image[:len(image) - 4]
-        annotation_xml = os.path.join(input_folder, name + '.xml')
-        annotation_xml = lxml.etree.fromstring(open(annotation_xml).read())
-        annotation = parse_xml(annotation_xml)['annotation']
-        tf_example = build_example(annotation, class_map, input_folder)
-        writer.write(tf_example.SerializeToString())
-    writer.close()
-    logging.info("Done")
+        writer = tf.io.TFRecordWriter(output_file)
+        image_list = []
+        # r=root, d=directories, f = files
+        for file in os.listdir(input_folder):
+            if '.jpg' in file:
+                image_list.append(file) #remove .jpg suffix
+        logging.info("Image list loaded: %d", len(image_list))
+        for image in tqdm.tqdm(image_list):
+            name = image[:len(image) - 4]
+            annotation_xml = os.path.join(input_folder, name + '.xml')
+            annotation_xml = lxml.etree.fromstring(open(annotation_xml).read())
+            annotation = parse_xml(annotation_xml)['annotation']
+            tf_example = build_example(annotation, class_map, input_folder)
+            writer.write(tf_example.SerializeToString())
+        writer.close()
+        logging.info("Done")
+    except FileNotFoundError:
+            print("")
