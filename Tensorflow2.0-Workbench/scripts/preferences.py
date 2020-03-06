@@ -1,5 +1,5 @@
 from scripts import defaults
-from scripts import files
+from scripts import file_utils
 
 from absl import app, flags, logging
 from absl.flags import FLAGS
@@ -44,7 +44,7 @@ mode = defaults.check_preferences(defaults.MODE_VAR,
                                   defaults.FLAGS.mode,
                                   defaults.MODE_OPTIONS)
 
-num_classes = files.get_num_classes(classifier_file)
+num_classes = file_utils.get_num_classes(classifier_file)
 
 output = defaults.check_preferences(defaults.OUTPUT_VAR,
                                     defaults.FLAGS.output,

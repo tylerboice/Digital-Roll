@@ -28,6 +28,10 @@ def checkIfNecessaryPathsAndFilesExist(image_path, min_images, output_path, test
     remove_empty_folders(image_path)
     images_found = check_for_images(image_path, min_images)
     if images_found != 0:
+        ####### DATA PATH #######
+        if not os.path.exists(DATA_PATH):
+            os.mkdir(DATA_PATH)
+
         ####### OUTPUT MODEL PATH #######
         if not os.path.exists(output_path):
             os.mkdir(output_path)
@@ -153,7 +157,7 @@ def sort_images(num_validate, image_path, test_image_path, train_image_path, val
     train_images = 0
     valid_images = []
     get_valid = False
-    
+
     # For every file image in the image dir, check if it has an xml file and move it
     for filename in os.listdir(image_path):
         if '.jpg' in filename:
@@ -473,3 +477,9 @@ def get_month( month ):
     elif month == 'dec':
         return 12
     return 0
+
+
+############################ FILE IS VALID ###########################
+# Returns true if the file exists and is not empty, else false
+def is_valid(file):
+    return os.path.exists(file) and os.stat(file).st_size != 0

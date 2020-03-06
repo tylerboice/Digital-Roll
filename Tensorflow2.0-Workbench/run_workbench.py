@@ -2,23 +2,29 @@ import os
 import sys
 from os import path
 
-from scripts import defaults
-from scripts import files
-from scripts import print_to_terminal
-from scripts import preferences
-from scripts import generate_tf
-from scripts import convert_weights
-from scripts import train_workbench
-from scripts import create_tf_model
-from scripts import detect_img
-from scripts import create_coreml
-import tensorflow as tf
+try:
+    from scripts import defaults
+    from scripts import file_utils
+    from scripts import print_to_terminal
+    from scripts import preferences
+    from scripts import generate_tf
+    from scripts import convert_weights
+    from scripts import train_workbench
+    from scripts import create_tf_model
+    from scripts import detect_img
+    from scripts import create_coreml
+    import tensorflow as tf
 
-test_checkpoint = files.get_last_checkpoint(preferences.output)
-SPLIT_CHAR = "="
-START = 1001
-CONTINUE = 1002
-SINGLE = 1003
+
+    test_checkpoint = file_utils.get_last_checkpoint(preferences.output)
+    SPLIT_CHAR = "="
+    START = 1001
+    CONTINUE = 1002
+    SINGLE = 1003
+    ERROR = False
+
+except:
+    ERROR = True
 
 # Prints Error message
 def err_message(string):
@@ -36,14 +42,14 @@ def run_single_script():
     # just create class file
     if defaults.FLAGS.create_class_file:
         print("Gathering classifier data...")
-        classifiers = files.get_classifiers(defaults.IMAGES_PATH)
-        files.create_classifier_file(preferences.classifier_file, classifiers)
+        classifiers = file_utils.get_classifiers(defaults.IMAGES_PATH)
+        file_utils.create_classifier_file(preferences.classifier_file, classifiers)
         print("\tData successfully classified!\n")
 
     # just sort images
     if defaults.FLAGS.sort_images:
         print("Sorting images...")
-        files.sort_images(defaults.DEFAULT_NUM_VAL_IMAGES,
+        file_utils.sort_images(defaults.DEFAULT_NUM_VAL_IMAGES,
                           defaults.IMAGES_PATH,
                           defaults.TEST_IMAGE_PATH,
                           defaults.TRAIN_IMAGE_PATH,
@@ -53,8 +59,8 @@ def run_single_script():
 
     # just generate tf records
     if defaults.FLAGS.generate_tf:
-        classifiers = files.get_classifiers(defaults.IMAGES_PATH)
-        files.create_classifier_file(preferences.classifier_file, classifiers)
+        classifiers = file_utils.get_classifiers(defaults.IMAGES_PATH)
+        file_utils.create_classifier_file(preferences.classifier_file, classifiers)
         print("Generating images and xml files into tfrecords...")
         generate_tf.generate_tfrecods(defaults.TRAIN_IMAGE_PATH,
                                       preferences.dataset_train)
@@ -68,7 +74,7 @@ def run_single_script():
             print("Weights file does not exist")
             exit()
         print("Converting records to checkpoint...\n")
-        files.save_checkpoints(preferences.output, preferences.sessions, preferences.max_saved_sess)
+        file_utils.save_checkpoints(preferences.output, preferences.sessions, preferences.max_saved_sess)
         convert_weights.run_weight_convert(preferences.weights,
                                            preferences.output,
                                            preferences.tiny,
@@ -80,6 +86,7 @@ def run_single_script():
         train_workbench.run_train(preferences.dataset_train,
                                   preferences.dataset_test,
                                   preferences.tiny,
+                                  defaults.IMAGES_PATH,
                                   preferences.weights,
                                   preferences.classifier_file,
                                   preferences.mode,
@@ -99,7 +106,7 @@ def run_single_script():
     if defaults.FLAGS.tf_model:
         # generating tensorflow models
         print("\nGenerating TensorFlow model...")
-        chkpnt_weights = files.get_last_checkpoint()
+        chkpnt_weights = file_utils.get_last_checkpoint()
         print("\n\tUsing checkpoint: " + chkpnt_weights + "\n")
         if path.isfile(preferences.validate_input):
             create_tf_model.run_export_tfserving(chkpnt_weights,
@@ -125,7 +132,7 @@ def run_single_script():
     if defaults.FLAGS.detect_img:
         # generating tensorflow models
         print("\nTesting Images...")
-        chkpnt_weights = files.get_last_checkpoint()
+        chkpnt_weights = file_utils.get_last_checkpoint()
         if path.isfile(preferences.validate_input):
             print("\tTesting on image: " + preferences.validate_input + "\n")
             detect_img.run_detect(preferences.classifier_file,
@@ -162,7 +169,7 @@ def load(pref_path):
         preferences.pref_file = pref_path
         with open(pref_path, "r") as f:
             for line in f.readlines():
-                txt_input = files.get_input(line, SPLIT_CHAR)
+                txt_input = file_utils.get_input(line, SPLIT_CHAR)
                 if defaults.BATCH_SIZE_VAR + SPLIT_CHAR in line:
                     if path.exists(txt_input):
                         preferences.batch_size = int(txt_input)
@@ -181,10 +188,10 @@ def load(pref_path):
                     old_classifier = preferences.classifier_file
                     preferences.classifier_file = txt_input
                     try:
-                        preferences.num_classes = files.get_num_classes(preferences.classifier_file)
+                        preferences.num_classes = file_utils.get_num_classes(preferences.classifier_file)
                     except:
                         try:
-                            preferences.num_classes = files.get_num_classes(os.getcwd().replace("\\", "/")
+                            preferences.num_classes = file_utils.get_num_classes(os.getcwd().replace("\\", "/")
                                                                             + "/"
                                                                             + preferences.classifier_file[1:])
                         except:
@@ -293,7 +300,7 @@ def load(pref_path):
                         old_weights = preferences.weights
                         preferences.weights = txt_input
                         try:
-                            preferences.weight_num_classes = files.get_num_classes(
+                            preferences.weight_num_classes = file_utils.get_num_classes(
                                 os.getcwd().replace("\\", "/")
                                 + "/"
                                 + preferences.weights[1:])
@@ -339,7 +346,7 @@ def run(start_from):
     # run was called, start from beginning
 
     if start_from == START:
-        total_images = files.checkIfNecessaryPathsAndFilesExist(defaults.IMAGES_PATH,
+        total_images = file_utils.checkIfNecessaryPathsAndFilesExist(defaults.IMAGES_PATH,
                                                          defaults.MIN_IMAGES,
                                                          preferences.output,
                                                          defaults.TEST_IMAGE_PATH,
@@ -358,16 +365,15 @@ def run(start_from):
             print("\t       However it is recommended you have around 1000 per classifier")
             return
 
-
         # create classifiers.names
         print("\nGathering classifier data...")
-        classifiers = files.get_classifiers(defaults.IMAGES_PATH)
-        files.create_classifier_file(preferences.classifier_file, classifiers)
+        classifiers = file_utils.get_classifiers(defaults.IMAGES_PATH)
+        file_utils.create_classifier_file(preferences.classifier_file, classifiers)
         print("\n\tData successfuly classified!\n\n")
 
         # sort all the images
         print("Sorting images...")
-        files.sort_images(preferences.validate_img_num,
+        file_utils.sort_images(preferences.validate_img_num,
                           defaults.IMAGES_PATH,
                           defaults.TEST_IMAGE_PATH,
                           defaults.TRAIN_IMAGE_PATH,
@@ -386,11 +392,16 @@ def run(start_from):
                                       preferences.dataset_train)
         generate_tf.generate_tfrecords(defaults.TEST_IMAGE_PATH,
                                       preferences.dataset_test)
+
+        if not file_utils.is_valid(preferences.dataset_test) or not file_utils.is_valid(preferences.dataset_train):
+            err_message("Not enough image given for the workbench, or the data is not properly set-up")
+            print("\t\tMake sure every .xml has a corresponing image and you have at least " + str(defaults.MIN_IMAGES) + " images")
+            exit()
         print("\n\tSuccessfully generated tf records!\n")
 
         # save previous sessions
         print("\nChecking for previous Sessions...\n")
-        files.save_session(defaults.OUTPUT_PATH, preferences.output, defaults.SAVED_SESS_PATH, preferences.max_saved_sess)
+        file_utils.save_session(defaults.OUTPUT_PATH, preferences.output, defaults.SAVED_SESS_PATH, preferences.max_saved_sess)
         print("\tDone!\n")
 
         # convert to checkpoint
@@ -412,7 +423,7 @@ def run(start_from):
         if(start_from != START):
             weights = start_from
             if os.path.isdir(weights):
-                weights = files.get_last_checkpoint(weights)
+                weights = file_utils.get_last_checkpoint(weights)
                 weights = (weights.split(".tf")[0] + ".tf").replace("//", "/")
             if ".tf" not in weights:
                 err_message("File is not a  checkpoint")
@@ -433,6 +444,7 @@ def run(start_from):
         train_workbench.run_train(preferences.dataset_train,
                                   preferences.dataset_test,
                                   preferences.tiny,
+                                  defaults.IMAGES_PATH,
                                   convert_weights,
                                   preferences.classifier_file,
                                   preferences.mode,
@@ -447,16 +459,26 @@ def run(start_from):
                                   preferences.max_checkpoints )
         print("\n\tTraining Complete!\n\n")
 
+
+    if not file_utils.is_valid(preferences.output):
+            err_message(preferences.output + " not found or is empty")
+            return
+
+    if not file_utils.is_valid(preferences.classifier_file):
+            err_message(preferences.classifier_file + " not found or is empty")
+            return
+
     # update checkpoint file
-    chkpnt_weights = files.get_last_checkpoint(preferences.output)
+    chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
     chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("//", "/")
 
-    if chkpnt_weights == files.ERROR:
-        print("\n\tNo valid checkpoints found in " + files.from_workbench(preferences.output))
+
+    if chkpnt_weights == file_utils.ERROR:
+        print("\n\tNo valid checkpoints found in " + file_utils.from_workbench(preferences.output))
         return
 
-    files.rename_checkpoints(preferences.output, preferences.max_checkpoints)
-    files.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("//", "/"))
+    file_utils.rename_checkpoints(preferences.output, preferences.max_checkpoints)
+    file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("//", "/"))
 
     # generating tensorflow models
     print("\nGenerating TensorFlow model...\n")
@@ -530,9 +552,21 @@ def run(start_from):
     print("\n\tAll models and images saved in " + preferences.output)
 
 
+################# CHECK FOR SCRIPTS ##################
+def check_for_scripts():
+    if ERROR:
+        print("\n\n\tERROR: files or packages in workbench cannot be found")
+        print("\n\t\tEnsure that:")
+        print("\t\t        - The scripts folder and yolov3_tf2 folder have not been removed or altered")
+        print("\t\t        - Your conda enviorment is activated")
+        print("\t\t        - You have installed the proper packages using the requirements.txt file")
+        print("\t\t        - You are in the proper directory")
+        print("\n\t\tAfter ensuring necessary files are in your directory and re-run the workbench\n\n")
+        exit()
 
 ############################## MAIN ##########################
 def main():
+    check_for_scripts()
     print("\nWelcome to the Digital Roll Workbench")
     print("\nEnter 'help' or 'h' for a list of commands:")
     running = True
@@ -541,6 +575,7 @@ def main():
             userInput = input("\n<WORKBENCH>: ")
             userInput.lower()
             userInput.strip()
+
             if userInput.replace(" ", "") == "help" or userInput.replace(" ", "") == "h":
                print_to_terminal.help()
 
@@ -567,7 +602,7 @@ def main():
                 if path.exists(img_path):
                     # test to see if it is a single image or multiple
                     print("\nTesting Images...")
-                    chkpnt_weights = files.get_last_checkpoint()
+                    chkpnt_weights = file_utils.get_last_checkpoint()
                     if path.isfile(img_path):
                         print("\tTesting on image: " + img_path + "\n")
                         detect_img.run_detect(preferences.classifier_file,
@@ -665,7 +700,7 @@ def main():
                             old_classifier = preferences.classifier_file
                             preferences.classifier_file = userInputArr[2]
                             try:
-                                preferences.num_classes = files.get_num_classes(os.getcwd().replace("\\", "/")
+                                preferences.num_classes = file_utils.get_num_classes(os.getcwd().replace("\\", "/")
                                                                                 + "/"
                                                                                 + preferences.classifier_file[1:])
                             except:
@@ -757,7 +792,7 @@ def main():
                             except:
                                 err_message("Please give an integer value")
                                 error = True
-                                
+
                         elif userInputArr[1] == defaults.VALID_IN_VAR:
                             if path.exists(userInputArr[2]):
                                 preferences.validate_input = userInputArr[2]
@@ -776,7 +811,7 @@ def main():
                             old_weights = preferences.weights_file
                             preferences.weights = userInputArr[2]
                             try:
-                                preferences.weight_num_classes = files.get_num_classes(os.getcwd().replace("\\", "/")
+                                preferences.weight_num_classes = file_utils.get_num_classes(os.getcwd().replace("\\", "/")
                                                                                        + "/"
                                                                                        + preferences.weights[1:])
                             except:

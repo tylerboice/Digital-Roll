@@ -21,7 +21,7 @@ import yolov3_tf2.dataset as dataset
 
 
 
-def run_train(train_dataset_in, val_dataset_in, tiny,
+def run_train(train_dataset_in, val_dataset_in, tiny, images,
               weights, classifiers, mode, transfer, size, epochs, batch_size,
               learning_rate, num_classes, weights_num_classes, checkpoint_path, total_checkpoints):
 
@@ -41,8 +41,10 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
         model = YoloV3(size, training=True, classes=num_classes)
         anchors = yolo_anchors
         anchor_masks = yolo_anchor_masks
-
-    train_dataset = dataset.load_fake_dataset()
+    try:
+        train_dataset = dataset.load_fake_dataset(images)
+    except:
+        return
     if train_dataset_in:
         train_dataset = dataset.load_tfrecord_dataset(
             train_dataset_in, classifiers, size)
@@ -54,7 +56,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny,
     train_dataset = train_dataset.prefetch(
         buffer_size=tf.data.experimental.AUTOTUNE)
 
-    val_dataset = dataset.load_fake_dataset()
+    val_dataset = dataset.load_fake_dataset(images)
     if val_dataset_in:
         val_dataset = dataset.load_tfrecord_dataset(
             val_dataset_in, classifiers, size)

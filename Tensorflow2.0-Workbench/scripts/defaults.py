@@ -10,6 +10,8 @@ CWD_PATH = os.getcwd().replace("\\", "/") + "/"
 
 # DATA PATHS
 DATA_PATH = os.path.join(CWD_PATH , "data/")
+if not os.path.exists(DATA_PATH):
+    os.mkdir(DATA_PATH)
 
 # IMAGE SET PATHS
 IMAGES_PATH = os.path.join(CWD_PATH , "images/")
