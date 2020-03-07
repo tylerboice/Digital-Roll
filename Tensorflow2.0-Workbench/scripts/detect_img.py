@@ -24,7 +24,6 @@ def run_detect(classes, weights, tiny, size, image, output, num_classes):
         yolo = YoloV3Tiny(classes=num_classes)
     else:
         yolo = YoloV3(classes=num_classes)
-
     yolo.load_weights(weights).expect_partial()
     logging.info('weights loaded')
 

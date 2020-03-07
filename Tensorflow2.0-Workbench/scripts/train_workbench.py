@@ -44,7 +44,9 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
     try:
         train_dataset = dataset.load_fake_dataset(images)
     except:
-        return
+        print("\n\tERROR: training needs an img in the data folder or your input image folder" )
+        return False
+
     if train_dataset_in:
         train_dataset = dataset.load_tfrecord_dataset(
             train_dataset_in, classifiers, size)
@@ -200,6 +202,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                                 epochs=epochs,
                                 callbacks=callbacks,
                                 validation_data=val_dataset)
+    return True
 
 
 

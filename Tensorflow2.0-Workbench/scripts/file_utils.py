@@ -4,7 +4,6 @@ import shutil
 import time
 import xml.etree.ElementTree as ET
 import base64
-from scripts import defaults
 
 from os import path
 
@@ -16,7 +15,7 @@ ERROR = "ERROR_MESSAGE"              # Error message value
 
 ########################## Checking FOR FILES #############################
 # checks if all necessary files exist
-def checkIfNecessaryPathsAndFilesExist(image_path, min_images, output_path, test_image_path,
+def checkIfNecessaryPathsAndFilesExist(image_path, data_path, min_images, output_path, test_image_path,
                                        train_image_path, val_image_path, weights_path):
 
     image_path = (image_path + "/").replace("//", "/")
@@ -30,8 +29,8 @@ def checkIfNecessaryPathsAndFilesExist(image_path, min_images, output_path, test
     images_found = check_for_images(image_path, min_images)
     if images_found != 0:
         ####### DATA PATH #######
-        if not os.path.exists(defaults.DATA_PATH):
-            os.mkdir(defaults.DATA_PATH)
+        if not os.path.exists(data_path):
+            os.mkdir(data_path)
 
         ####### OUTPUT MODEL PATH #######
         if not os.path.exists(output_path):

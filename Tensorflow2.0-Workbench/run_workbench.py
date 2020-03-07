@@ -18,12 +18,14 @@ try:
 
     test_checkpoint = file_utils.get_last_checkpoint(preferences.output)
     SPLIT_CHAR = "="
+    NONE = ""
     START = 1001
     CONTINUE = 1002
     SINGLE = 1003
+    TEST_IMAGE = 1004
     ERROR = False
 
-except:
+except FileNotFoundError:
     ERROR = True
 
 # Prints Error message
@@ -163,8 +165,8 @@ def run_single_script():
 
 
 def load(pref_path):
-    if path.exists(pref_path):
 
+    if path.exists(pref_path):
         # Set new preferences
         preferences.pref_file = pref_path
         with open(pref_path, "r") as f:
@@ -339,7 +341,7 @@ def save(save_path):
         f.write(defaults.WEIGHTS_CLASS_VAR + "= " + str(preferences.weight_num_classes) + "\n")
 
 
-def run(start_from):
+def run(start_from, start_path):
 
     single_script = False
     # check if necessary files exist
@@ -347,6 +349,7 @@ def run(start_from):
 
     if start_from == START:
         total_images = file_utils.checkIfNecessaryPathsAndFilesExist(defaults.IMAGES_PATH,
+                                                         defaults.DATA_PATH,
                                                          defaults.MIN_IMAGES,
                                                          preferences.output,
                                                          defaults.TEST_IMAGE_PATH,
@@ -417,17 +420,21 @@ def run(start_from):
         print("\tCheckpoint Converted!\n")
 
 
-    if(start_from != CONTINUE):
+    # if training
+    if(((start_from) == CONTINUE and start_path != NONE) or start_from == START):
 
         # continue training from previous checkpoint
         if(start_from != START):
-            weights = start_from
+            weights = start_path
             if os.path.isdir(weights):
                 weights = file_utils.get_last_checkpoint(weights)
                 weights = (weights.split(".tf")[0] + ".tf").replace("//", "/")
             if ".tf" not in weights:
-                err_message("File is not a  checkpoint")
+                err_message("File is not a checkpoint")
                 print("\n\t\tCheckpoint Example: yolov3_train_3.tf")
+                return
+            if "ERROR" in weights:
+                err_message("No checkpoints found in " + start_path)
                 return
             weight_num = preferences.num_classes
             print("\n\tContinuing from " + weights)
@@ -441,7 +448,7 @@ def run(start_from):
             transfer_mode = preferences.transfer
 
         # start training
-        train_workbench.run_train(preferences.dataset_train,
+        trained = train_workbench.run_train(preferences.dataset_train,
                                   preferences.dataset_test,
                                   preferences.tiny,
                                   defaults.IMAGES_PATH,
@@ -457,98 +464,119 @@ def run(start_from):
                                   weight_num,
                                   preferences.output,
                                   preferences.max_checkpoints )
+        if not trained:
+            return
         print("\n\tTraining Complete!\n\n")
 
 
-    if not file_utils.is_valid(preferences.output):
-            err_message(preferences.output + " not found or is empty")
+    if (start_from != TEST_IMAGE):
+        if not file_utils.is_valid(preferences.output):
+                err_message(preferences.output + " not found or is empty")
+                return
+
+        if not file_utils.is_valid(preferences.classifier_file):
+                err_message(preferences.classifier_file + " not found or is empty")
+                return
+
+        # update checkpoint file
+        chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
+        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("//", "/")
+
+
+        if chkpnt_weights == file_utils.ERROR:
+            print("\n\tNo valid checkpoints found in " + file_utils.from_workbench(preferences.output))
             return
 
-    if not file_utils.is_valid(preferences.classifier_file):
-            err_message(preferences.classifier_file + " not found or is empty")
+        file_utils.rename_checkpoints(preferences.output, preferences.max_checkpoints)
+        file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("//", "/"))
+
+        # generating tensorflow models
+        print("\nGenerating TensorFlow model...\n")
+
+        test_img = preferences.validate_input
+
+        if os.path.isdir(test_img):
+            for file in os.listdir(preferences.validate_input):
+                if '.jpg' in file:
+                    test_img = preferences.validate_input + file
+        if ".jpg" not in test_img:
+            print("validate_input is not an image or does not contain an image")
             return
 
-    # update checkpoint file
-    chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
+        create_tf_model.run_export_tfserving(chkpnt_weights,
+                                              preferences.tiny,
+                                              preferences.output,
+                                              preferences.classifier_file,
+                                              test_img,
+                                              preferences.num_classes)
+        print("\n\tTensorFlow model Generated!\n")
+
+
+
+        # create Tensorflow Lite model
+        try:
+            # convert model to tensorflow lite for android use
+            converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
+            tflite_model = converter.convert()
+            open("converted_model.tflite", "wb").write(tflite_model)
+
+            print("\n\tTensorflow Lite model created!")
+
+        except:
+            err_message("Failed to create TF lite model")
+
+
+        # Create Core ML Model
+        try:
+            print("\nCreating a CoreML model...\n")
+            create_coreml.export_coreml(preferences.output)
+            print("\n\tCore ML model created!")
+
+        except:
+            err_message("Failed to create CoreML model")
+
+
+
+    # generating tensorflow models
+    if (start_from == TEST_IMAGE):
+        test_img = start_path
+
+    else:
+        test_img = preferences.validate_input
+
+    chkpnt_weights = (file_utils.get_last_checkpoint(preferences.output))
     chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("//", "/")
-
-
     if chkpnt_weights == file_utils.ERROR:
-        print("\n\tNo valid checkpoints found in " + file_utils.from_workbench(preferences.output))
+        err_message("No checkpoints found in " + start_path)
         return
 
-    file_utils.rename_checkpoints(preferences.output, preferences.max_checkpoints)
-    file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("//", "/"))
-
-    # generating tensorflow models
-    print("\nGenerating TensorFlow model...\n")
-
-    test_img = preferences.validate_input
-    if os.path.isdir(test_img):
-        for file in os.listdir(preferences.validate_input):
-            if '.jpg' in file:
-                test_img = preferences.validate_input + file
-    if ".jpg" not in test_img:
-        print("validate_input is not an image or does not contain an image")
+    if not os.path.isdir(test_img) and file_utils.is_valid(test_img):
+        print("\n\tTest image location not found " + test_img)
         return
 
-    create_tf_model.run_export_tfserving(chkpnt_weights,
-                                          preferences.tiny,
-                                          preferences.output,
-                                          preferences.classifier_file,
-                                          test_img,
-                                          preferences.num_classes)
-    print("\n\tTensorFlow model Generated!\n")
-
-
-
-    # create Tensorflow Lite model
-    try:
-        # convert model to tensorflow lite for android use
-        converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
-        tflite_model = converter.convert()
-        open("converted_model.tflite", "wb").write(tflite_model)
-
-        print("\n\tTensorflow Lite model created!")
-
-    except:
-        err_message("Failed to create TF lite model")
-
-
-    # Create Core ML Model
-    try:
-        print("\nCreating a CoreML model...\n")
-        create_coreml.export_coreml(preferences.output)
-        print("\n\tCore ML model created!")
-
-    except:
-        err_message("Failed to create CoreML model")
-
-
-
-    # generating tensorflow models
     print("\nTesting Images...")
-
-    if path.isfile(preferences.validate_input):
+    if path.isfile(test_img):
         detect_img.run_detect(preferences.classifier_file,
                                chkpnt_weights,
                                preferences.tiny,
                                preferences.image_size,
-                               preferences.validate_input + file,
+                               test_img,
                                preferences.output,
                                preferences.num_classes)
     else:
-        for file in os.listdir(preferences.validate_input):
+        test_img = (test_img + "/").replace("//", "/")
+        for file in os.listdir(test_img):
             if '.jpg' in file:
                 detect_img.run_detect(preferences.classifier_file,
                                        chkpnt_weights,
                                        preferences.tiny,
                                        preferences.image_size,
-                                       preferences.validate_input + file,
+                                       test_img + file,
                                        preferences.output + file + "_output.jpg",
                                        preferences.num_classes)
 
-    print("\n=============================== Workbench Successful! ===============================")
+    if( start_from != TEST_IMAGE):
+        print("\n=============================== Workbench Successful! ===============================")
     print("\n\tAll models and images saved in " + preferences.output)
 
 
@@ -580,14 +608,11 @@ def main():
                print_to_terminal.help()
 
             elif userInput.replace(" ", "") == "run" or userInput.replace(" ", "") == "r":
-                run(START)
+                run(START, NONE)
 
-            elif userInput.replace(" ", "") == "tflite" or userInput.replace(" ", "") == "i":
+            elif userInput.replace(" ", "") == "lite" or userInput.replace(" ", "") == "l":
                 # convert model to tensorflow lite for android use
-                model = tf.saved_model.load(preferences.output)
-                concrete_func = model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
-                concrete_func.outputs[0] = [1, 1000, 4]
-                converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
+                converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
                 tflite_model = converter.convert()
                 open("converted_model.tflite", "wb").write(tflite_model)
 
@@ -598,47 +623,17 @@ def main():
                 else:
                     img_path = userInput[5:]
                 img_path.strip("\n\r")
-                print("Searching for: " + img_path)
-                if path.exists(os.getcwd().replace("\\", "/") + "/" + img_path):
-                    img_path = os.getcwd().replace("\\", "/") + "/" + img_path
-                    print("Found file at: " + img_path)
-                if path.exists(img_path):
-                    # test to see if it is a single image or multiple
-                    print("\nTesting Images...")
-                    chkpnt_weights = file_utils.get_last_checkpoint()
-                    if path.isfile(img_path):
-                        print("\tTesting on image: " + img_path + "\n")
-                        detect_img.run_detect(preferences.classifier_file,
-                                              chkpnt_weights,
-                                              preferences.tiny,
-                                              preferences.image_size,
-                                              img_path,
-                                              preferences.output + img_path.split('/')[-1].split('.')[0] + "_output.jpg",
-                                              preferences.num_classes)
-                    else:
-                        for file in os.listdir(img_path):
-                            if '.jpg' in file:
-                                detect_img.run_detect(preferences.classifier_file,
-                                                      chkpnt_weights,
-                                                      preferences.tiny,
-                                                      preferences.image_size,
-                                                      img_path + file,
-                                                      preferences.output + file.split('.')[0] + "_output.jpg",
-                                                      preferences.num_classes)
-                                print("\tTesting on image: " + img_path + file + "\n")
-                    print("\n\tImages Tested and stored in " + preferences.output)
-                else:
-                    err_message("Could not find " + img_path)
+                run(TEST_IMAGE, img_path)
 
             elif userInput.replace(" ", "") == "continue" or userInput.replace(" ", "") == "c":
-                run(CONTINUE)
+                run(CONTINUE, NONE)
 
             elif userInput[0:5] == "continue " or userInput[0:2] == "c ":
                 if userInput[0:2] == "c ":
                     prev_check = userInput[2:]
                 else:
                     prev_check = userInput[5:]
-                run(prev_check)
+                run(CONTINUE, prev_check)
 
             elif userInput.replace(" ", "") == "display" or userInput.replace(" ", "") == "d":
                 print_to_terminal.current_pref()

@@ -1,5 +1,7 @@
 import tensorflow as tf
 from absl.flags import FLAGS
+import os
+import shutil
 
 @tf.function
 def transform_targets_for_output(y_true, grid_size, anchor_idxs):
@@ -128,9 +130,10 @@ def load_tfrecord_dataset(file_pattern, class_file, size=416):
     return dataset.map(lambda x: parse_tfrecord(x, class_table, size))
 
 
-def load_fake_dataset():
+def load_fake_dataset(images):
+    img = get_test_img(images)
     x_train = tf.image.decode_jpeg(
-        open('./data/dice.jpg', 'rb').read(), channels=3)
+        open(img, 'rb').read(), channels=3)
     x_train = tf.expand_dims(x_train, axis=0)
 
     labels = [
@@ -142,3 +145,32 @@ def load_fake_dataset():
     y_train = tf.expand_dims(y_train, axis=0)
 
     return tf.data.Dataset.from_tensor_slices((x_train, y_train))
+
+def get_test_img(image_dir):
+    data_dir = os.getcwd() + "/data/"
+    found = False
+    img = ""
+    img_path = ""
+    for file in os.listdir(data_dir):
+        if ".jpg" in file:
+            return data_dir + file
+    if os.path.isdir(image_dir):
+        image_dir = (image_dir + "/").replace("//", "/")
+        for file in os.listdir(image_dir):
+            if not found:
+                current_dir = image_dir + file
+                if os.path.isdir(current_dir):
+                    for image in os.listdir(current_dir):
+                        if not found:
+                            if ".jpg" in image:
+                                found = True
+                                img = image
+                                img_path = current_dir + "/" + img
+                else:
+                    if ".jpg" in file:
+                        found = True
+                        img = file
+                        img_path = image_dir + "/" + file
+
+    shutil.copyfile(img_path, data_dir + img )
+    return img_path
