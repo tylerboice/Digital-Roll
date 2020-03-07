@@ -520,6 +520,9 @@ def run(start_from, start_path):
             print("Model Loaded")
             concrete_func = model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
             converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
+            converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
+                                                   tf.lite.OpsSet.SELECT_TF_OPS]
+            converter.allow_for_custom_ops = True
             converter.post_training_quantize = True
             tflite_model = converter.convert()
             open("converted_model.tflite", "wb").write(tflite_model)
