@@ -28,6 +28,9 @@ def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
     tf.saved_model.save(yolo, output)
     logging.info("model saved to: {}".format(output))
 
+    tf.keras.models.save_model(yolo, output + "yolo.h5", overwrite=True)
+    logging.info("keras version saved to: {}".format(output))
+
     model = tf.saved_model.load(output)
     infer = model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
     logging.info(infer.structured_outputs)

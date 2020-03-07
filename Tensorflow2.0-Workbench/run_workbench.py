@@ -522,8 +522,9 @@ def run(start_from, start_path):
             converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
             converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
                                                    tf.lite.OpsSet.SELECT_TF_OPS]
-            converter.allow_for_custom_ops = True
-            converter.post_training_quantize = True
+            converter.experimental_new_converter = True
+            converter.allow_custom_ops = True  # TFLite does not support custom operations,
+                                                # thus this should become false later when the custom is removed
             tflite_model = converter.convert()
             open("converted_model.tflite", "wb").write(tflite_model)
             print("\n\tTensorflow Lite model created!")
