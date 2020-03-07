@@ -33,7 +33,6 @@ def main(_argv):
     print("Model Loaded")
 
     concrete_func = model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
-    print("Output Shape: " + concrete_func.structured_outputs)
     # Methods of changing output shape attempted:
         # tf.expand_dims(concrete_func.outputs[0], 0) --x> TypeError, an op outside of the function building...
         # concrete_func = tf.reshape(concrete_func.outputs, [1, 1000, 4]) --x> TypeError, an op outside of the function building...

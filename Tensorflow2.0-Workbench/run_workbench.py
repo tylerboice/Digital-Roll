@@ -516,10 +516,12 @@ def run(start_from, start_path):
         # create Tensorflow Lite model
         try:
             # convert model to tensorflow lite for android use
-            converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
+            model = tf.saved_model.load(preferences.output)
+            print("Model Loaded")
+            concrete_func = model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
+            converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
             tflite_model = converter.convert()
             open("converted_model.tflite", "wb").write(tflite_model)
-
             print("\n\tTensorflow Lite model created!")
 
         except error:
