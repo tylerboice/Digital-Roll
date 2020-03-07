@@ -516,16 +516,18 @@ def run(start_from, start_path):
         # create Tensorflow Lite model
         try:
             # convert model to tensorflow lite for android use
-            model = tf.saved_model.load(preferences.output)
+            model = tf.saved_model.load(preferences.output,
+                                        custom_objects={'tf': tf})
             print("Model Loaded")
             concrete_func = model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
             converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
+            converter.post_training_quantize = True
             tflite_model = converter.convert()
             open("converted_model.tflite", "wb").write(tflite_model)
             print("\n\tTensorflow Lite model created!")
 
-        except error:
-            err_message("Failed to create TF lite model: " + error)
+        except:
+            err_message("Failed to create TF lite model: ")
 
 
         # Create Core ML Model
@@ -534,8 +536,8 @@ def run(start_from, start_path):
             create_coreml.export_coreml(preferences.output)
             print("\n\tCore ML model created!")
 
-        except error:
-            err_message("Failed to create CoreML model: " + error)
+        except:
+            err_message("Failed to create CoreML model: ")
 
 
 
