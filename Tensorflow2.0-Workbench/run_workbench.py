@@ -452,7 +452,7 @@ def run(start_from, start_path):
                                   preferences.dataset_test,
                                   preferences.tiny,
                                   defaults.IMAGES_PATH,
-                                  convert_weights,
+                                  weights,
                                   preferences.classifier_file,
                                   preferences.mode,
                                   transfer_mode,
@@ -522,8 +522,8 @@ def run(start_from, start_path):
 
             print("\n\tTensorflow Lite model created!")
 
-        except:
-            err_message("Failed to create TF lite model")
+        except error:
+            err_message("Failed to create TF lite model: " + error)
 
 
         # Create Core ML Model
@@ -532,8 +532,8 @@ def run(start_from, start_path):
             create_coreml.export_coreml(preferences.output)
             print("\n\tCore ML model created!")
 
-        except:
-            err_message("Failed to create CoreML model")
+        except error:
+            err_message("Failed to create CoreML model: " + error)
 
 
 
