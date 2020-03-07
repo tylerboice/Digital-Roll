@@ -29,8 +29,7 @@ flags.DEFINE_integer('num_classes', 18, 'number of classes in the model')
 flags.DEFINE_integer('size', 224, 'image size')
 
 def main(_argv):
-    model = tf.saved_model.load(FLAGS.model,
-                                custom_objects={'tf': tf})
+    model = tf.saved_model.load(FLAGS.model)
     print("Model Loaded")
 
     concrete_func = model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
