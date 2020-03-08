@@ -15,7 +15,6 @@ try:
     from scripts import create_coreml
     import tensorflow as tf
 
-
     test_checkpoint = file_utils.get_last_checkpoint(preferences.output)
     SPLIT_CHAR = "="
     NONE = ""
@@ -28,17 +27,21 @@ try:
 except FileNotFoundError:
     ERROR = True
 
+
 # Prints Error message
 def err_message(string):
     print("\n\tERROR: " + string + "\n")
+
 
 # Disable
 def blockPrint():
     sys.stdout = open(os.devnull, 'w')
 
+
 # Restore
 def enablePrint():
     sys.stdout = sys.__stdout__
+
 
 def run_single_script():
     # just create class file
@@ -52,11 +55,11 @@ def run_single_script():
     if defaults.FLAGS.sort_images:
         print("Sorting images...")
         file_utils.sort_images(defaults.DEFAULT_NUM_VAL_IMAGES,
-                          defaults.IMAGES_PATH,
-                          defaults.TEST_IMAGE_PATH,
-                          defaults.TRAIN_IMAGE_PATH,
-                          defaults.VALIDATE_IMAGE_PATH
-                          )
+                               defaults.IMAGES_PATH,
+                               defaults.TEST_IMAGE_PATH,
+                               defaults.TRAIN_IMAGE_PATH,
+                               defaults.VALIDATE_IMAGE_PATH
+                               )
         print("\n\tAll images sorted!\n")
 
     # just generate tf records
@@ -100,7 +103,7 @@ def run_single_script():
                                   preferences.num_classes,
                                   preferences.weight_num_classes,
                                   preferences.output,
-                                  preferences.max_checkpoints )
+                                  preferences.max_checkpoints)
 
         print("\n\tTraining Complete!")
 
@@ -112,21 +115,21 @@ def run_single_script():
         print("\n\tUsing checkpoint: " + chkpnt_weights + "\n")
         if path.isfile(preferences.validate_input):
             create_tf_model.run_export_tfserving(chkpnt_weights,
-                                                      preferences.tiny,
-                                                      preferences.output,
-                                                      preferences.classifier_file,
-                                                      preferences.validate_input + file,
-                                                      preferences.num_classes)
+                                                 preferences.tiny,
+                                                 preferences.output,
+                                                 preferences.classifier_file,
+                                                 preferences.validate_input + file,
+                                                 preferences.num_classes)
         else:
             model_saved = False
             for file in os.listdir(preferences.validate_input):
                 if '.jpg' in file and not model_saved:
                     create_tf_model.run_export_tfserving(chkpnt_weights,
-                                                              preferences.tiny,
-                                                              preferences.output,
-                                                              preferences.classifier_file,
-                                                              preferences.validate_input + file,
-                                                              preferences.num_classes)
+                                                         preferences.tiny,
+                                                         preferences.output,
+                                                         preferences.classifier_file,
+                                                         preferences.validate_input + file,
+                                                         preferences.num_classes)
                     model_saved = True
         print("\n\tTensorFlow model Generated!")
 
@@ -165,7 +168,6 @@ def run_single_script():
 
 
 def load(pref_path):
-
     if path.exists(pref_path):
         # Set new preferences
         preferences.pref_file = pref_path
@@ -194,8 +196,8 @@ def load(pref_path):
                     except:
                         try:
                             preferences.num_classes = file_utils.get_num_classes(os.getcwd().replace("\\", "/")
-                                                                            + "/"
-                                                                            + preferences.classifier_file[1:])
+                                                                                 + "/"
+                                                                                 + preferences.classifier_file[1:])
                         except:
                             err_message("Failed to update classifier file, new file not found")
                             preferences.classifier_file = old_classifier
@@ -270,8 +272,8 @@ def load(pref_path):
                 elif defaults.TRANSFER_VAR + SPLIT_CHAR in line:
                     if txt_input == "none" \
                             or txt_input == "darknet" \
-                            or txt_input == "no_output"\
-                            or txt_input == "frozen"\
+                            or txt_input == "no_output" \
+                            or txt_input == "frozen" \
                             or txt_input == "fine_tune":
                         preferences.transfer = txt_input
                     else:
@@ -321,6 +323,7 @@ def load(pref_path):
     else:
         err_message("Bad Preferences File, could not find file")
 
+
 def save(save_path):
     with open(save_path, "w") as f:
         f.write(defaults.BATCH_SIZE_VAR + "= " + str(preferences.batch_size) + "\n")
@@ -342,29 +345,29 @@ def save(save_path):
 
 
 def run(start_from, start_path):
-
     single_script = False
     # check if necessary files exist
     # run was called, start from beginning
 
     if start_from == START:
         total_images = file_utils.checkIfNecessaryPathsAndFilesExist(defaults.IMAGES_PATH,
-                                                         defaults.DATA_PATH,
-                                                         defaults.MIN_IMAGES,
-                                                         preferences.output,
-                                                         defaults.TEST_IMAGE_PATH,
-                                                         defaults.TRAIN_IMAGE_PATH,
-                                                         defaults.VALIDATE_IMAGE_PATH,
-                                                         defaults.YOLO_PATH)
+                                                                     defaults.DATA_PATH,
+                                                                     defaults.MIN_IMAGES,
+                                                                     preferences.output,
+                                                                     defaults.TEST_IMAGE_PATH,
+                                                                     defaults.TRAIN_IMAGE_PATH,
+                                                                     defaults.VALIDATE_IMAGE_PATH,
+                                                                     defaults.YOLO_PATH)
 
         if total_images == 0:
             err_message("No images have been found in the image folder")
             print("\t\tImage Folder Location: " + defaults.IMAGES_PATH)
-            print("\n\t\tFor an example set, look at the Pre_Labeled_Images folder in the repository or at https://github.com/tylerboice/Digital-Roll\n")
+            print(
+                "\n\t\tFor an example set, look at the Pre_Labeled_Images folder in the repository or at https://github.com/tylerboice/Digital-Roll\n")
             return
 
         elif total_images < defaults.MIN_IMAGES:
-            err_message("Workbench needs at minimum " + str(defaults.MIN_IMAGES) + " to train" )
+            err_message("Workbench needs at minimum " + str(defaults.MIN_IMAGES) + " to train")
             print("\t       However it is recommended you have around 1000 per classifier")
             return
 
@@ -377,12 +380,12 @@ def run(start_from, start_path):
         # sort all the images
         print("Sorting images...")
         file_utils.sort_images(preferences.validate_img_num,
-                          defaults.IMAGES_PATH,
-                          defaults.TEST_IMAGE_PATH,
-                          defaults.TRAIN_IMAGE_PATH,
-                          preferences.validate_input,
-                          total_images
-                          )
+                               defaults.IMAGES_PATH,
+                               defaults.TEST_IMAGE_PATH,
+                               defaults.TRAIN_IMAGE_PATH,
+                               preferences.validate_input,
+                               total_images
+                               )
         print("\n\tAll images sorted!\n\n")
 
         # generate tf records
@@ -392,19 +395,21 @@ def run(start_from, start_path):
 
         print("Generating images and xml files into tfrecords...\n")
         generate_tf.generate_tfrecords(defaults.TRAIN_IMAGE_PATH,
-                                      preferences.dataset_train)
+                                       preferences.dataset_train)
         generate_tf.generate_tfrecords(defaults.TEST_IMAGE_PATH,
-                                      preferences.dataset_test)
+                                       preferences.dataset_test)
 
         if not file_utils.is_valid(preferences.dataset_test) or not file_utils.is_valid(preferences.dataset_train):
             err_message("Not enough image given for the workbench, or the data is not properly set-up")
-            print("\t\tMake sure every .xml has a corresponing image and you have at least " + str(defaults.MIN_IMAGES) + " images")
+            print("\t\tMake sure every .xml has a corresponing image and you have at least " + str(
+                defaults.MIN_IMAGES) + " images")
             exit()
         print("\n\tSuccessfully generated tf records!\n")
 
         # save previous sessions
         print("\nChecking for previous Sessions...\n")
-        file_utils.save_session(defaults.OUTPUT_PATH, preferences.output, defaults.SAVED_SESS_PATH, preferences.max_saved_sess)
+        file_utils.save_session(defaults.OUTPUT_PATH, preferences.output, defaults.SAVED_SESS_PATH,
+                                preferences.max_saved_sess)
         print("\tDone!\n")
 
         # convert to checkpoint
@@ -419,12 +424,11 @@ def run(start_from, start_path):
 
         print("\tCheckpoint Converted!\n")
 
-
     # if training
-    if(((start_from) == CONTINUE and start_path != NONE) or start_from == START):
+    if (((start_from) == CONTINUE and start_path != NONE) or start_from == START):
 
         # continue training from previous checkpoint
-        if(start_from != START):
+        if (start_from != START):
             weights = start_path
             if os.path.isdir(weights):
                 weights = file_utils.get_last_checkpoint(weights)
@@ -449,39 +453,37 @@ def run(start_from, start_path):
 
         # start training
         trained = train_workbench.run_train(preferences.dataset_train,
-                                  preferences.dataset_test,
-                                  preferences.tiny,
-                                  defaults.IMAGES_PATH,
-                                  weights,
-                                  preferences.classifier_file,
-                                  preferences.mode,
-                                  transfer_mode,
-                                  preferences.image_size,
-                                  preferences.epochs,
-                                  preferences.batch_size,
-                                  defaults.DEFAULT_LEARN_RATE,
-                                  preferences.num_classes,
-                                  weight_num,
-                                  preferences.output,
-                                  preferences.max_checkpoints )
+                                            preferences.dataset_test,
+                                            preferences.tiny,
+                                            defaults.IMAGES_PATH,
+                                            weights,
+                                            preferences.classifier_file,
+                                            preferences.mode,
+                                            transfer_mode,
+                                            preferences.image_size,
+                                            preferences.epochs,
+                                            preferences.batch_size,
+                                            defaults.DEFAULT_LEARN_RATE,
+                                            preferences.num_classes,
+                                            weight_num,
+                                            preferences.output,
+                                            preferences.max_checkpoints)
         if not trained:
             return
         print("\n\tTraining Complete!\n\n")
 
-
     if (start_from != TEST_IMAGE):
         if not file_utils.is_valid(preferences.output):
-                err_message(preferences.output + " not found or is empty")
-                return
+            err_message(preferences.output + " not found or is empty")
+            return
 
         if not file_utils.is_valid(preferences.classifier_file):
-                err_message(preferences.classifier_file + " not found or is empty")
-                return
+            err_message(preferences.classifier_file + " not found or is empty")
+            return
 
         # update checkpoint file
         chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
         chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("//", "/")
-
 
         if chkpnt_weights == file_utils.ERROR:
             print("\n\tNo valid checkpoints found in " + file_utils.from_workbench(preferences.output))
@@ -504,14 +506,12 @@ def run(start_from, start_path):
             return
 
         create_tf_model.run_export_tfserving(chkpnt_weights,
-                                              preferences.tiny,
-                                              preferences.output,
-                                              preferences.classifier_file,
-                                              test_img,
-                                              preferences.num_classes)
+                                             preferences.tiny,
+                                             preferences.output,
+                                             preferences.classifier_file,
+                                             test_img,
+                                             preferences.num_classes)
         print("\n\tTensorFlow model Generated!\n")
-
-
 
         # create Tensorflow Lite model
         try:
@@ -522,16 +522,15 @@ def run(start_from, start_path):
             converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
             converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
                                                    tf.lite.OpsSet.SELECT_TF_OPS]
-            converter.experimental_new_converter = True
-            converter.allow_custom_ops = True  # TFLite does not support custom operations,
-                                                # thus this should become false later when the custom is removed
+            # converter.experimental_new_converter = True
+            converter.allow_custom_ops = False  # TFLite does not support custom operations,
+                                                # thus this be false, to have a model with nms set to True
             tflite_model = converter.convert()
-            open("converted_model.tflite", "wb").write(tflite_model)
+            open(preferences.output + "tflite_model.tflite", "wb").write(tflite_model)
             print("\n\tTensorflow Lite model created!")
 
-        except:
-            err_message("Failed to create TF lite model: ")
-
+        except Exception as e:
+            err_message("Failed to create TF lite model: " + str(e))
 
         # Create Core ML Model
         try:
@@ -539,10 +538,8 @@ def run(start_from, start_path):
             create_coreml.export_coreml(preferences.output)
             print("\n\tCore ML model created!")
 
-        except:
-            err_message("Failed to create CoreML model: ")
-
-
+        except Exception as e:
+            err_message("Failed to create CoreML model: " + str(e))
 
     # generating tensorflow models
     if (start_from == TEST_IMAGE):
@@ -564,25 +561,25 @@ def run(start_from, start_path):
     print("\nTesting Images...")
     if path.isfile(test_img):
         detect_img.run_detect(preferences.classifier_file,
-                               chkpnt_weights,
-                               preferences.tiny,
-                               preferences.image_size,
-                               test_img,
-                               preferences.output,
-                               preferences.num_classes)
+                              chkpnt_weights,
+                              preferences.tiny,
+                              preferences.image_size,
+                              test_img,
+                              preferences.output,
+                              preferences.num_classes)
     else:
         test_img = (test_img + "/").replace("//", "/")
         for file in os.listdir(test_img):
             if '.jpg' in file:
                 detect_img.run_detect(preferences.classifier_file,
-                                       chkpnt_weights,
-                                       preferences.tiny,
-                                       preferences.image_size,
-                                       test_img + file,
-                                       preferences.output + file + "_output.jpg",
-                                       preferences.num_classes)
+                                      chkpnt_weights,
+                                      preferences.tiny,
+                                      preferences.image_size,
+                                      test_img + file,
+                                      preferences.output + file + "_output.jpg",
+                                      preferences.num_classes)
 
-    if( start_from != TEST_IMAGE):
+    if (start_from != TEST_IMAGE):
         print("\n=============================== Workbench Successful! ===============================")
     print("\n\tAll models and images saved in " + preferences.output)
 
@@ -599,6 +596,7 @@ def check_for_scripts():
         print("\n\t\tAfter ensuring necessary files are in your directory and re-run the workbench\n\n")
         exit()
 
+
 ############################## MAIN ##########################
 def main():
     check_for_scripts()
@@ -612,7 +610,7 @@ def main():
             userInput.strip()
 
             if userInput.replace(" ", "") == "help" or userInput.replace(" ", "") == "h":
-               print_to_terminal.help()
+                print_to_terminal.help()
 
             elif userInput.replace(" ", "") == "run" or userInput.replace(" ", "") == "r":
                 run(START, NONE)
@@ -706,8 +704,8 @@ def main():
                             preferences.classifier_file = userInputArr[2]
                             try:
                                 preferences.num_classes = file_utils.get_num_classes(os.getcwd().replace("\\", "/")
-                                                                                + "/"
-                                                                                + preferences.classifier_file[1:])
+                                                                                     + "/"
+                                                                                     + preferences.classifier_file[1:])
                             except:
                                 err_message("Failed to update classifier file, new file not found")
                                 preferences.classifier_file = old_classifier
@@ -715,14 +713,14 @@ def main():
 
                         elif userInputArr[1] == defaults.DATASET_TEST_VAR:
                             if path.exists(userInputArr[2]):
-                                 preferences.dataset_test = userInputArr[2]
+                                preferences.dataset_test = userInputArr[2]
                             else:
                                 err_message("Bad dataset test directory given")
                                 error = True
 
                         elif userInputArr[1] == defaults.DATASET_TRAIN_VAR:
                             if path.exists(userInputArr[2]):
-                                 preferences.dataset_train = userInputArr[2]
+                                preferences.dataset_train = userInputArr[2]
                             else:
                                 err_message("Bad dataset train directory given")
                                 error = True
@@ -767,7 +765,7 @@ def main():
 
                         elif userInputArr[1] == defaults.MODE_VAR:
                             if path.exists(userInputArr[2]):
-                                 preferences.output = userInputArr[2]
+                                preferences.output = userInputArr[2]
                             else:
                                 print_to_terminal.err_message("Bad output directory given")
                                 error = True
@@ -816,9 +814,10 @@ def main():
                             old_weights = preferences.weights_file
                             preferences.weights = userInputArr[2]
                             try:
-                                preferences.weight_num_classes = file_utils.get_num_classes(os.getcwd().replace("\\", "/")
-                                                                                       + "/"
-                                                                                       + preferences.weights[1:])
+                                preferences.weight_num_classes = file_utils.get_num_classes(
+                                    os.getcwd().replace("\\", "/")
+                                    + "/"
+                                    + preferences.weights[1:])
                             except:
                                 err_message("Failed to update weights file, new file not found")
                                 preferences.weights = old_weights
@@ -847,5 +846,6 @@ def main():
             print("\n\n\n\n------ Current process stopped by user ------")
             print("\nEnter 'help' or 'h' for a list of commands:")
             running = True
+
 
 main()
