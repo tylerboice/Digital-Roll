@@ -9,6 +9,7 @@ from os import path
 
 # Global variables
 unlabelled_files = []                # all imgs found that don't have correspoding xml
+temp_classifiers = []
 CHECKPOINT_KEYWORD = "yolov3_train_" # prefix to all checkpoints
 ERROR = "ERROR_MESSAGE"              # Error message value
 
@@ -62,8 +63,8 @@ def check_for_images(path, min_images):
 
     total_images = get_img_count(path)
     # print total image count
-    print("\nTotal images = " + str(total_images))
-    print("Images not labelled = " + str(len(unlabelled_files)))
+    if len(unlabelled_files) != 0:
+        print("Images not labelled = " + str(len(unlabelled_files)))
     if len(unlabelled_files) != 0:
         print("\nThe following images do not have an xml file:")
         for item in unlabelled_files:
@@ -219,21 +220,37 @@ def get_classifiers(data_dir):
         data_dir = (data_dir + "/").replace("//", "/")
         for file in os.listdir(data_dir):
             nested_folder = get_classifiers(data_dir + "/" + file)
-            if classifiers == []:
+            if classifiers == [] or classifiers == None:
                 classifiers = nested_folder
             else:
-                classifiers = classifiers + list(set(nested_folder) - set(classifiers))
+                classifiers = classifiers + nested_folder
 
     if ".xml" in data_dir:
         tree = ET.parse(data_dir)
         root = tree.getroot()
         for object in root.findall('object'):
             for name in object.findall('name'):
-                if name.text not in classifiers:
-                    classifiers.append(name.text)
-                    classifiers.sort()
+                classifiers.append(name.text)
     return classifiers
 
+######################### PRINT CLASSIFIERS ####################################
+def classifier_remove_dup(classifiers):
+    print("\n\tClassifiers:")
+    total_classifiers = 0
+    new_list = []
+    classes = 0
+    while classes < len(classifiers):
+        if classifiers[classes] not in new_list:
+            new_list.append(classifiers[classes])
+        classes += 1
+    new_list.sort()
+    classes = 0
+    while classes < len(new_list):
+        print("\t\t" + str(new_list[classes]) + ": " + str(classifiers.count(new_list[classes])))
+        total_classifiers += classifiers.count(new_list[classes])
+        classes += 1
+    print("\n\tTotal Objects: " + str(total_classifiers))
+    return new_list
 
 ########################## CREATE_CLASSIFIER_NAMES #############################
 # takes in a list of all classifiers and writes to the CLASSIFIER_FILE each classifier
@@ -390,13 +407,14 @@ def rename_checkpoints(checkpoint_path, max_checkpoints):
 ##################### WRITE TO CHECKPOINT FILE ########################
 def write_to_checkpoint(checkpoint_name, filename):
     quote = '"'
-    checkpoint_name = CHECKPOINT_KEYWORD + checkpoint_name.split(CHECKPOINT_KEYWORD)[1]
-    models = "model_checkpoint_path: "
-    all_models = "all_model_checkpoint_paths: "
-    with open(filename, "w") as f:
-        f.write(models + quote + checkpoint_name + quote)
-        f.write("\n")
-        f.write(all_models + quote + checkpoint_name + quote)
+    if CHECKPOINT_KEYWORD in checkpoint_name:
+        checkpoint_name = CHECKPOINT_KEYWORD + checkpoint_name.split(CHECKPOINT_KEYWORD)[1]
+        models = "model_checkpoint_path: "
+        all_models = "all_model_checkpoint_paths: "
+        with open(filename, "w") as f:
+            f.write(models + quote + checkpoint_name + quote)
+            f.write("\n")
+            f.write(all_models + quote + checkpoint_name + quote)
 
 
 ############################ GET CHECKPOINT NAME ###############################

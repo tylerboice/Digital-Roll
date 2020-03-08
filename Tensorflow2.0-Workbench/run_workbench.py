@@ -22,11 +22,24 @@ try:
     CONTINUE = 1002
     SINGLE = 1003
     TEST_IMAGE = 1004
-    ERROR = False
 
+# if script not found
 except FileNotFoundError:
-    ERROR = True
+    print("\n\n\tERROR: files needed for the workbench to run were not found")
+    print("\n\t\tEnsure that:")
+    print("\t\t        - The scripts folder and yolov3_tf2 folder have not been removed or altered")
+    print("\t\t        - You are in the proper directory")
+    print("\n\t\tAfter ensuring necessary files are in your directory and re-run the workbench\n\n")
+    exit()
 
+except ImportError:
+    print("\n\n\tERROR: packages needed for the workbench to run were not found")
+    print("\n\t\tEnsure that:")
+    print("\t\t        - Your conda enviorment is activated")
+    print("\t\t        - You have installed the proper packages using the requirements.txt file")
+    print("\t\t        - Visual Studio for C++ is installed on your machine")
+    print("\n\t\tAfter ensuring necessary files are in your directory and re-run the workbench\n\n")
+    exit()
 
 # Prints Error message
 def err_message(string):
@@ -41,130 +54,6 @@ def blockPrint():
 # Restore
 def enablePrint():
     sys.stdout = sys.__stdout__
-
-
-def run_single_script():
-    # just create class file
-    if defaults.FLAGS.create_class_file:
-        print("Gathering classifier data...")
-        classifiers = file_utils.get_classifiers(defaults.IMAGES_PATH)
-        file_utils.create_classifier_file(preferences.classifier_file, classifiers)
-        print("\tData successfully classified!\n")
-
-    # just sort images
-    if defaults.FLAGS.sort_images:
-        print("Sorting images...")
-        file_utils.sort_images(defaults.DEFAULT_NUM_VAL_IMAGES,
-                               defaults.IMAGES_PATH,
-                               defaults.TEST_IMAGE_PATH,
-                               defaults.TRAIN_IMAGE_PATH,
-                               defaults.VALIDATE_IMAGE_PATH
-                               )
-        print("\n\tAll images sorted!\n")
-
-    # just generate tf records
-    if defaults.FLAGS.generate_tf:
-        classifiers = file_utils.get_classifiers(defaults.IMAGES_PATH)
-        file_utils.create_classifier_file(preferences.classifier_file, classifiers)
-        print("Generating images and xml files into tfrecords...")
-        generate_tf.generate_tfrecods(defaults.TRAIN_IMAGE_PATH,
-                                      preferences.dataset_train)
-        generate_tf.generate_tfrecods(defaults.TEST_IMAGE_PATH,
-                                      preferences.dataset_test)
-        print("\n\tSuccessfully generated tf records\n")
-
-    # just convert weights
-    if defaults.FLAGS.convert_weight:
-        if not os.path.exists(preferences.weights):
-            print("Weights file does not exist")
-            exit()
-        print("Converting records to checkpoint...\n")
-        file_utils.save_checkpoints(preferences.output, preferences.sessions, preferences.max_saved_sess)
-        convert_weights.run_weight_convert(preferences.weights,
-                                           preferences.output,
-                                           preferences.tiny,
-                                           preferences.weight_num_classes)
-        print("Converted records to checkpoint!\n")
-    # just train
-    if defaults.FLAGS.train:
-        print("\nBegin Training... \n")
-        train_workbench.run_train(preferences.dataset_train,
-                                  preferences.dataset_test,
-                                  preferences.tiny,
-                                  defaults.IMAGES_PATH,
-                                  preferences.weights,
-                                  preferences.classifier_file,
-                                  preferences.mode,
-                                  preferences.transfer,
-                                  preferences.image_size,
-                                  preferences.epochs,
-                                  preferences.batch_size,
-                                  default.DEFAULT_LEARN_RATE,
-                                  preferences.num_classes,
-                                  preferences.weight_num_classes,
-                                  preferences.output,
-                                  preferences.max_checkpoints)
-
-        print("\n\tTraining Complete!")
-
-    # just create tf model
-    if defaults.FLAGS.tf_model:
-        # generating tensorflow models
-        print("\nGenerating TensorFlow model...")
-        chkpnt_weights = file_utils.get_last_checkpoint()
-        print("\n\tUsing checkpoint: " + chkpnt_weights + "\n")
-        if path.isfile(preferences.validate_input):
-            create_tf_model.run_export_tfserving(chkpnt_weights,
-                                                 preferences.tiny,
-                                                 preferences.output,
-                                                 preferences.classifier_file,
-                                                 preferences.validate_input + file,
-                                                 preferences.num_classes)
-        else:
-            model_saved = False
-            for file in os.listdir(preferences.validate_input):
-                if '.jpg' in file and not model_saved:
-                    create_tf_model.run_export_tfserving(chkpnt_weights,
-                                                         preferences.tiny,
-                                                         preferences.output,
-                                                         preferences.classifier_file,
-                                                         preferences.validate_input + file,
-                                                         preferences.num_classes)
-                    model_saved = True
-        print("\n\tTensorFlow model Generated!")
-
-    # just detect images
-    if defaults.FLAGS.detect_img:
-        # generating tensorflow models
-        print("\nTesting Images...")
-        chkpnt_weights = file_utils.get_last_checkpoint()
-        if path.isfile(preferences.validate_input):
-            print("\tTesting on image: " + preferences.validate_input + "\n")
-            detect_img.run_detect(preferences.classifier_file,
-                                  chkpnt_weights,
-                                  preferences.tiny,
-                                  preferences.image_size,
-                                  preferences.validate_input,
-                                  preferences.output,
-                                  preferences.num_classes)
-        else:
-            for file in os.listdir(preferences.validate_input):
-                if '.jpg' in file:
-                    detect_img.run_detect(preferences.classifier_file,
-                                          chkpnt_weights,
-                                          preferences.tiny,
-                                          preferences.image_size,
-                                          preferences.validate_input + file,
-                                          preferences.output + file + "_output.jpg",
-                                          preferences.num_classes)
-                    print("\tTesting on image: " + preferences.validate_input + file + "\n")
-        print("\n\tImages Tested and stored in " + preferences.output)
-
-    # just export coreml model
-    if defaults.FLAGS.core_ml:
-        print("Create a CoreML model...")
-        create_coreml.export_coreml(preferences.output)
-        print("Core ML model created!")
 
 
 def load(pref_path):
@@ -367,18 +256,22 @@ def run(start_from, start_path):
             return
 
         elif total_images < defaults.MIN_IMAGES:
-            err_message("Workbench needs at minimum " + str(defaults.MIN_IMAGES) + " to train")
+            err_message("Workbench needs at minimum " + str(defaults.MIN_IMAGES) + " to train. Current Count: " + str(total_images))
             print("\t       However it is recommended you have around 1000 per classifier")
             return
 
         # create classifiers.names
-        print("\nGathering classifier data...")
-        classifiers = file_utils.get_classifiers(defaults.IMAGES_PATH)
+        print("\nTraining Data Info:")
+        print("\n\tTotal images = " + str(total_images))
+
+        all_classifiers = file_utils.get_classifiers(defaults.IMAGES_PATH)
+        classifiers = file_utils.classifier_remove_dup(all_classifiers)
+        all_classifiers = []
         file_utils.create_classifier_file(preferences.classifier_file, classifiers)
-        print("\n\tData successfuly classified!\n\n")
+
 
         # sort all the images
-        print("Sorting images...")
+        print("\nSorting images...")
         file_utils.sort_images(preferences.validate_img_num,
                                defaults.IMAGES_PATH,
                                defaults.TEST_IMAGE_PATH,
@@ -440,18 +333,18 @@ def run(start_from, start_path):
             if "ERROR" in weights:
                 err_message("No checkpoints found in " + start_path)
                 return
-            weight_num = preferences.num_classes
             print("\n\tContinuing from " + weights)
-            print("\nResume Training... \n")
-            transfer_mode = "fine_tune"
+            print("\nResume Training...")
+            transfer_mode = 'fine_tune'
 
         # train from scratch
         else:
-            print("\nBegin Training... \n")
-            weight_num = preferences.weight_num_classes
+            print("\n\t Training for scratch " + weights)
+            print("\nBegin Training...")
             transfer_mode = preferences.transfer
 
         # start training
+        print("\n\tThis will take some time...\n")
         trained = train_workbench.run_train(preferences.dataset_train,
                                             preferences.dataset_test,
                                             preferences.tiny,
@@ -465,12 +358,12 @@ def run(start_from, start_path):
                                             preferences.batch_size,
                                             defaults.DEFAULT_LEARN_RATE,
                                             preferences.num_classes,
-                                            weight_num,
+                                            preferences.weight_num_classes,
                                             preferences.output,
                                             preferences.max_checkpoints)
         if not trained:
             return
-        print("\n\tTraining Complete!\n\n")
+        print("\n\tTraining Complete!\n")
 
     if (start_from != TEST_IMAGE):
         if not file_utils.is_valid(preferences.output):
@@ -488,9 +381,14 @@ def run(start_from, start_path):
         if chkpnt_weights == file_utils.ERROR:
             print("\n\tNo valid checkpoints found in " + file_utils.from_workbench(preferences.output))
             return
+        elif file_utils.CHECKPOINT_KEYWORD not in chkpnt_weights:
+            print("\tPlease use a trained checkpoint (e.g " + file_utils.CHECKPOINT_KEYWORD + "1.tf )")
+            return
 
         file_utils.rename_checkpoints(preferences.output, preferences.max_checkpoints)
         file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("//", "/"))
+
+        print("\n\tUsing checkpoint " + file_utils.from_workbench(chkpnt_weights) )
 
         # generating tensorflow models
         print("\nGenerating TensorFlow model...\n")
@@ -511,12 +409,12 @@ def run(start_from, start_path):
                                              preferences.classifier_file,
                                              test_img,
                                              preferences.num_classes)
-        print("\n\tTensorFlow model Generated!\n")
+
 
         # create Tensorflow Lite model
         try:
             # convert model to tensorflow lite for android use
-            print("Model Loading")
+            print("\nModel Loading...")
             converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
             converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
                                                    tf.lite.OpsSet.SELECT_TF_OPS]
@@ -525,16 +423,18 @@ def run(start_from, start_path):
                                                 # thus this be false, to have a model with nms set to True
             tflite_model = converter.convert()
             open(preferences.output + "tflite_model.tflite", "wb").write(tflite_model)
-            print("\n\tTensorflow Lite model created!")
+            print("\n\tTensorflow Lite model created!\n")
 
         except Exception as e:
             err_message("Failed to create TF lite model: " + str(e))
 
         # Create Core ML Model
         try:
-            print("\nCreating a CoreML model...\n")
+            print("\nCreating a CoreML model...")
+            blockPrint()
             create_coreml.export_coreml(preferences.output)
-            print("\n\tCore ML model created!")
+            enablePrint()
+            print("\n\tCore ML model created!\n")
 
         except Exception as e:
             err_message("Failed to create CoreML model: " + str(e))
@@ -578,32 +478,26 @@ def run(start_from, start_path):
                                       preferences.num_classes)
 
     if (start_from != TEST_IMAGE):
-        print("\n=============================== Workbench Successful! ===============================")
-    print("\n\tAll models and images saved in " + preferences.output)
+        print("\n\n=============================== Workbench Successful! ===============================")
+    print("\n\tAll models and images saved in " + preferences.output + "\n")
 
-
-################# CHECK FOR SCRIPTS ##################
-def check_for_scripts():
-    if ERROR:
-        print("\n\n\tERROR: files or packages in workbench cannot be found")
-        print("\n\t\tEnsure that:")
-        print("\t\t        - The scripts folder and yolov3_tf2 folder have not been removed or altered")
-        print("\t\t        - Your conda enviorment is activated")
-        print("\t\t        - You have installed the proper packages using the requirements.txt file")
-        print("\t\t        - You are in the proper directory")
-        print("\n\t\tAfter ensuring necessary files are in your directory and re-run the workbench\n\n")
-        exit()
 
 
 ############################## MAIN ##########################
 def main():
-    check_for_scripts()
     print("\nWelcome to the Digital Roll Workbench")
     print("\nEnter 'help' or 'h' for a list of commands:")
     running = True
     while running:
+        enablePrint()
         try:
-            userInput = input("\n<WORKBENCH>: ")
+            try:
+                userInput = input("\n<WORKBENCH>: ")
+
+            except EOFError:
+                print("\n\n\n\n------ Current process stopped by user ------")
+                print("\nEnter 'help' or 'h' for a list of commands:")
+                running = True
             userInput.lower()
             userInput.strip()
 
@@ -849,13 +743,13 @@ def main():
 
             elif userInput.replace(" ", "") == "quit" or userInput.replace(" ", "") == "q":
                 running = False
+                exit()
             else:
                 # end of cases, inform the user that their input was invalid
                 print("\nCommand not recognized, try 'help' or 'h' for a list of options")
         except KeyboardInterrupt:
+            enablePrint()
             print("\n\n\n\n------ Current process stopped by user ------")
             print("\nEnter 'help' or 'h' for a list of commands:")
             running = True
-
-
 main()

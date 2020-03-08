@@ -22,7 +22,7 @@ def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
     else:
         yolo = YoloV3(classes= num_classes)
 
-    yolo.load_weights(weights)
+    yolo.load_weights(weights).expect_partial()
     logging.info('weights loaded')
 
     tf.saved_model.save(yolo, output)

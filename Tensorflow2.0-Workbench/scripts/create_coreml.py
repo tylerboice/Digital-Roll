@@ -6,7 +6,7 @@ def export_coreml(output):
     keras_model.save(output, save_format='tf')
     # tf.saved_model.save(keras_model, './savedmodel')
     model = tfcoreml.convert(output,
-                             mlmodel_path = output + "saved_model.mlmodel",
+                             mlmodel_path = output + "coreML_model.mlmodel",
                              input_name_shape_dict={'input_1': (1, 224, 224, 3),
                                                     'input_55': (1, 224, 224, 3),
                                                     'input_28': (1, 224, 224, 3)},

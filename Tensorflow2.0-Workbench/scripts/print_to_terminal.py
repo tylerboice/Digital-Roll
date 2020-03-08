@@ -95,17 +95,7 @@ def info():
     print("\t--" + defaults.WEIGHTS_PATH_VAR + ": path to the weights file..................(Default: " + split_path(defaults.DEFAULT_WEIGHT_PATH) + ")")
     print("\t--" + defaults.VALID_IMGS_VAR + ": number of files removed from training data to test on.....(Default: " + split_path(defaults.DEFAULT_VALID_IMGS) + ")")
     print("\t--" + defaults.VALID_IN_VAR + ": path to image(s) you want to test the new model on.....(Default: " + split_path(defaults.INPUT_IMAGE_PATH) + ")")
-    '''
-    print("\n\nRunning specific scripts (can only run one):")
-    print("\t--" + defaults.CONVERT_WEIGHT + ": converts the weight file and stops the program")
-    print("\t--" + defaults.CREATE_CLASS_VAR + ": just generates the classifier file and stops the program")
-    print("\t--" + defaults.DETECT_IMAGES_VAR  + ": just tests model on images and stops the program")
-    print("\t--" + defaults.EXPORT_COREML_VAR + ": just exports the CoreML model and stops the program")
-    print("\t--" + defaults.EXPORT_Tf_MODEL_VAR  + ": just exports the TensorFlow model and stops the program")
-    print("\t--" + defaults.GENRATE_TF_VAR + ": just generates the tf records and stops the program")
-    print("\t--" + defaults.TRAIN_VAR + ": just trains the model and stops the program")
-    print("\t--" + defaults.SORT_IMAGES_VAR + ": sorts the image directory and stops the program")
-    '''
+
 
 def current_pref():
     print("\nCurrent Preferences:\n")
