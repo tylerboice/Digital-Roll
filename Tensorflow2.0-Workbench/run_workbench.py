@@ -516,12 +516,11 @@ def run(start_from, start_path):
         # create Tensorflow Lite model
         try:
             # convert model to tensorflow lite for android use
-            # keras_model = tf.keras.models.load_model(preferences.output)
             print("Model Loading")
             converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
             converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
                                                    tf.lite.OpsSet.SELECT_TF_OPS]
-            # converter.experimental_new_converter = True
+
             converter.allow_custom_ops = False  # TFLite does not support custom operations,
                                                 # thus this be false, to have a model with nms set to True
             tflite_model = converter.convert()
@@ -618,7 +617,6 @@ def main():
                 # convert model to tensorflow lite for android use
                 try:
                     # convert model to tensorflow lite for android use
-                    # keras_model = tf.keras.models.load_model(preferences.output)
                     print("Model Loading")
                     converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
                     converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
