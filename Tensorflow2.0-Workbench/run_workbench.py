@@ -521,7 +521,7 @@ def run(start_from, start_path):
             converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
                                                    tf.lite.OpsSet.SELECT_TF_OPS]
 
-            converter.allow_custom_ops = False  # TFLite does not support custom operations,
+            converter.allow_custom_ops = True  # TFLite does not support custom operations,
                                                 # thus this be false, to have a model with nms set to True
             tflite_model = converter.convert()
             open(preferences.output + "tflite_model.tflite", "wb").write(tflite_model)
