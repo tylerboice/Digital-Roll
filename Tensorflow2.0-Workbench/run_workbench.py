@@ -516,10 +516,9 @@ def run(start_from, start_path):
         # create Tensorflow Lite model
         try:
             # convert model to tensorflow lite for android use
-            model = tf.saved_model.load(preferences.output)
-            print("Model Loaded")
-            concrete_func = model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
-            converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
+            # keras_model = tf.keras.models.load_model(preferences.output)
+            print("Model Loading")
+            converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
             converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
                                                    tf.lite.OpsSet.SELECT_TF_OPS]
             # converter.experimental_new_converter = True
@@ -617,9 +616,22 @@ def main():
 
             elif userInput.replace(" ", "") == "lite" or userInput.replace(" ", "") == "l":
                 # convert model to tensorflow lite for android use
-                converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
-                tflite_model = converter.convert()
-                open("converted_model.tflite", "wb").write(tflite_model)
+                try:
+                    # convert model to tensorflow lite for android use
+                    # keras_model = tf.keras.models.load_model(preferences.output)
+                    print("Model Loading")
+                    converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
+                    converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
+                                                           tf.lite.OpsSet.SELECT_TF_OPS]
+                    # converter.experimental_new_converter = True
+                    converter.allow_custom_ops = False  # TFLite does not support custom operations,
+                    # thus this be false, to have a model with nms set to True
+                    tflite_model = converter.convert()
+                    open(preferences.output + "tflite_model.tflite", "wb").write(tflite_model)
+                    print("\n\tTensorflow Lite model created!")
+
+                except Exception as e:
+                    err_message("Failed to create TF lite model: " + str(e))
 
             elif userInput[0:5] == "test " or userInput[0:2] == "t ":
                 error = False
