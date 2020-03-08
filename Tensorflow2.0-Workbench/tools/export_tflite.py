@@ -51,14 +51,16 @@ def main(_argv):
         # tried to give a delegate to the Interpreter via giving expermental_delegates = load_delegates('edgetpu.dll')
                 # as an argument, failed due to delegates class being faulty from tf.lite, found an online suggestion to
                 # try import tf_runtime as tflite, but fald to properly download the package
+        # converter.experimental_new_converter = True  --x> Did nothing to help and made system consume massive RAM
 
     # converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
     # converter = tf.lite.TFLiteConverter.from_saved_model(FLAGS.model)
     converter = tf.lite.TFLiteConverter.from_keras_model(keras_model)
     converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS, tf.lite.OpsSet.SELECT_TF_OPS]
-    # converter.experimental_new_converter = True
-    converter.allow_custom_ops = False # TFLite does not support custom operations, must figure out a way to remove nms
-        # when set to true the converter will produce a good output shape, but have a custom function which is its own issue
+
+    # when set to True the converter will produce a good output shape, but has a custom function which is its own issue
+    converter.allow_custom_ops = True # TFLite does not support custom operations, must figure out a way to remove nms
+
     tflite_model = converter.convert()
     open(FLAGS.output, "wb").write(tflite_model)
 
