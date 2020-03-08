@@ -2,3 +2,7 @@
 *.index
 *.data-00000-of-00002
 *.data-00001-of-00002
+Tensorflow2.0-Workbench/current_session/yolov3.tflite
+*.tflite
+*.pb
+*.mlmodel
