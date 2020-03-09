@@ -190,7 +190,8 @@ def sort_images(num_validate, image_path, test_image_path, train_image_path, val
 
     # move all files in validate to train
     for file in os.listdir(val_image_path):
-        shutil.move(val_image_path + file, train_image_path)
+        if not path.exists(train_image_path + file):
+            shutil.move(val_image_path + file, train_image_path)
 
     # gather all valid images from train
     if train_images - 1 > num_validate:
