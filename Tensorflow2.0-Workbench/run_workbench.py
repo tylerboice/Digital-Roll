@@ -294,7 +294,7 @@ def run(start_from, start_path):
                                                                      defaults.DATA_PATH,
                                                                      defaults.MIN_IMAGES,
                                                                      preferences.output,
-                                                                     preferences.session,
+                                                                     preferences.sessions,
                                                                      defaults.TEST_IMAGE_PATH,
                                                                      defaults.TRAIN_IMAGE_PATH,
                                                                      defaults.VALIDATE_IMAGE_PATH,
