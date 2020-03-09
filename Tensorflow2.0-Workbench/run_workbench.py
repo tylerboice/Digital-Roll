@@ -22,6 +22,7 @@ try:
     CONTINUE = 1002
     SINGLE = 1003
     TEST_IMAGE = 1004
+    SPECIAL_CHAR = "?<#>@"
 
 # if script not found
 except FileNotFoundError:
@@ -55,186 +56,236 @@ def blockPrint():
 def enablePrint():
     sys.stdout = sys.__stdout__
 
+# get input
+def get_input(input):
+    return input.replace(" ", "").lower()
 
 def load(pref_path):
-    if path.exists(pref_path):
-        # Set new preferences
-        preferences.pref_file = pref_path
-        with open(pref_path, "r") as f:
-            for line in f.readlines():
-                txt_input = file_utils.get_input(line, SPLIT_CHAR)
-                if defaults.BATCH_SIZE_VAR + SPLIT_CHAR in line:
-                    if path.exists(txt_input):
-                        preferences.batch_size = int(txt_input)
-                    else:
-                        err_message("Bad batch size given, cannot convert value to int")
-                        error = True
-
-                elif defaults.TEST_CHECKPOINT_VAR + SPLIT_CHAR in line:
-                    try:
-                        this.test_checkpoint = txt_input
-                    except:
-                        err_message("Bad testing checkpoint directory given")
-                        error = True
-
-                elif defaults.CLASSIFIERS_VAR + SPLIT_CHAR in line:
-                    old_classifier = preferences.classifier_file
-                    preferences.classifier_file = txt_input
-                    try:
-                        preferences.num_classes = file_utils.get_num_classes(preferences.classifier_file)
-                    except:
-                        try:
-                            preferences.num_classes = file_utils.get_num_classes(os.getcwd().replace("\\", "/")
-                                                                                 + "/"
-                                                                                 + preferences.classifier_file[1:])
-                        except:
-                            err_message("Failed to update classifier file, new file not found")
-                            preferences.classifier_file = old_classifier
-                            error = True
-
-                elif defaults.DATASET_TEST_VAR + SPLIT_CHAR in line:
-                    if path.exists(txt_input):
-                        preferences.dataset_test = txt_input
-                    else:
-                        err_message("Bad test dataset directory given")
-                        error = True
-
-                elif defaults.DATASET_TRAIN_VAR + SPLIT_CHAR in line:
-                    if path.exists(txt_input):
-                        preferences.dataset_train = txt_input
-                    else:
-                        err_message("Bad train dataset directory given")
-                        error = True
-
-                elif defaults.EPOCH_NUM_VAR + SPLIT_CHAR in line:
-                    try:
-                        preferences.epochs = int(txt_input)
-                    except:
-                        err_message("Bad epochs value given, cannot convert to int")
-                        error = True
-
-                elif defaults.IMAGE_SIZE_VAR + SPLIT_CHAR in line:
-                    try:
-                        preferences.image_size = int(txt_input)
-                    except:
-                        err_message("Bad image size value given, cannot convert to int")
-                        error = True
-
-                elif defaults.MAX_CHECK_VAR + SPLIT_CHAR in line:
-                    try:
-                        preferences.max_checkpoints = int(txt_input)
-                    except:
-                        err_message("Bad max check value given, cannot convert to int")
-                        error = True
-
-                elif defaults.MAX_SAVED_SESS_VAR + SPLIT_CHAR in line:
-                    try:
-                        preferences.max_saved_sess = int(txt_input)
-                    except:
-                        err_message("Bad max saved sessions value given, cannot convert to int")
-                        error = True
-
-                elif defaults.MODE_VAR + SPLIT_CHAR in line:
-                    if txt_input == "fit" \
-                            or txt_input == "eager_fit" \
-                            or txt_input == "eager_tf":
-                        preferences.mode = txt_input
-                    else:
-                        err_message("Bad mode value given, please update the file and choose one of the following")
-                        print("\t\n       ==> fit, eager_fit, eager_tf")
-                        error = True
-
-                elif defaults.OUTPUT_VAR + SPLIT_CHAR in line:
-                    if path.exists(txt_input):
-                        preferences.output = txt_input
-                    else:
-                        err_message("Bad output directory given")
-                        error = True
-
-                elif defaults.TINY_WEIGHTS_VAR + SPLIT_CHAR in line:
-                    try:
-                        preferences.tiny = bool(txt_input)
-                    except:
-                        err_message("Failed to give True/False to tiny value")
-                        error = True
-
-                elif defaults.TRANSFER_VAR + SPLIT_CHAR in line:
-                    if txt_input == "none" \
-                            or txt_input == "darknet" \
-                            or txt_input == "no_output" \
-                            or txt_input == "frozen" \
-                            or txt_input == "fine_tune":
-                        preferences.transfer = txt_input
-                    else:
-                        err_message("Bad transfer value given, please update the file and choose one of the following")
-                        print("\n\t       ==> none, darknet, no_output, frozen, fine_tune")
-                        error = True
-
-                elif defaults.VALID_IMGS_VAR + SPLIT_CHAR in line:
-                    try:
-                        preferences.validate_img_num = int(txt_input)
-                    except:
-                        err_message("Bad valid image value given, cannot convert to int")
-                        error = True
-
-                elif defaults.VALID_IN_VAR + SPLIT_CHAR in line:
-                    txt_input = line.split("=")[1]
-                    txt_input = txt_input.strip()
-                    if path.exists(txt_input):
-                        preferences.validate_input = txt_input
-                    else:
-                        err_message("Failed to find directory for validation")
-                        error = True
-
-                elif defaults.WEIGHTS_PATH_VAR + SPLIT_CHAR in line:
-                    txt_input = line.split("=")[1]
-                    txt_input = txt_input.strip()
-                    if path.exists(txt_input):
-                        old_weights = preferences.weights
-                        preferences.weights = txt_input
-                        try:
-                            preferences.weight_num_classes = file_utils.get_num_classes(
-                                os.getcwd().replace("\\", "/")
-                                + "/"
-                                + preferences.weights[1:])
-                        except:
-                            err_message("Failed to update weights file, new file not found")
-                            preferences.weights = old_weights
-                            error = True
-                    else:
-                        err_message("Failed to update weights path")
-                        error = True
-        if error:
-            print("A setting has failed to load properly please check above errors for info")
-        else:
-            print("\nNew Preferences:")
-            print_to_terminal.current_pref()
-    else:
+    failed = []
+    changed = []
+    if ".txt" not in pref_path:
+        pref_path += ".txt"
+    if not path.exists(pref_path):
+        pref_path = os.getcwd() + "/" + pref_path
+    if not path.exists(pref_path):
         err_message("Bad Preferences File, could not find file")
+        return
+    # Set new preferences
+    preferences.pref_file = pref_path
+    with open(pref_path, "r") as f:
+        for line in f.readlines():
+            txt_input = file_utils.get_input(line, SPLIT_CHAR)
+            if defaults.BATCH_SIZE_VAR + SPLIT_CHAR in line:
+                if txt_input.isnumeric():
+                    if preferences.batch_size != int(txt_input):
+                        preferences.batch_size = int(txt_input)
+                        changed.append(defaults.BATCH_SIZE_VAR + SPECIAL_CHAR + str(preferences.batch_size))
+                else:
+                    failed.append(defaults.BATCH_SIZE_VAR)
+
+            elif defaults.CLASSIFIERS_VAR + SPLIT_CHAR in line:
+
+                if os.path.exists(txt_input) and ".names" in txt_input:
+                    if preferences.classifier_file != txt_input:
+                        preferences.classifier_file = txt_input
+                        changed.append(defaults.CLASSIFIERS_VAR + SPECIAL_CHAR + preferences.classifier_file)
+
+                elif os.path.exists(txt_input + ".names"):
+                    if preferences.classifier_file != txt_input + ".names":
+                        preferences.classifier_file = txt_input + ".names"
+                        changed.append(defaults.CLASSIFIERS_VAR + SPECIAL_CHAR + preferences.classifier_file)
+                else:
+                    failed.append(defaults.CLASSIFIERS_VAR)
+
+            elif defaults.DATASET_TEST_VAR + SPLIT_CHAR in line:
+                if path.exists(txt_input) and ".tfrecord" in txt_input:
+                    if preferences.dataset_test != txt_input:
+                        preferences.dataset_test = txt_input
+                        changed.append(defaults.DATASET_TEST_VAR + SPECIAL_CHAR + preferences.dataset_test)
+                elif path.exists(txt_input + ".tfrecord"):
+                    if preferences.dataset_test != txt_input + ".tfrecord":
+                        preferences.dataset_test = txt_input + ".tfrecord"
+                        changed.append(defaults.DATASET_TEST_VAR + SPECIAL_CHAR + preferences.dataset_test)
+                else:
+                    failed.append(defaults.DATASET_TEST_VAR)
+
+            elif defaults.DATASET_TRAIN_VAR + SPLIT_CHAR in line:
+                if path.exists(txt_input) and ".tfrecord" in txt_input:
+                    if preferences.dataset_train != txt_input:
+                        preferences.dataset_train = txt_input
+                        changed.append(defaults.DATASET_TRAIN_VAR + SPECIAL_CHAR + preferences.dataset_train)
+
+                elif path.exists(txt_input +  ".tfrecord"):
+                    if preferences.dataset_train != txt_input + ".tfrecord":
+                        preferences.dataset_train = txt_input + ".tfrecord"
+                        changed.append(defaults.DATASET_TRAIN_VAR + SPECIAL_CHAR + preferences.dataset_train)
+                else:
+                    failed.append(defaults.DATASET_TRAIN_VAR)
+
+            elif defaults.EPOCH_NUM_VAR + SPLIT_CHAR in line:
+                if txt_input.isnumeric():
+                    if preferences.epochs != int(txt_input):
+                        preferences.epochs = int(txt_input)
+                        changed.append(defaults.EPOCH_NUM_VAR + SPECIAL_CHAR + str(preferences.epochs))
+                else:
+                    failed.append(defaults.EPOCH_NUM_VAR)
+
+            elif defaults.IMAGE_SIZE_VAR + SPLIT_CHAR in line:
+                if txt_input.isnumeric():
+                    if preferences.image_size != int(txt_input):
+                        preferences.image_size = int(txt_input)
+                        changed.append(defaults.IMAGE_SIZE_VAR + SPECIAL_CHAR + str(preferences.image_size))
+                else:
+                    failed.append(defaults.IMAGE_SIZE_VAR)
+
+            elif defaults.MAX_CHECK_VAR + SPLIT_CHAR in line:
+                if txt_input.isnumeric():
+                    if preferences.max_checkpoints != int(txt_input):
+                        preferences.max_checkpoints = int(txt_input)
+                        changed.append(defaults.MAX_CHECK_VAR + SPECIAL_CHAR + str(preferences.max_checkpoints))
+                else:
+                    failed.append(defaults.MAX_CHECK_VAR)
+
+            elif defaults.MAX_SESS_VAR + SPLIT_CHAR in line:
+                if txt_input.isnumeric():
+                    if preferences.max_saved_sess != int(txt_input):
+                        preferences.max_saved_sess = int(txt_input)
+                        changed.append(defaults.MAX_SESS_VAR + SPECIAL_CHAR + str(preferences.max_saved_sess))
+                else:
+                    failed.append(defaults.MAX_SESS_VAR)
+
+            elif defaults.MODE_VAR + SPLIT_CHAR in line:
+                if txt_input in defaults.MODE_OPTIONS:
+                    if preferences.mode != txt_input:
+                        preferences.mode = txt_input
+                        changed.append(defaults.MODE_VAR + SPECIAL_CHAR + preferences.mode)
+                else:
+                    failed.append(defaults.MODE_VAR)
+
+            elif defaults.OUTPUT_VAR + SPLIT_CHAR in line:
+                if path.exists(txt_input) or "." not in txt_input:
+                    if preferences.output != txt_input:
+                        preferences.output = txt_input
+                        changed.append(defaults.OUTPUT_VAR + SPECIAL_CHAR + preferences.output)
+                else:
+                    failed.append(defaults.OUTPUT_VAR)
+
+            elif defaults.SAVED_SESS_VAR + SPLIT_CHAR in line:
+                if path.exists(txt_input) or "." not in txt_input:
+                    if preferences.sessions != txt_input:
+                        preferences.sessions = txt_input
+                        changed.append(defaults.SAVED_SESS_VAR + SPECIAL_CHAR + preferences.sessions)
+                else:
+                    failed.append(defaults.SAVED_SESS_VAR)
+
+            elif defaults.TINY_WEIGHTS_VAR + SPLIT_CHAR in line:
+                txt_input = txt_input.lower()
+                txt_input = txt_input[0].upper() + txt_input[1:]
+                if txt_input == "True" or txt_input == "False":
+                    if txt_input == "True":
+                        result = True
+                    else:
+                        result = False
+                    if preferences.tiny != result:
+                        preferences.tiny = result
+                        changed.append(defaults.TINY_WEIGHTS_VAR + SPECIAL_CHAR + txt_input)
+                else:
+                    failed.append(defaults.TINY_WEIGHTS_VAR)
+
+            elif defaults.TRANSFER_VAR + SPLIT_CHAR in line:
+                if txt_input in defaults.TRANSFER_OPTIONS:
+                    if preferences.transfer != txt_input:
+                        preferences.transfer = txt_input
+                        changed.append(defaults.TRANSFER_VAR + SPECIAL_CHAR + preferences.transfer)
+                else:
+                    failed.append(defaults.TRANSFER_VAR)
+
+            elif defaults.VALID_IMGS_VAR + SPLIT_CHAR in line:
+                if txt_input.isnumeric():
+                    if preferences.validate_img_num != int(txt_input):
+                        preferences.validate_img_num = int(txt_input)
+                        changed.append(defaults.VALID_IMGS_VAR + SPECIAL_CHAR + str(preferences.validate_img_num))
+                else:
+                    failed.append(defaults.VALID_IMGS_VAR)
+
+            elif defaults.VALID_IN_VAR + SPLIT_CHAR in line:
+                if path.exists(txt_input):
+                    if preferences.validate_input != txt_input:
+                        preferences.validate_input = txt_input
+                        changed.append(defaults.VALID_IN_VAR + SPECIAL_CHAR + preferences.validate_input)
+                else:
+                    failed.append(defaults.VALID_IN_VAR)
+
+            elif defaults.WEIGHTS_PATH_VAR + SPLIT_CHAR in line:
+                if path.exists(txt_input) and (".tf" in txt_input or ".weights" in txt_input):
+                    if preferences.weights != txt_input:
+                        preferences.weights = txt_input
+                        changed.append(defaults.WEIGHTS_PATH_VAR + SPECIAL_CHAR + preferences.weights)
+
+                elif path.exists(txt_input + ".tf"):
+                    if preferences.weights != txt_input + ".tf":
+                        preferences.weights = txt_input + ".tf"
+                        changed.append(defaults.WEIGHTS_PATH_VAR + SPECIAL_CHAR + preferences.weights)
+
+                elif path.exists(txt_input + ".weights"):
+                    if preferences.weights != txt_input + ".weights":
+                        preferences.weights = txt_input + ".weights"
+                        changed.append(defaults.WEIGHTS_PATH_VAR + SPECIAL_CHAR + preferences.weights)
+
+                else:
+                    failed.append(defaults.WEIGHTS_PATH_VAR)
+
+    if len(changed) != 0:
+        print("\n\tValues changed:")
+        for item in changed:
+            item = item.split(SPECIAL_CHAR)
+            print("\t\t -" + item[0] + " to " + item[1])
+        print("\t\tUse the display(d) command to current preferences")
+    else:
+        print("\n\tNo values were altered")
+    if len(failed) != 0:
+        print("\n\n\tWARNING: The following items didn't change due incompatible input or incorrect file path:" )
+        for item in failed:
+            print("\t\t -" + item)
+        print("\t\tUse the modify(m) command with no arguments to see accepted types")
+
 
 
 def save(save_path):
-    with open(save_path, "w") as f:
+    files = 1
+    changed_name = False
+    if "." in save_path:
+        save_path = save_path.split(".")[0]
+    new_file = save_path + ".txt"
+    while os.path.exists(new_file):
+        new_file = save_path + "-" + str(files) + ".txt"
+        changed_name = True
+        files += 1
+    if changed_name:
+        print("\n\tFile " + save_path + " is already a file, using " + new_file + " instead")
+    with open(new_file, "w") as f:
         f.write(defaults.BATCH_SIZE_VAR + "= " + str(preferences.batch_size) + "\n")
-        f.write(defaults.TEST_CHECKPOINT_VAR + "= " + str(test_checkpoint) + "\n")
         f.write(defaults.CLASSIFIERS_VAR + "= " + str(preferences.classifier_file) + "\n")
         f.write(defaults.DATASET_TEST_VAR + "= " + str(preferences.dataset_test) + "\n")
         f.write(defaults.DATASET_TRAIN_VAR + "= " + str(preferences.dataset_train) + "\n")
         f.write(defaults.EPOCH_NUM_VAR + "= " + str(preferences.epochs) + "\n")
         f.write(defaults.IMAGE_SIZE_VAR + "= " + str(preferences.image_size) + "\n")
-        f.write(defaults.MODE_VAR + "= " + str(preferences.mode) + "\n")
         f.write(defaults.MAX_CHECK_VAR + "= " + str(preferences.max_checkpoints) + "\n")
-        f.write(defaults.MAX_SAVED_SESS_VAR + "= " + str(preferences.max_saved_sess) + "\n")
+        f.write(defaults.MAX_SESS_VAR + "= " + str(preferences.max_saved_sess) + "\n")
+        f.write(defaults.MODE_VAR + "= " + str(preferences.mode) + "\n")
         f.write(defaults.OUTPUT_VAR + "= " + str(preferences.output) + "\n")
+        f.write(defaults.SAVED_SESS_VAR + "= " + str(preferences.sessions) + "\n")
         f.write(defaults.TINY_WEIGHTS_VAR + "= " + str(preferences.tiny) + "\n")
         f.write(defaults.TRANSFER_VAR + "= " + str(preferences.transfer) + "\n")
-        f.write(defaults.VALID_IMG_VAR + "= " + str(preferences.validate_img_num) + "\n")
+        f.write(defaults.VALID_IMGS_VAR + "= " + str(preferences.validate_img_num) + "\n")
         f.write(defaults.VALID_IN_VAR + "= " + str(preferences.validate_input) + "\n")
-        f.write(defaults.WEIGHTS_CLASS_VAR + "= " + str(preferences.weight_num_classes) + "\n")
+        f.write(defaults.WEIGHTS_PATH_VAR + "= " + str(preferences.weights) + "\n")
+
+    print("\n\tNew preference path " + file_utils.from_workbench(save_path) +" successfully saved!")
 
 
 def run(start_from, start_path):
-    single_script = False
+
     # check if necessary files exist
     # run was called, start from beginning
 
@@ -243,6 +294,7 @@ def run(start_from, start_path):
                                                                      defaults.DATA_PATH,
                                                                      defaults.MIN_IMAGES,
                                                                      preferences.output,
+                                                                     preferences.session,
                                                                      defaults.TEST_IMAGE_PATH,
                                                                      defaults.TRAIN_IMAGE_PATH,
                                                                      defaults.VALIDATE_IMAGE_PATH,
@@ -365,7 +417,7 @@ def run(start_from, start_path):
             return
         print("\n\tTraining Complete!\n")
 
-    if (start_from != TEST_IMAGE):
+    if (start_from == CONTINUE or start_from == START):
         if not file_utils.is_valid(preferences.output):
             err_message(preferences.output + " not found or is empty")
             return
@@ -487,8 +539,7 @@ def run(start_from, start_path):
 def main():
     print("\nWelcome to the Digital Roll Workbench")
     print("\nEnter 'help' or 'h' for a list of commands:")
-    running = True
-    while running:
+    while True:
         enablePrint()
         try:
             try:
@@ -498,16 +549,14 @@ def main():
                 print("\n\n\n\n------ Current process stopped by user ------")
                 print("\nEnter 'help' or 'h' for a list of commands:")
                 running = True
-            userInput.lower()
-            userInput.strip()
 
-            if userInput.replace(" ", "") == "help" or userInput.replace(" ", "") == "h":
+            if get_input(userInput) == "help" or get_input(userInput) == "h":
                 print_to_terminal.help()
 
-            elif userInput.replace(" ", "") == "run" or userInput.replace(" ", "") == "r":
+            elif get_input(userInput) == "run" or get_input(userInput) == "r":
                 run(START, NONE)
 
-            elif userInput.replace(" ", "") == "lite" or userInput.replace(" ", "") == "l":
+            elif get_input(userInput) == "lite" or get_input(userInput) == "l":
                 # convert model to tensorflow lite for android use
                 try:
                     # convert model to tensorflow lite for android use
@@ -526,7 +575,6 @@ def main():
                     err_message("Failed to create TF lite model: " + str(e))
 
             elif userInput[0:5] == "test " or userInput[0:2] == "t ":
-                error = False
                 if userInput[0:2] == "t ":
                     img_path = userInput[2:]
                 else:
@@ -534,7 +582,7 @@ def main():
                 img_path.strip("\n\r")
                 run(TEST_IMAGE, img_path)
 
-            elif userInput.replace(" ", "") == "continue" or userInput.replace(" ", "") == "c":
+            elif get_input(userInput) == "continue" or get_input(userInput) == "c":
                 run(CONTINUE, NONE)
 
             elif userInput[0:5] == "continue " or userInput[0:2] == "c ":
@@ -544,27 +592,28 @@ def main():
                     prev_check = userInput[5:]
                 run(CONTINUE, prev_check)
 
-            elif userInput.replace(" ", "") == "display" or userInput.replace(" ", "") == "d":
+            elif get_input(userInput) == "display" or get_input(userInput) == "d":
                 print_to_terminal.current_pref()
 
-            elif userInput.replace(" ", "") == "info" or userInput.replace(" ", "") == "i":
+            elif get_input(userInput) == "info" or get_input(userInput) == "i":
                 print_to_terminal.info()
 
+
             elif userInput[0:5] == "load " or userInput[0:2] == "l ":
-                error = False
                 if userInput[0:2] == "l ":
                     pref_path = userInput[2:]
                 else:
                     pref_path = userInput[5:]
-                pref_path.strip("\n\r")
-                print("Searching for: " + pref_path)
-                if path.exists(os.getcwd().replace("\\", "/") + "/" + pref_path):
-                    pref_path = os.getcwd().replace("\\", "/") + "/" + pref_path
-                    print("Found file at: " + pref_path)
-                try:
-                    load(pref_path)
-                except:
-                    err_message("Loading failed, see above errors for more info")
+                pref_path.strip("\n")
+                load(pref_path)
+
+            elif get_input(userInput) == "save" or get_input(userInput) == "s":
+                files = 1
+                new_files = os.getcwd() + "/preferences-" + str(files) + ".txt"
+                while os.path.exists(new_files):
+                    files += 1
+                    new_files = os.getcwd() + "/preferences-"  + str(files) + ".txt"
+                save(new_files)
 
             elif userInput[0:5] == "save " or userInput[0:2] == "s ":
                 if userInput[0:2] == "s ":
@@ -572,16 +621,10 @@ def main():
                 else:
                     save_path = userInput[5:]
                 save_path.strip("\n\r")
-                print("Attempting to save to " + save_path)
-                if not path.exists(save_path):
-                    # open a new txt and copy in settings
-                    try:
-                        save(save_path)
-                        print("Successfully saved!")
-                    except:
-                        err_message("Failed to save")
-                else:
-                    err_message("File with this name already exists at this location")
+                save(save_path)
+
+            elif get_input(userInput) == "modify" or get_input(userInput) == "m":
+                print_to_terminal.modify_commands()
 
             elif userInput[0:7] == "modify " or userInput[0:2] == "m ":
                 error = False
@@ -741,8 +784,8 @@ def main():
                 else:
                     print("Not enough arguments, please provide a variable and a value ie batch_size 3")
 
-            elif userInput.replace(" ", "") == "quit" or userInput.replace(" ", "") == "q":
-                running = False
+            elif get_input(userInput) == "quit" or get_input(userInput) == "q":
+                print("\n\tExiting workbench...")
                 exit()
             else:
                 # end of cases, inform the user that their input was invalid

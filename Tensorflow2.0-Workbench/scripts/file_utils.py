@@ -16,8 +16,8 @@ ERROR = "ERROR_MESSAGE"              # Error message value
 
 ########################## Checking FOR FILES #############################
 # checks if all necessary files exist
-def checkIfNecessaryPathsAndFilesExist(image_path, data_path, min_images, output_path, test_image_path,
-                                       train_image_path, val_image_path, weights_path):
+def checkIfNecessaryPathsAndFilesExist(image_path, data_path, min_images, output_path, save_sess,
+                                     test_image_path, train_image_path, val_image_path, weights_path):
 
     image_path = (image_path + "/").replace("//", "/")
 
@@ -34,6 +34,10 @@ def checkIfNecessaryPathsAndFilesExist(image_path, data_path, min_images, output
             os.mkdir(data_path)
 
         ####### OUTPUT MODEL PATH #######
+        if not os.path.exists(save_sess):
+            os.mkdir(save_sess)
+
+        ####### SAVED SESS  PATH #######
         if not os.path.exists(output_path):
             os.mkdir(output_path)
 
@@ -288,8 +292,9 @@ def get_last_checkpoint(checkpoint_path):
 
 ########################## GET INPUT ###########################
 def get_input(input, split_char):
-    input = line.split(split_char)[1]
-    input = input.strip()
+    if split_char in input:
+        input = input.split(split_char)[1]
+        input = input.strip()
     return input
 
 
