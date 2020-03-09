@@ -391,7 +391,7 @@ def run(start_from, start_path):
 
         # train from scratch
         else:
-            print("\n\t Training for scratch " + weights)
+            print("\n\t Training from scratch " + weights)
             print("\nBegin Training...")
             transfer_mode = preferences.transfer
 
