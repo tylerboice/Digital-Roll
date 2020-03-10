@@ -456,7 +456,7 @@ def get_oldest_checkpoint(checkpoint_path):
     for file in os.listdir(checkpoint_path):
         if CHECKPOINT_KEYWORD in file:
             last_modified = time.ctime(os.path.getmtime(checkpoint + file)).split(' ')
-            last_modified = int(str(last_modified[5]) + str(get_month(last_modified[1])) + str(last_modified[3]) +  str(last_modified[4]).replace(":", ""))
+            last_modified = int(str(last_modified[4]) + str(get_month(last_modified[1]))  +  str(last_modified[3]).replace(":", ""))
             if last_modified > oldest:
                 oldest_file = file
                 oldest = last_modified
