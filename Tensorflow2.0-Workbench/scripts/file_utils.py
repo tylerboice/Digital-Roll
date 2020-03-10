@@ -126,8 +126,8 @@ def remove_empty_folders(path):
                 os.rmdir(file_path)
 
 ########################## GET OUTPUT FILE #############################
-def get_output_file(path):
-    path = (path + "/").replace("//", "/")
+def get_output_file():
+    path = "./logs/"
     file = "workbench_log.txt"
     file_count = 1
     file_path =  path + file
