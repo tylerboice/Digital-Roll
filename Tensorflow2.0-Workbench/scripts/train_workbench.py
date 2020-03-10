@@ -25,11 +25,11 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
               weights, classifiers, mode, transfer, size, epochs, batch_size,
               learning_rate, num_classes, weights_num_classes, checkpoint_path, total_checkpoints):
 
-    physical_devices = tf.config.experimental.list_physical_devices('GPU')
     checkpoint_path = checkpoint_path.replace("//", "/")
-    if len(physical_devices) > 0:
-        True
-        # TODO fix this it causes an error that the device is already initialized
+
+    physical_devices = tf.config.experimental.list_physical_devices('GPU')
+    # Setting moved to run_workbench.py
+    # if len(physical_devices) > 0:
         # tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
     if tiny:

@@ -286,6 +286,11 @@ def save(save_path):
 
 def run(start_from, start_path):
 
+    # Setting for memory growth from old train_workbench.py
+    physical_devices = tf.config.experimental.list_physical_devices('GPU')
+    if len(physical_devices) > 0:
+        tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
     # check if necessary files exist
     # run was called, start from beginning
 
