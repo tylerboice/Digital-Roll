@@ -125,6 +125,18 @@ def remove_empty_folders(path):
             if len(os.listdir(file_path)) == 0:
                 os.rmdir(file_path)
 
+########################## GET OUTPUT FILE #############################
+def get_output_file(path):
+    path = (path + "/").replace("//", "/")
+    file = "workbench_log.txt"
+    file_count = 1
+    file_path =  path + file
+    if not os.path.exists(path):
+        mkdir(path)
+    while os.path.exists(file_path):
+        file_path = path + "workbench_log-" + str(file_count) + ".txt"
+        file_count += 1
+    return file_path
 
 ########################## GET_IMAGE_COUNT #############################
 # recursivly checks driectory for images
@@ -529,17 +541,7 @@ def remove_temp(new_path, temp_path):
             shutil.move(temp_path + file, new_path + file)
     shutil.rmtree(temp_path)
 
-def get_output_file(path):
-    path = (path + "/").replace("//", "/")
-    file = "workbench_log.txt"
-    file_count = 1
-    file_path =  path + file
-    if not os.path.exists(path):
-        mkdir(path)
-    while os.path.exists(file_path):
-        file_path = path + "workbench_log-" + str(file_count) + ".txt"
-        file_count += 1
-    return file_path
+
 ############################ FILE IS VALID ###########################
 # Returns true if the file exists and is not empty, else false
 def is_valid(file):

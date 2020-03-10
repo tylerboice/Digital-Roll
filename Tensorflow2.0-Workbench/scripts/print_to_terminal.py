@@ -101,23 +101,29 @@ def info():
 
 
 def current_pref():
-    print("\nCurrent Preferences:\n")
-    print("\tBatch Size............. " + str(preferences.batch_size))
-    print("\tClassifier file........ " + preferences.classifier_file)
-    print("\tNumber of Classes...... " + str(preferences.num_classes))
-    print("\tDataset test........... " + preferences.dataset_test)
-    print("\tDataset train.......... " + preferences.dataset_train)
-    print("\tEpochs................. " + str(preferences.epochs))
-    print("\tImage Size............. " + str(preferences.image_size))
-    print("\tMax Checkpoints........ " + str(preferences.max_checkpoints))
-    print("\tMax Saved Sessions..... " + str(preferences.max_saved_sess))
-    print("\tMode................... " + preferences.mode)
-    print("\tOutput Model........... " + preferences.output)
-    print("\tSave Sessions.......... " + preferences.sessions)
-    print("\tPreference File........ " + preferences.pref_file)
-    print("\tTiny Weights........... " + str(preferences.tiny))
-    print("\tTransfer............... " + preferences.transfer)
-    print("\tValidate Image Num..... " + str(preferences.validate_img_num))
-    print("\tValidate Image Input... " + preferences.validate_input)
-    print("\tWeighted Classes....... " + str(preferences.weight_num_classes))
-    print("\tWeights Path........... " + preferences.weights)
+    string = ""
+    string += "\tBatch Size............. " + str(preferences.batch_size) + "\n"
+    string += "\tClassifier file........ " + preferences.classifier_file + "\n"
+    string += "\tNumber of Classes...... " + str(preferences.num_classes) + "\n"
+    string += "\tDataset test........... " + preferences.dataset_test + "\n"
+    string += "\tDataset train.......... " + preferences.dataset_train + "\n"
+    string += "\tEpochs................. " + str(preferences.epochs) + "\n"
+    string += "\tImage Size............. " + str(preferences.image_size) + "\n"
+    string += "\tMax Checkpoints........ " + str(preferences.max_checkpoints) + "\n"
+    string += "\tMax Saved Sessions..... " + str(preferences.max_saved_sess) + "\n"
+    string += "\tMode................... " + preferences.mode + "\n"
+    string += "\tOutput Model........... " + preferences.output + "\n"
+    string += "\tSave Sessions.......... " + preferences.sessions + "\n"
+    string += "\tPreference File........ " + preferences.pref_file + "\n"
+    string += "\tTiny Weights........... " + str(preferences.tiny) + "\n"
+    string += "\tTransfer............... " + preferences.transfer + "\n"
+    string += "\tValidate Image Num..... " + str(preferences.validate_img_num) + "\n"
+    string += "\tValidate Image Input... " + preferences.validate_input + "\n"
+    string += "\tWeighted Classes....... " + str(preferences.weight_num_classes) + "\n"
+    string += "\tWeights Path........... " + preferences.weights + "\n"
+    return string
+
+def print_both(string, file):
+    with open(file, 'a') as f:
+        f.write(string)
+    print(string)

@@ -16,6 +16,7 @@ try:
     import tensorflow as tf
 
     test_checkpoint = file_utils.get_last_checkpoint(preferences.output)
+    output_file = file_utils.get_output_file(preferences.output)
     SPLIT_CHAR = "="
     NONE = ""
     START = 1001
@@ -42,12 +43,28 @@ except ImportError:
     print("\n\t\tAfter ensuring necessary files are in your directory and re-run the workbench\n\n")
     exit()
 
+class Logger(object):
+    def __init__(self):
+        self.terminal = sys.stdout
+        self.log = open(output_file, "a")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+
+    def flush(self):
+        pass
+
+def print_to_file(string):
+    with open(output_file, "a") as f:
+        f.write(string)
+
 # creates and deletes a files to ensure program has admin privileges
 def check_admin():
     new_file = os.getcwd() + "/test_file.txt"
     try:
        with open(new_file, "w") as f:
-           f.write("test.file")
+           f.write("testing file")
        os.remove(new_file)
     except:
        print("\n\n\tERROR: workbench needs admin privileges to modify and remove files")
@@ -58,17 +75,8 @@ def check_admin():
 
 # Prints Error message
 def err_message(string):
-    print("\n\tERROR: " + string + "\n")
+    print_to_terminal.print_both("\n\tERROR: " + string + "\n", output_file)
 
-
-# Disable
-def blockPrint():
-    sys.stdout = open(os.devnull, 'w')
-
-
-# Restore
-def enablePrint():
-    sys.stdout = sys.__stdout__
 
 # get input
 def get_input(input):
@@ -250,18 +258,18 @@ def load(pref_path):
                     failed.append(defaults.WEIGHTS_PATH_VAR)
 
     if len(changed) != 0:
-        print("\n\tValues changed:")
+        print_to_terminal.print_both("\n\tValues changed:", output_file)
         for item in changed:
             item = item.split(SPECIAL_CHAR)
-            print("\t\t -" + item[0] + " to " + item[1])
-        print("\t\tUse the display(d) command to current preferences")
+            print_to_terminal.print_both("\t\t -" + item[0] + " to " + item[1])
+        print_to_terminal.print_both("\t\tUse the display(d) command to current preferences", output_file)
     else:
-        print("\n\tNo values were altered")
+        print_to_terminal.print_both("\n\tNo values were altered", output_file)
     if len(failed) != 0:
-        print("\n\n\tWARNING: The following items didn't change due incompatible input or incorrect file path:" )
+        print_to_terminal.print_both("\n\n\tWARNING: The following items didn't change due incompatible input or incorrect file path:", output_file)
         for item in failed:
-            print("\t\t -" + item)
-        print("\t\tUse the modify(m) command with no arguments to see accepted types")
+            print_to_terminal.print_both("\t\t -" + item)
+        print_to_terminal.print_both("\t\tUse the modify(m) command with no arguments to see accepted types", output_file)
 
 
 
@@ -276,7 +284,7 @@ def save(save_path):
         changed_name = True
         files += 1
     if changed_name:
-        print("\n\tFile " + save_path + " is already a file, using " + new_file + " instead")
+        print_to_terminal.print_both("\n\tFile " + save_path + " is already a file, using " + new_file + " instead", output_file)
     with open(new_file, "w") as f:
         f.write(defaults.BATCH_SIZE_VAR + "= " + str(preferences.batch_size) + "\n")
         f.write(defaults.CLASSIFIERS_VAR + "= " + str(preferences.classifier_file) + "\n")
@@ -295,11 +303,11 @@ def save(save_path):
         f.write(defaults.VALID_IN_VAR + "= " + str(preferences.validate_input) + "\n")
         f.write(defaults.WEIGHTS_PATH_VAR + "= " + str(preferences.weights) + "\n")
 
-    print("\n\tNew preference path " + file_utils.from_workbench(save_path) +" successfully saved!")
+    print_to_terminal.print_both("\n\tNew preference path " + file_utils.from_workbench(save_path) +" successfully saved!", output_file)
 
 
 def run(start_from, start_path):
-
+    sys.stdout = Logger()
     # check if necessary files exist
     # run was called, start from beginning
     # Setting for memory growth from old train_workbench.py
@@ -377,12 +385,10 @@ def run(start_from, start_path):
 
         # convert to checkpoint
         print("\nConverting records to checkpoint...\n")
-        blockPrint()
         convert_weights.run_weight_convert(preferences.weights,
                                            preferences.output + "/yolov3.tf",
                                            preferences.tiny,
                                            preferences.weight_num_classes)
-        enablePrint()
         weights = (preferences.output + "/yolov3.tf").replace("//", "/")
 
         print("\tCheckpoint Converted!\n")
@@ -501,9 +507,9 @@ def run(start_from, start_path):
         try:
             print("\nCreating a CoreML model...")
             temp_folder = file_utils.duplicate_pb(preferences.output)
-            blockPrint()
+
             create_coreml.export_coreml(temp_folder)
-            enablePrint()
+
             file_utils.remove_temp(preferences.output, temp_folder)
             print("\n\tCore ML model created!\n")
 
@@ -560,30 +566,32 @@ def run(start_from, start_path):
 ############################## MAIN ##########################
 def main():
     check_admin()
-    print("\nWelcome to the Digital Roll Workbench")
+    sys.stdout = Logger()
     print("\nEnter 'help' or 'h' for a list of commands:")
     while True:
-        enablePrint()
         try:
             try:
                 userInput = input("\n<WORKBENCH>: ")
 
             except EOFError:
-                print("\n\n\n\n------ Current process stopped by user ------")
+                print_to_terminal.print_both("\n\n\n\n------ Current process stopped by user ------", output_file)
                 print("\nEnter 'help' or 'h' for a list of commands:")
                 running = True
 
+            print_to_file("\n\n===============================================\nUser Input: " +
+                           userInput + "\n===============================================\n")
             if get_input(userInput) == "help" or get_input(userInput) == "h":
                 print_to_terminal.help()
 
             elif get_input(userInput) == "run" or get_input(userInput) == "r":
+                print_to_file("Running Workbench with :\n" + print_to_terminal.current_pref())
                 run(START, NONE)
 
             elif get_input(userInput) == "lite" or get_input(userInput) == "l":
                 # convert model to tensorflow lite for android use
                 try:
                     # convert model to tensorflow lite for android use
-                    print("Model Loading")
+                    print_to_terminal.print_both("Model Loading", output_file)
                     converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
                     converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
                                                            tf.lite.OpsSet.SELECT_TF_OPS]
@@ -592,7 +600,7 @@ def main():
                     # thus this be false, to have a model with nms set to True
                     tflite_model = converter.convert()
                     open(preferences.output + "tflite_model.tflite", "wb").write(tflite_model)
-                    print("\n\tTensorflow Lite model created!")
+                    print_to_terminal.print_both("\n\tTensorflow Lite model created!", output_file)
 
                 except Exception as e:
                     err_message("Failed to create TF lite model: " + str(e))
@@ -606,6 +614,7 @@ def main():
                 run(TEST_IMAGE, img_path)
 
             elif get_input(userInput) == "continue" or get_input(userInput) == "c":
+                print_to_file("Coninuing Workbench with :\n" + print_to_terminal.current_pref())
                 run(CONTINUE, NONE)
 
             elif userInput[0:5] == "continue " or userInput[0:2] == "c ":
@@ -613,10 +622,12 @@ def main():
                     prev_check = userInput[2:]
                 else:
                     prev_check = userInput[5:]
+                print_to_file("Coninuing Workbench with :\n" + print_to_terminal.current_pref())
                 run(CONTINUE, prev_check)
 
             elif get_input(userInput) == "display" or get_input(userInput) == "d":
-                print_to_terminal.current_pref()
+                print("\nCurrent Preferences:\n")
+                print(print_to_terminal.current_pref())
 
             elif get_input(userInput) == "info" or get_input(userInput) == "i":
                 print_to_terminal.info()
@@ -730,7 +741,7 @@ def main():
                                 preferences.mode = userInputArr[2]
                             else:
                                 err_message("Bad mode value given, please choose one of the following")
-                                print("\n\t       ==> fit, eager_fit, eager_tf")
+                                print_to_terminal.print_both("\n\t       ==> fit, eager_fit, eager_tf", output_file)
                                 error = True
 
                         elif userInputArr[1] == defaults.MODE_VAR:
@@ -756,7 +767,7 @@ def main():
                                 preferences.transfer = userInputArr[2]
                             else:
                                 err_message("Bad transfer value given, please choose one of the following")
-                                print("\t\n       ==> none, darknet, no_output, frozen, fine_tune")
+                                print_to_terminal.print_both("\t\n       ==> none, darknet, no_output, frozen, fine_tune", output_file)
                                 error = True
 
                         elif userInputArr[1] == defaults.VALID_IMGS_VAR:
@@ -800,22 +811,22 @@ def main():
                         err_message("Failed to change variable to given value, try 'change ?' for a list of names")
                         error = True
                     if not error:
-                        print("\n\tSet " + userInputArr[1] + " to " + userInputArr[2] + "\n")
+                        print_to_terminal.print_both("\n\tSet " + userInputArr[1] + " to " + userInputArr[2] + "\n", output_file)
                 elif len(userInputArr) == 2 and userInputArr[1] == '?':
                     print_to_terminal.modify_commands()
 
                 else:
-                    print("Not enough arguments, please provide a variable and a value ie batch_size 3")
+                    print_to_terminal.print_both("Not enough arguments, please provide a variable and a value ie batch_size 3", output_file)
 
             elif get_input(userInput) == "quit" or get_input(userInput) == "q":
-                print("\n\tExiting workbench...")
+                print_to_terminal.print_both("\n\tExiting workbench...", output_file)
                 exit()
             else:
-                # end of cases, inform the user that their input was invalid
+                # end of cases, inform the user that their input was in
+                print_to_file("\nInvalid Command")
                 print("\nCommand not recognized, try 'help' or 'h' for a list of options")
         except KeyboardInterrupt:
-            enablePrint()
-            print("\n\n\n\n------ Current process stopped by user ------")
+            print_to_terminal.print_both("\n\n\n\n------ Current process stopped by user ------", output_file)
             print("\nEnter 'help' or 'h' for a list of commands:")
             running = True
 main()
