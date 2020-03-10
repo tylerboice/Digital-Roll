@@ -14,6 +14,7 @@ CHECKPOINT_KEYWORD = "yolov3_train_" # prefix to all checkpoints
 ERROR = "ERROR_MESSAGE"              # Error message value
 
 
+
 ########################## Checking FOR FILES #############################
 # checks if all necessary files exist
 def checkIfNecessaryPathsAndFilesExist(image_path, data_path, min_images, output_path, save_sess,
@@ -502,7 +503,43 @@ def get_month( month ):
         return 12
     return 0
 
+############################ DUPLICATE PB ###########################
+def duplicate_pb(path):
+    tf_model = "NOT_FOUND"
+    path = (path + "/").replace("//", "/")
+    temp_folder = path + "temp_folder/"
+    for file in os.listdir(path):
+        if ".pb" in file:
+            tf_model = path + file
+    if os.path.exists(temp_folder):
+        shutil.rmtree(temp_folder)
+    os.mkdir(temp_folder)
+    shutil.copy(tf_model, temp_folder + "saved_model.pb")
+    return temp_folder
 
+def remove_temp(new_path, temp_path):
+    new_path = (new_path + "/").replace("//", "/")
+    temp_path = (temp_path + "/").replace("//", "/")
+    shutil.rmtree(new_path + "assets")
+    shutil.rmtree(new_path + "variables")
+    for file in os.listdir(temp_path):
+        if ".pb" not in file:
+            if os.path.exists(new_path + file):
+                os.remove(new_path + file)
+            shutil.move(temp_path + file, new_path + file)
+    shutil.rmtree(temp_path)
+
+def get_output_file(path):
+    path = (path + "/").replace("//", "/")
+    file = "workbench_log.txt"
+    file_count = 1
+    file_path =  path + file
+    if not os.path.exists(path):
+        mkdir(path)
+    while os.path.exists(file_path):
+        file_path = path + "workbench_log-" + str(file_count) + ".txt"
+        file_count += 1
+    return file_path
 ############################ FILE IS VALID ###########################
 # Returns true if the file exists and is not empty, else false
 def is_valid(file):
