@@ -21,6 +21,7 @@ from tensorflow.keras.losses import (
 )
 from .batch_norm import BatchNormalization
 from .utils import broadcast_iou
+from scripts import preferences
 
 flags.DEFINE_integer('yolo_max_boxes', 100,
                      'maximum number of boxes per image')
@@ -29,12 +30,12 @@ flags.DEFINE_float('yolo_score_threshold', 0.5, 'score threshold')
 
 yolo_anchors = np.array([(10, 13), (16, 30), (33, 23), (30, 61), (62, 45),
                          (59, 119), (116, 90), (156, 198), (373, 326)],
-                        np.float32) / 416
+                        np.float32) / preferences.image_size
 yolo_anchor_masks = np.array([[6, 7, 8], [3, 4, 5], [0, 1, 2]])
 
 yolo_tiny_anchors = np.array([(10, 14), (23, 27), (37, 58),
                               (81, 82), (135, 169),  (344, 319)],
-                             np.float32) / 416
+                             np.float32) / preferences.image_size
 yolo_tiny_anchor_masks = np.array([[3, 4, 5], [0, 1, 2]])
 
 
@@ -201,7 +202,7 @@ def yolo_nms(outputs, anchors, masks, classes):
     return boxes, scores, classes, valid_detections
 
 
-def YoloV3(size=416, channels=3, anchors=yolo_anchors,
+def YoloV3(size=preferences.image_size, channels=3, anchors=yolo_anchors,
            masks=yolo_anchor_masks, classes=80, training=False):
     x = inputs = Input([size, size, channels], name='input')
 

@@ -132,7 +132,7 @@ def get_output_file(path):
     file_count = 1
     file_path =  path + file
     if not os.path.exists(path):
-        mkdir(path)
+        os.mkdir(path)
     while os.path.exists(file_path):
         file_path = path + "workbench_log-" + str(file_count) + ".txt"
         file_count += 1

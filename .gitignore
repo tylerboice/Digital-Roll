@@ -6,3 +6,5 @@ Tensorflow2.0-Workbench/current_session/yolov3.tflite
 *.tflite
 *.pb
 *.mlmodel
+Tensorflow2.0-Workbench/data/classifier.names
+Tensorflow2.0-Workbench/data/classifier.names
