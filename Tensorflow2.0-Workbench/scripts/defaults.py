@@ -68,7 +68,7 @@ flags.DEFINE_integer( EPOCH_NUM_VAR, DEFAULT_EPOCH_NUM, 'number of epochs')
 
 ################################ IMAGE SIZE #####################################
 IMAGE_SIZE_VAR = "image_size"
-DEFAULT_IMAGE_SIZE = 416
+DEFAULT_IMAGE_SIZE = 224
 flags.DEFINE_integer( IMAGE_SIZE_VAR, DEFAULT_IMAGE_SIZE, 'image size')
 
 
