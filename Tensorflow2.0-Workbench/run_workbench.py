@@ -38,9 +38,23 @@ except ImportError:
     print("\n\t\tEnsure that:")
     print("\t\t        - Your conda enviorment is activated")
     print("\t\t        - You have installed the proper packages using the requirements.txt file")
-    print("\t\t        - Visual Studio for C++ is installed on your machine")
+    print("\t\t        - Visual Studio for C++ is installed on your machine (GPU Only)")
     print("\n\t\tAfter ensuring necessary files are in your directory and re-run the workbench\n\n")
     exit()
+
+# creates and deletes a files to ensure program has admin privileges
+def check_admin():
+    new_file = os.getcwd() + "/test_file.txt"
+    try:
+       with open(new_file, "w") as f:
+           f.write("test.file")
+       os.remove(new_file)
+    except:
+       print("\n\n\tERROR: workbench needs admin privileges to modify and remove files")
+       print("\n\t\tEnsure that:")
+       print("\t\t        - You close the anaconda prompt and re-run the anaconda prompt as admin")
+       exit()
+
 
 # Prints Error message
 def err_message(string):
@@ -286,13 +300,12 @@ def save(save_path):
 
 def run(start_from, start_path):
 
+    # check if necessary files exist
+    # run was called, start from beginning
     # Setting for memory growth from old train_workbench.py
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     if len(physical_devices) > 0:
         tf.config.experimental.set_memory_growth(physical_devices[0], True)
-
-    # check if necessary files exist
-    # run was called, start from beginning
 
     if start_from == START:
         total_images = file_utils.checkIfNecessaryPathsAndFilesExist(defaults.IMAGES_PATH,
@@ -396,8 +409,8 @@ def run(start_from, start_path):
 
         # train from scratch
         else:
-            print("\n\t Training from scratch " + weights)
             print("\nBegin Training...")
+            print("\n\t Training from scratch " + weights)
             transfer_mode = preferences.transfer
 
         # start training
@@ -435,11 +448,10 @@ def run(start_from, start_path):
         chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
         chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("//", "/")
 
-        if chkpnt_weights == file_utils.ERROR:
-            print("\n\tNo valid checkpoints found in " + file_utils.from_workbench(preferences.output))
-            return
-        elif file_utils.CHECKPOINT_KEYWORD not in chkpnt_weights:
-            print("\tPlease use a trained checkpoint (e.g " + file_utils.CHECKPOINT_KEYWORD + "1.tf )")
+        if chkpnt_weights == file_utils.ERROR or \
+             file_utils.CHECKPOINT_KEYWORD not in chkpnt_weights:
+            err_message("No valid checkpoints found in " + file_utils.from_workbench(preferences.output))
+            print("\t\tPlease use a trained checkpoint (e.g " + file_utils.CHECKPOINT_KEYWORD + "1.tf )")
             return
 
         file_utils.rename_checkpoints(preferences.output, preferences.max_checkpoints)
@@ -488,9 +500,11 @@ def run(start_from, start_path):
         # Create Core ML Model
         try:
             print("\nCreating a CoreML model...")
+            temp_folder = file_utils.duplicate_pb(preferences.output)
             blockPrint()
-            create_coreml.export_coreml(preferences.output)
+            create_coreml.export_coreml(temp_folder)
             enablePrint()
+            file_utils.remove_temp(preferences.output, temp_folder)
             print("\n\tCore ML model created!\n")
 
         except Exception as e:
@@ -515,23 +529,26 @@ def run(start_from, start_path):
 
     print("\nTesting Images...")
     if path.isfile(test_img):
+        out_img = (preferences.output + "/").replace("//", "/") + test_img.split(".")[0] + "-output.jpg"
         detect_img.run_detect(preferences.classifier_file,
                               chkpnt_weights,
                               preferences.tiny,
                               preferences.image_size,
                               test_img,
-                              preferences.output,
+                              out_img,
                               preferences.num_classes)
     else:
         test_img = (test_img + "/").replace("//", "/")
         for file in os.listdir(test_img):
             if '.jpg' in file:
+                out_img = (preferences.output + "/").replace("//", "/") + file.split(".")[0]  +"-output.jpg"
+                print(out_img)
                 detect_img.run_detect(preferences.classifier_file,
                                       chkpnt_weights,
                                       preferences.tiny,
                                       preferences.image_size,
                                       test_img + file,
-                                      preferences.output + file + "_output.jpg",
+                                      out_img,
                                       preferences.num_classes)
 
     if (start_from != TEST_IMAGE):
@@ -542,6 +559,7 @@ def run(start_from, start_path):
 
 ############################## MAIN ##########################
 def main():
+    check_admin()
     print("\nWelcome to the Digital Roll Workbench")
     print("\nEnter 'help' or 'h' for a list of commands:")
     while True:
