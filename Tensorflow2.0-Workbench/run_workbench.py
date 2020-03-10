@@ -14,6 +14,7 @@ try:
     from scripts import detect_img
     from scripts import create_coreml
     import tensorflow as tf
+    from tensorflow.keras.applications import MobileNet
 
     test_checkpoint = file_utils.get_last_checkpoint(preferences.output)
     output_file = file_utils.get_output_file()
@@ -486,11 +487,15 @@ def run(start_from, start_path):
         try:
             # convert model to tensorflow lite for android use
             print("\nModel Loading...")
+            # These 2 lines of code are what remove nms and result in a [1, 1000] end shape
+            keras_model = MobileNet(weights=None, input_shape=(224, 224, 3))
+            keras_model.save(preferences.output, save_format='tf')
+            # #########################################################################
             converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
             converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
                                                    tf.lite.OpsSet.SELECT_TF_OPS]
 
-            converter.allow_custom_ops = True  # TFLite does not support custom operations,
+            converter.allow_custom_ops = False  # TFLite does not support custom operations,
                                                 # thus this be false, to have a model with nms set to True
             tflite_model = converter.convert()
             open(preferences.output + "tflite_model.tflite", "wb").write(tflite_model)
