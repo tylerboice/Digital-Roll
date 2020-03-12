@@ -132,11 +132,19 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Bounding Box"/>
                                 <connections>
-                                    <action selector="boundingBoxPressed:" destination="EyY-eg-fsr" eventType="touchUpInside" id="vQV-Yq-DDH"/>
+                                    <action selector="boundingBoxPressed:" destination="EyY-eg-fsr" eventType="touchUpInside" id="yfP-8w-aSt"/>
                                 </connections>
                             </button>
+                            <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ibz-l7-4E7">
+                                <rect key="frame" x="213" y="596" width="139" height="51"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="EyY-eg-fsr" id="uqw-6O-Et6"/>
+                                    <outlet property="delegate" destination="EyY-eg-fsr" id="QUR-7b-N1Z"/>
+                                </connections>
+                            </pickerView>
                             <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="L6T-U9-hVY">
-                                <rect key="frame" x="213" y="560" width="139" height="51"/>
+                                <rect key="frame" x="213" y="546" width="139" height="51"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <connections>
                                     <outlet property="dataSource" destination="EyY-eg-fsr" id="keb-TH-Ztc"/>
@@ -155,6 +163,7 @@
                     </view>
                     <connections>
                         <outlet property="ImageView" destination="6hc-ju-JyD" id="rn9-7i-Phh"/>
+                        <outlet property="diceNumberPV" destination="Ibz-l7-4E7" id="xJW-hh-9hM"/>
                         <outlet property="diceShapePV" destination="L6T-U9-hVY" id="CqD-yj-luI"/>
                         <outlet property="xAccel" destination="YnH-YQ-3HW" id="F4l-s6-SoA"/>
                         <outlet property="yAccel" destination="gvf-5Y-FeV" id="nsa-Cn-kKl"/>

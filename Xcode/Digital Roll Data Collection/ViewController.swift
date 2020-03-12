@@ -141,18 +141,18 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     // Read the accelerometer
     func readAccelerometer() {
         motion.accelerometerUpdateInterval = 0.5
-        motion.startAccelerometerUpdates(to: OperationQueue.current!) {(data, error) in print(data as Any)
-        
-        if let trueData = data {
-            self.view.reloadInputViews()
-            let x = trueData.acceleration.x
-            let y = trueData.acceleration.y
-            let z = trueData.acceleration.z
-            
-            self.xAccel.text = "X: \(Double(x).rounded(toPlaces: 3))"
-            self.yAccel.text = "Y: \(Double(y).rounded(toPlaces: 3))"
-            self.zAccel.text = "Z: \(Double(z).rounded(toPlaces: 3))"
-            }
+        motion.startAccelerometerUpdates(to: OperationQueue.current!) {
+            (data, error) in print(data as Any)
+            if let trueData = data {
+                self.view.reloadInputViews()
+                let x = trueData.acceleration.x
+                let y = trueData.acceleration.y
+                let z = trueData.acceleration.z
+                
+                self.xAccel.text = "X: \(Double(x).rounded(toPlaces: 3))"
+                self.yAccel.text = "Y: \(Double(y).rounded(toPlaces: 3))"
+                self.zAccel.text = "Z: \(Double(z).rounded(toPlaces: 3))"
+                }
         }
     }
 }
