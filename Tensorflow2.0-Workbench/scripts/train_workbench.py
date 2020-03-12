@@ -186,6 +186,8 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                                     epochs=total_checkpoints,
                                     callbacks=callbacks,
                                     validation_data=val_dataset)
+
+                # Increment the batches
                 batches += 1
 
             if batch_remainder != 0:
