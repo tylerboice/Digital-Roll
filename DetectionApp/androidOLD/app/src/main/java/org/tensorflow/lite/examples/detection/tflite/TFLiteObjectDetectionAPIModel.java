@@ -46,7 +46,7 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
   private static final Logger LOGGER = new Logger();
 
   // Only return this many results.
-  private static final int NUM_DETECTIONS = 1000;
+  private static final int NUM_DETECTIONS = 18;
   // Float model
   private static final float IMAGE_MEAN = 128.0f;
   private static final float IMAGE_STD = 128.0f;
