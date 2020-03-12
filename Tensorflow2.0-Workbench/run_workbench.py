@@ -16,6 +16,10 @@ try:
     import tensorflow as tf
     from tensorflow.keras.applications import MobileNet
 
+    from yolov3_tf2.models import (
+        YoloV3, YoloV3Tiny
+    )
+
     test_checkpoint = file_utils.get_last_checkpoint(preferences.output)
     output_file = file_utils.get_output_file()
     SPLIT_CHAR = "="
@@ -482,17 +486,12 @@ def run(start_from, start_path):
                                              test_img,
                                              preferences.num_classes)
 
-
+        """
         # create Tensorflow Lite model
         try:
             # convert model to tensorflow lite for android use
-            print("\nModel Loading...")
-            # These 2 lines of code are what remove nms and result in a [1, 1000] end shape
-            keras_model = MobileNet(weights=None,
-                                    input_shape=(224, 224, 3),
-                                    classes=preferences.num_classes)
-            keras_model.save(preferences.output, save_format='tf')
-            # #########################################################################
+            print("\nGenerating Tflite...")
+
             converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
             converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
                                                    tf.lite.OpsSet.SELECT_TF_OPS]
@@ -505,13 +504,14 @@ def run(start_from, start_path):
 
         except Exception as e:
             err_message("Failed to create TF lite model: " + str(e))
+        """
 
         # Create Core ML Model
         try:
             print("\nCreating a CoreML model...")
             temp_folder = file_utils.duplicate_pb(preferences.output)
 
-            create_coreml.export_coreml(temp_folder)
+            create_coreml.export_coreml(preferences.output)
 
             file_utils.remove_temp(preferences.output, temp_folder)
             print("\n\tCore ML model created!\n")
@@ -624,7 +624,7 @@ def main():
                 run(CONTINUE, prev_check)
 
             elif get_input(userInput) == "display" or get_input(userInput) == "d":
-                print_to_terminal.current_pref()
+                print(print_to_terminal.current_pref())
 
             elif get_input(userInput) == "info" or get_input(userInput) == "i":
                 print_to_terminal.info()
