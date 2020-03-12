@@ -14,6 +14,7 @@ from yolov3_tf2.dataset import transform_images
 from tensorflow.python.eager import def_function
 from tensorflow.python.framework import tensor_spec
 from tensorflow.python.util import nest
+from yolov3_tf2.utils import freeze_all
 
 
 def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
@@ -24,11 +25,12 @@ def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
 
     yolo.load_weights(weights).expect_partial()
     logging.info('weights loaded')
-
-    tf.saved_model.save(yolo, output)
+    freeze_all(yolo)
+    yolo.save(output)
+    #tf.saved_model.save(yolo, output)
     logging.info("model saved to: {}".format(output))
 
-    tf.keras.models.save_model(yolo, output + "keras_model.h5", overwrite=True)
+    tf.keras.models.save_model(yolo, output + "keras_model.h5", save_format='tf')
     logging.info("keras version saved to: {}".format(output))
 
     model = tf.saved_model.load(output)
@@ -40,12 +42,11 @@ def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
 
     img = tf.image.decode_image(open(image, 'rb').read(), channels=3)
     img = tf.expand_dims(img, 0)
-    img = transform_images(img, 416)
+    img = transform_images(img, 224)
 
     t1 = time.time()
     outputs = infer(img)
-    boxes, scores, classes, nums = outputs["yolo_nms"], outputs[
-        "yolo_nms_1"], outputs["yolo_nms_2"], outputs["yolo_nms_3"]
+    boxes, scores, classes, nums = outputs["yolo_nms"], outputs["yolo_nms_1"], outputs["yolo_nms_2"], outputs["yolo_nms_3"]
     t2 = time.time()
     logging.info('time: {}'.format(t2 - t1))
 
@@ -54,6 +55,7 @@ def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
         logging.info('\t{}, {}, {}'.format(class_names[int(classes[0][i])],
                                            scores[0][i].numpy(),
                                            boxes[0][i].numpy()))
+
 
 
 if __name__ == '__main__':
