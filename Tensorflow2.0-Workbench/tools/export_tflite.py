@@ -5,6 +5,7 @@ from absl.flags import FLAGS
 import cv2
 import numpy as np
 import tensorflow as tf
+from scripts import preferences
 from yolov3_tf2.models import (
     YoloV3, YoloV3Tiny
 )
@@ -23,8 +24,6 @@ CWD_PATH = os.getcwd().replace("\\", "/") + "/"
 
 flags.DEFINE_string('model', CWD_PATH + 'current_session/',
                     'path to model file')
-flags.DEFINE_string('output', CWD_PATH + 'current_session/yolov3.tflite',
-                    'path to saved_model')
 flags.DEFINE_string('classes', CWD_PATH + 'data/classifier.names', 'path to classes file')
 flags.DEFINE_string('image', CWD_PATH + 'data/dice.jpg', 'path to input image')
 flags.DEFINE_integer('num_classes', 18, 'number of classes in the model')
@@ -38,6 +37,20 @@ EDGETPU_SHARED_LIB = {
 }[platform.system()]
 
 def main(_argv):
+    # convert model to tensorflow lite for android use
+    print("\nGenerating Tflite...")
+
+    converter = tf.lite.TFLiteConverter.from_saved_model(FLAGS.model)
+    converter.target_spec.supported_ops = [tf.lite.OpsSet.SELECT_TF_OPS]
+    converter.experimental_new_converter = True
+    converter.allow_custom_ops = True  # TFLite does not support custom operations,
+    # thus this be false, to have a model with nms set to True
+    tflite_model = converter.convert()
+    open(CWD_PATH + "current_session/tflite_model.tflite", "wb").write(tflite_model)
+    print("\n\tTensorflow Lite model created!\n")
+
+
+    """
     model = tf.saved_model.load(FLAGS.model)
     keras_model = tf.keras.models.load_model(FLAGS.model)
     print("Model Loaded")
@@ -63,9 +76,11 @@ def main(_argv):
 
     tflite_model = converter.convert()
     open(FLAGS.output, "wb").write(tflite_model)
+    """
 
-    logging.info("model saved to: {}".format(FLAGS.output))
-    interpreter = tf.lite.Interpreter(model_path=FLAGS.output)
+
+    logging.info("model saved to: {}".format(CWD_PATH + "current_session/tflite_model.tflite"))
+    interpreter = tf.lite.Interpreter(model_path=CWD_PATH + "current_session/tflite_model.tflite")
     interpreter.allocate_tensors()
     logging.info('tflite model loaded')
 
