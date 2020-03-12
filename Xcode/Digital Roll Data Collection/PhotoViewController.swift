@@ -9,7 +9,7 @@
 import UIKit
 import CoreMotion
 
-class PhotoViewController: UIViewController {
+class PhotoViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate {
     // Initalize File
     var returnFile: URL?
     
@@ -22,6 +22,12 @@ class PhotoViewController: UIViewController {
     @IBOutlet weak var yAccel: UITextField!
     @IBOutlet weak var zAccel: UITextField!
     var motion = CMMotionManager()
+    
+    // Initalize Picker Views
+    @IBOutlet weak var diceShapePV: UIPickerView!
+    
+    let diceShape = ["d4", "d6", "d8", "d10", "d%", "d12", "d20"]
+        
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,7 +64,6 @@ class PhotoViewController: UIViewController {
     }
     
     // Share button functionality
-    
     @IBAction func sharePressed(_ sender: Any) {
         // Dropbox only works with 1 arguement therefore pass just xml file
         convertXML(img: takenPhoto!, xAccel: self.xAccel.text!, yAccel: self.yAccel.text!, zAccel: self.zAccel.text!)
@@ -89,17 +94,20 @@ class PhotoViewController: UIViewController {
             returnFile = fileURL
         }
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    
+    // Function to decide number of objects to return form pickerview
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
     }
-    */
-
+    
+    // Function to return value in picker view
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return diceShape[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        diceShape.count
+    }
 }
 
 extension UIImage {
