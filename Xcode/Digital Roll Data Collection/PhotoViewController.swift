@@ -56,7 +56,6 @@ class PhotoViewController: UIViewController {
     }
     
     // Share button functionality
-    
     @IBAction func sharePressed(_ sender: Any) {
         // Create activity view controller
         let activityVC = UIActivityViewController(activityItems: [takenPhoto as Any, self.xAccel.text, self.yAccel.text, self.zAccel.text], applicationActivities: nil)
@@ -66,14 +65,10 @@ class PhotoViewController: UIViewController {
         
     }
     
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    // Bounding Box Button Pressed
+    @IBAction func boundingBoxPressed(_ sender: Any) {
+    
     }
-    */
+    
 
 }
