@@ -488,7 +488,9 @@ def run(start_from, start_path):
             # convert model to tensorflow lite for android use
             print("\nModel Loading...")
             # These 2 lines of code are what remove nms and result in a [1, 1000] end shape
-            keras_model = MobileNet(weights=None, input_shape=(224, 224, 3))
+            keras_model = MobileNet(weights=None,
+                                    input_shape=(224, 224, 3),
+                                    classes=preferences.num_classes)
             keras_model.save(preferences.output, save_format='tf')
             # #########################################################################
             converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
