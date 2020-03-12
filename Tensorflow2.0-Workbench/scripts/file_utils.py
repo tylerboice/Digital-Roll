@@ -462,7 +462,7 @@ def get_checkpoint_int(file):
 ############################ GET OLDEST CHECKPOINT ###############################
 # return the checkpoint with the oldest "last_modified" value
 def get_oldest_checkpoint(checkpoint_path):
-    oldest = -1;
+    oldest = -1
     checkpoint = checkpoint_path
     oldest_file = ""
     for file in os.listdir(checkpoint_path):
