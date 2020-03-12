@@ -90,11 +90,11 @@ class PhotoViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
         let file = diceShapeValue + "-" + diceNumberValue + ".xml"
         
         // Get Image stats
-        let heightInPixels = takenPhoto!.size.height * takenPhoto!.scale
-        let widthInPixels = takenPhoto!.size.width * takenPhoto!.scale
+        let heightInPixels = Int(takenPhoto!.size.height * takenPhoto!.scale)
+        let widthInPixels = Int(takenPhoto!.size.width * takenPhoto!.scale)
         
         // Create xml formated code
-        let text = "<annotation>\n\t<filename>\(file)</filename>\n\t<size>\n\t\t<width>\(widthInPixels)</width>\n\t\t<height>\(heightInPixels)</height>\n\t\t<depth>3</depth\n\t<size>\n\n\t<xAccel>\(xAccel)</xAccel>\n\t<yAccel>\(yAccel)</yAccel>\n\t<zAccel>\(zAccel)</zAccel>\n\n\t<object>\n\t\t<name>\(diceShapeValue)-\(diceNumberValue)</name>\n\t\t<pose>Unspecified</pose>\n\t\t<truncated>0</truncated>\n\t\t<difficult>0</difficult>\n\t\t<bndbox>\n\t\t\t<xmin>\(touchArray[3])</xmin>\n\t\t\t<ymin>\(touchArray[2])</ymin>\n\t\t\t<xmax>\(touchArray[0])</xmax>\n\t\t\t<ymax>\(touchArray[1])</ymax>\n\t\t</bndbox>\n\t</object>\n\n\t<img>\(img.toString())</img>\n</annotation>"
+        let text = "<annotation>\n\t<filename>\(file)</filename>\n\n\t<size>\n\t\t<width>\(widthInPixels)</width>\n\t\t<height>\(heightInPixels)</height>\n\t\t<depth>3</depth>\n\t<size>\n\n\t<xAccel>\(xAccel)</xAccel>\n\t<yAccel>\(yAccel)</yAccel>\n\t<zAccel>\(zAccel)</zAccel>\n\n\t<object>\n\t\t<name>\(diceShapeValue)-\(diceNumberValue)</name>\n\t\t<pose>Unspecified</pose>\n\t\t<truncated>0</truncated>\n\t\t<difficult>0</difficult>\n\t\t<bndbox>\n\t\t\t<xmin>\(Int(touchArray[3]))</xmin>\n\t\t\t<ymin>\(Int(touchArray[2]))</ymin>\n\t\t\t<xmax>\(Int(touchArray[0]))</xmax>\n\t\t\t<ymax>\(Int(touchArray[1]))</ymax>\n\t\t</bndbox>\n\t</object>\n\n\t<img>\(img.toString())</img>\n</annotation>"
         
         // Write file in phone directory
         if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
