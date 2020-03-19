@@ -8,3 +8,5 @@ sympy
 -e .
 git+https://github.com/apple/coremltools
 tfcoreml
+pyqt5-sip
+pyqt5

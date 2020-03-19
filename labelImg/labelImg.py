@@ -46,8 +46,8 @@ try:
     from libs.ustr import ustr
     from libs.hashableQListWidgetItem import HashableQListWidgetItem
 except:
-    print("\nERROR: run: \n\tpip instlal  pyqt5 \n\tpyrcc5 -o libs/resources.py resources.qrc")
-
+    print("\nERROR: run: \n\tpyrcc5 -o libs/resources.py resources.qrc")
+    exit()
 __appname__ = 'labelImg'
 
 class WindowMixin(object):

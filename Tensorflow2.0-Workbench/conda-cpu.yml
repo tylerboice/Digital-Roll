@@ -11,3 +11,5 @@ dependencies:
     - lxml
     - tqdm
     - -e .
+    - pyqt5-sip
+    - pyqt5
