@@ -188,10 +188,15 @@ flags.DEFINE_boolean( TRAIN_VAR, False, 'train')
 FLAGS(sys.argv)
 
 
-########################## CHECK_VARIABLE_EXIST #############################
+########################## CHECK_PREFERENCES #############################
+# Description: checks pref file for changes in variables
+# Parameters: var - String - varable name
+#             flag - name of the flags.DEFINE
+#             type - int - number id for value type of the flag (Int, Bool, Sting, Doublg)
+# Return: variable value
 def check_preferences(var, flag, type):
     if FLAGS.pref != NO_PREF_PATH:
-        var = var + ':'
+        var = var + '='
         with open(FLAGS.pref, "r") as f:
             for line in f.readlines():
                 if var in line:
@@ -228,6 +233,9 @@ def check_preferences(var, flag, type):
     return flag
 
 ####### WEIGHTS PATH ######
+# Description: returns tiny weight path if true, returns yolov3.weights if false
+# Parameters: is_tiny - Boolean - True if tiny, False if not
+# Return: String - path to the weights file
 def get_weights_path(is_tiny):
     if is_tiny:
         return TINY_PATH

@@ -59,7 +59,7 @@ class Logger(object):
 
     def flush(self):
         pass
-        
+
 sys.stdout = Logger()
 # creates and deletes a files to ensure program has admin privileges
 def check_admin():
@@ -317,15 +317,15 @@ def run(start_from, start_path):
         tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
     if start_from == START:
-        total_images = file_utils.checkIfNecessaryPathsAndFilesExist(defaults.IMAGES_PATH,
-                                                                     defaults.DATA_PATH,
-                                                                     defaults.MIN_IMAGES,
-                                                                     preferences.output,
-                                                                     preferences.sessions,
-                                                                     defaults.TEST_IMAGE_PATH,
-                                                                     defaults.TRAIN_IMAGE_PATH,
-                                                                     defaults.VALIDATE_IMAGE_PATH,
-                                                                     defaults.YOLO_PATH)
+        total_images = file_utils.check_files_exist(defaults.IMAGES_PATH,
+                                                    defaults.DATA_PATH,
+                                                    defaults.MIN_IMAGES,
+                                                    preferences.output,
+                                                    preferences.sessions,
+                                                    defaults.TEST_IMAGE_PATH,
+                                                    defaults.TRAIN_IMAGE_PATH,
+                                                    defaults.VALIDATE_IMAGE_PATH,
+                                                    defaults.YOLO_PATH)
 
         if total_images == 0:
             err_message("No images have been found in the image folder")

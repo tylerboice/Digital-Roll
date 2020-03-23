@@ -5,7 +5,6 @@ import cv2
 import numpy as np
 import os
 import tensorflow as tf
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from yolov3_tf2.models import (
     YoloV3, YoloV3Tiny
 )
@@ -16,7 +15,15 @@ from tensorflow.python.framework import tensor_spec
 from tensorflow.python.util import nest
 from yolov3_tf2.utils import freeze_all
 
-
+# Funcion: run_weight_convert
+# Description: converts weights file to a chekpoint
+# Parameters: weights - String - file that contains pre-trained
+#             tiny - Boolean - value if using tiny weights
+#             output - String - location of wehre checkpoint is saved
+#             classes - String - path to the classifier.names files
+#             image - Int - image size
+#             num_classes - number of classes the model was trained on
+# Return: Nothing
 def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
     if tiny:
         yolo = YoloV3Tiny(classes= num_classes)
@@ -55,8 +62,6 @@ def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
         logging.info('\t{}, {}, {}'.format(class_names[int(classes[0][i])],
                                            scores[0][i].numpy(),
                                            boxes[0][i].numpy()))
-
-
 
 if __name__ == '__main__':
     try:

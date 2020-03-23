@@ -3,6 +3,10 @@ from tensorflow.keras.applications import MobileNet
 import tfcoreml
 #from scripts import preferences
 
+########################## EXPORT_COREML #############################
+# Description: converts tensorflow model to coreml model and outputs it to output
+# Parameters: ouptut - String - directory the tf model is in
+# Return: Nothing
 def export_coreml(output):
     # input_shape_dict =
     # keras_model = MobileNet(weights=None, input_shape=(224, 224, 3))
@@ -14,4 +18,3 @@ def export_coreml(output):
                              input_name_shape_dict={'input_28': (1, 224, 224, 3)},
                              output_feature_names=['Identity'],
                              minimum_ios_deployment_target='13')
-
