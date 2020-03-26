@@ -509,11 +509,9 @@ def run(start_from, start_path):
         # Create Core ML Model
         try:
             print("\nCreating a CoreML model...")
-            temp_folder = file_utils.duplicate_pb(preferences.output)
 
             create_coreml.export_coreml(preferences.output)
 
-            file_utils.remove_temp(preferences.output, temp_folder)
             print("\n\tCore ML model created!\n")
 
         except Exception as e:
