@@ -9,3 +9,5 @@ Tensorflow2.0-Workbench/current_session/yolov3.tflite
 Tensorflow2.0-Workbench/data/classifier.names
 Tensorflow2.0-Workbench/data/classifier.names
 *.pb
+*.pb
+*.tflite

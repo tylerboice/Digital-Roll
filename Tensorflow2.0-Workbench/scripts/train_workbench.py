@@ -27,18 +27,13 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
 
     checkpoint_path = checkpoint_path.replace("//", "/")
 
-    physical_devices = tf.config.experimental.list_physical_devices('GPU')
-    # Setting moved to run_workbench.py
-    # if len(physical_devices) > 0:
-        # tf.config.experimental.set_memory_growth(physical_devices[0], True)
-
     if tiny:
-        model = YoloV3Tiny(size, training=True,
+        model = YoloV3Tiny(size=size, training=True,
                            classes=num_classes)
         anchors = yolo_tiny_anchors
         anchor_masks = yolo_tiny_anchor_masks
     else:
-        model = YoloV3(size, training=True, classes=num_classes)
+        model = YoloV3(size=size, training=True, classes=num_classes)
         anchors = yolo_anchors
         anchor_masks = yolo_anchor_masks
     try:
@@ -77,10 +72,10 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
         # reset top layers
         if tiny:
             model_pretrained = YoloV3Tiny(
-                size, training=True, classes=weights_num_classes or num_classes)
+                size=size, training=True, classes=weights_num_classes or num_classes)
         else:
             model_pretrained = YoloV3(
-                size, training=True, classes=weights_num_classes or num_classes)
+                size=size, training=True, classes=weights_num_classes or num_classes)
         model_pretrained.load_weights(weights)
 
         if transfer == 'darknet':
