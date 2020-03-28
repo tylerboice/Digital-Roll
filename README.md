@@ -308,11 +308,11 @@ When the workbench runs, the first thing it will do is organize all the data in 
 After it gathers all the data it will split it into three separate folders: train, test and validate. The train will be 90% of the images, test data will be 10% and the validate will be the *val_img_num* amount of images. The test and train folders will then be generated into .tfrecords.
 
 Then the pre-trained weights file will be converted to a checkpoint for training:
- ![convert_weights](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/docs/convert_weights.png)
+ ![convert_weights](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/docs/convert.PNG)
  <br/> <br/>
 After the checkpoint has been converted, the workbench will begin to train the workbench. This will look like this:
 
-![workbench_output](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/docs/workbench_output.png)
+![workbench_output](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/docs/epochs.PNG)
  <br/>
  The most important category to focus on is the loss. If you have a high loss rate, the model is still inaccurate. If your classifiers are very similar or if you are training from scratch, the loss rate will start very high. Ideally you want a loss rate below 1, however a loss rate below 5 is a well trained model.
 
