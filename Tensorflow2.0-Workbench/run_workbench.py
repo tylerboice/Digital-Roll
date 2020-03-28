@@ -154,7 +154,7 @@ def load(pref_path):
                     failed.append(defaults.EPOCH_NUM_VAR)
 
             elif defaults.IMAGE_SIZE_VAR + SPLIT_CHAR in line:
-                if txt_input.isnumeric():
+                if txt_input.isnumeric() and (txt_input == 256 or txt_input == 416):
                     if preferences.image_size != int(txt_input):
                         preferences.image_size = int(txt_input)
                         changed.append(defaults.IMAGE_SIZE_VAR + SPECIAL_CHAR + str(preferences.image_size))
@@ -325,7 +325,7 @@ def run(start_from, start_path):
                                                     defaults.TEST_IMAGE_PATH,
                                                     defaults.TRAIN_IMAGE_PATH,
                                                     defaults.VALIDATE_IMAGE_PATH,
-                                                    defaults.YOLO_PATH)
+                                                    preferences.weights)
 
         if total_images == 0:
             err_message("No images have been found in the image folder")
@@ -709,9 +709,10 @@ def main():
                                 error = True
 
                         elif userInputArr[1] == defaults.IMAGE_SIZE_VAR:
-                            try:
-                                preferences.image_size = int(userInputArr[2])
-                            except:
+                            image = userInputArr[2]
+                            if int(image) == 256 or int(image) == 416:
+                                preferences.image_size = int(image)
+                            else:
                                 print_to_terminal.err_message("Please give an integer value")
                                 error = True
 
@@ -803,7 +804,7 @@ def main():
                             err_message("Unknown variable name")
                             error = True
                     except:
-                        err_message("Failed to change variable to given value, try 'change ?' for a list of names")
+                        err_message("Failed to change variable to given value, try modify(m) without argument for list of names")
                         error = True
                     if not error:
                         print("\n\tSet " + userInputArr[1] + " to " + userInputArr[2] + "\n")
