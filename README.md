@@ -88,7 +88,7 @@ This is a modified version of the [repo](https://github.com/zzh8829/yolov3-tf2).
 
      a. Run the installer
      b. Select the C++ development workload and finish downloading visual studio
-![visual_studio](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/docs/visual_studio_c++.png)
+![visual_studio](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/docs/visual_studio.png)
 4) Set up environment variables:
 
      a. Click on start and type “environment variables”. Select “Edit the system environment variables"
