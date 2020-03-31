@@ -3,19 +3,39 @@ import base64
 def importer(picture, xAccel, yAccel, zAccel):
     #file = open("test.xml", "w")
     image = picture
-    xvec = xAccel
-    yvec = yAccel
-    zvec = zAccel
+    try:
+        xvec = str(xAccel)
+    except:
+        print("could not convert xAccel to string")
+    try:
+        yvec = str(yAccel)
+    except:
+        print("could not convert yAccel to string")
+    try:
+        zvec = (zAccel)
+    except:
+        print("could not convert zAccel to string")
     convert(image, xvec, yvec, zvec)
 
 def convert(image, xvec, yvec, zvec):
-    converted_file = open("test.xml", "w")
+    try:
+        converted_file = open("test.xml", "w")
+    except:
+        print("failed to open requested file")
     with open(image, "rb") as img_file:
         imgHandler = img_file.read()
-    converted_string = base64.b64encode(imgHandler)
+    try:
+        converted_string = base64.b64encode(imgHandler)
+    except:
+        print("the image could not be converted to base 64")
     #file_text = "<annotation>\n <filename>\ " converted_file.filename \ "</filename>\n <img>\ " converted_string \ "</img>\n <xAccel>\ " xvec \ "</xAccel>\n <yAccel>\ " yvec \ "</yAccel>\n <zAccel>\ " zvec \ "</zAccel>\n</annotation>"
-    converted_file.write("<annotation>\n <filename>" + converted_file.name + "</filename>\n <img>" + str(converted_string) + "</img>\n <xAccel>" + str(xvec) + "</xAccel>\n <yAccel>" + str(yvec) + "</yAccel>\n <zAccel>" + str(zvec) + "</zAccel>\n</annotation>")
-    converted_file.close()
+    try:
+        converted_file.write("<annotation>\n <filename>" + converted_file.name + "</filename>\n <img>" + str(converted_string) + "</img>\n <xAccel>" + xvec + "</xAccel>\n <yAccel>" + yvec + "</yAccel>\n <zAccel>" + zvec + "</zAccel>\n</annotation>")
+    except:
+        print("could not write requested string to file")
+    finally:
+        converted_file.close()
+
     output(converted_file)
 
 def output(output_file):
