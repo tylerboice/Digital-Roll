@@ -1,22 +1,39 @@
 import coremltools
 from tensorflow.keras.applications import MobileNet
+from tensorflow.keras.applications import ResNet50
 import tfcoreml
+from scripts import preferences
 #from scripts import preferences
 
 ########################## EXPORT_COREML #############################
 # Description: converts tensorflow model to coreml model and outputs it to output
 # Parameters: ouptut - String - directory the tf model is in
 # Return: Nothing
-def export_coreml(output):
+def export_coreml(output, weights):
     # input_shape_dict =
     # keras_model = MobileNet(weights=None, input_shape=(224, 224, 3))
     # keras_model.save(output, save_format='tf')
     # tf.saved_model.save(keras_model, './savedmodel')
 
-    print("Converting CoreML Model from path: " + output)
+    keras_model = ResNet50(weights=None, input_shape=(224, 224, 3))
 
-    model = tfcoreml.convert(tf_model_path=output,
-                             mlmodel_path=output + "coreML_model.mlmodel",
-                             input_name_shape_dict={'input_28': (1, 224, 224, 3)},
-                             output_feature_names=['Identity'],
+    keras_model.load_weights(weights).expect_partial()
+
+    keras_model.save(output + "model.h5")
+
+    # print input shape
+    print(keras_model.input_shape)
+
+    print("Converting CoreML Model from path: " + output + "model.h5")
+
+    # get input, output node names for the TF graph from the Keras model
+    input_name = keras_model.inputs[0].name.split(':')[0]
+    keras_output_node_name = keras_model.outputs[0].name.split(':')[0]
+    graph_output_node_name = keras_output_node_name.split('/')[-1]
+
+    model = tfcoreml.convert(output + "model.h5",
+                             input_name_shape_dict={input_name: (1, 224, 224, 3)},
+                             output_feature_names=[graph_output_node_name],
                              minimum_ios_deployment_target='13')
+
+    model.save(output + 'model.mlmodel')
