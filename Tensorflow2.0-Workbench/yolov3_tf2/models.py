@@ -202,7 +202,7 @@ def yolo_nms(outputs, anchors, masks, classes):
     return boxes, scores, classes, valid_detections
 
 
-def YoloV3(size=preferences.image_size, channels=3, anchors=yolo_anchors,
+def YoloV3(size=None, channels=3, anchors=yolo_anchors,
            masks=yolo_anchor_masks, classes=80, training=False):
     x = inputs = Input([size, size, channels], name='input')
 

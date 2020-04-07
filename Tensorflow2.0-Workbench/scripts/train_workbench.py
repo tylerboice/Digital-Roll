@@ -25,7 +25,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
               weights, classifiers, mode, transfer, size, epochs, batch_size,
               learning_rate, num_classes, weights_num_classes, checkpoint_path, total_checkpoints):
 
-    checkpoint_path = checkpoint_path.replace("//", "/")
+    checkpoint_path = checkpoint_path.replace("\\", "/")
 
     if tiny:
         model = YoloV3Tiny(size=size, training=True,
@@ -154,8 +154,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                 checkpoint_path +'yolov3_train_{}.tf'.format(epoch))
     else:
         model.compile(optimizer=optimizer, loss=loss,
-                      run_eagerly=(mode == 'eager_fit'),
-                      experimental_run_tf_function=False)
+                      run_eagerly=(mode == 'eager_fit'))
         callbacks = [
             ReduceLROnPlateau(verbose=1),
             EarlyStopping(patience=3, monitor='val_loss', verbose=1),

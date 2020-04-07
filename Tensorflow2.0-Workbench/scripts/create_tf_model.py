@@ -5,6 +5,8 @@ import cv2
 import numpy as np
 import os
 import tensorflow as tf
+import tensorflow.keras
+from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
 from yolov3_tf2.models import (
     YoloV3, YoloV3Tiny
 )
@@ -30,19 +32,24 @@ def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
     else:
         yolo = YoloV3(classes= num_classes)
 
-    yolo.load_weights(weights).expect_partial()
+    print("\n\tSaving using the weights: " + weights)
+    yolo.load_weights(weights)
     logging.info('weights loaded')
+
     freeze_all(yolo)
-    yolo.save(output)
-    #tf.saved_model.save(yolo, output)
+
+    tf.saved_model.save(yolo, output)
     logging.info("model saved to: {}".format(output))
 
-    tf.keras.models.save_model(yolo, output + "keras_model.h5", save_format='tf')
-    logging.info("keras version saved to: {}".format(output))
-
     model = tf.saved_model.load(output)
+    logging.info("model saved to: {}".format(output))
     infer = model.signatures[tf.saved_model.DEFAULT_SERVING_SIGNATURE_DEF_KEY]
     logging.info(infer.structured_outputs)
+
+    # Cannot make a .h5 without calling .expectPartial() when loading weights
+    # tf.keras.models.save_model(model, output + "keras_model.h5", save_format='tf')
+    # logging.info("keras version saved to: {}".format(output))
+
 
     class_names = [c.strip() for c in open(classes).readlines()]
     logging.info('classes loaded')

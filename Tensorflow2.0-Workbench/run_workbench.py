@@ -385,12 +385,15 @@ def run(start_from, start_path):
         print("\tDone!\n")
 
         # convert to checkpoint
-        print("\nConverting records to checkpoint...\n")
-        convert_weights.run_weight_convert(preferences.weights,
-                                           preferences.output + "/yolov3.tf",
-                                           preferences.tiny,
-                                           preferences.weight_num_classes)
-        weights = (preferences.output + "/yolov3.tf").replace("//", "/")
+        if preferences.transfer == "darknet":
+            print("\nConverting darknet records to checkpoint...\n")
+            convert_weights.run_weight_convert(preferences.weights,
+                                               preferences.output + "/yolov3.tf",
+                                               preferences.tiny,
+                                               preferences.weight_num_classes)
+            weights = (preferences.output + "/yolov3.tf").replace("\\", "/")
+        else:
+            weights = None
 
         print("\tCheckpoint Converted!\n")
 
@@ -402,7 +405,7 @@ def run(start_from, start_path):
             weights = start_path
             if os.path.isdir(weights):
                 weights = file_utils.get_last_checkpoint(weights)
-                weights = (weights.split(".tf")[0] + ".tf").replace("//", "/")
+                weights = (weights.split(".tf")[0] + ".tf").replace("\\", "/")
             if ".tf" not in weights:
                 err_message("File is not a checkpoint")
                 print("\n\t\tCheckpoint Example: yolov3_train_3.tf")
@@ -417,8 +420,12 @@ def run(start_from, start_path):
         # train from scratch
         else:
             print("\nBegin Training...")
-            print("\n\t Training from scratch " + weights)
-            transfer_mode = preferences.transfer
+            if preferences.transfer == "none" :
+                print("\n\tTraining from scratch...")
+                transfer_mode = preferences.transfer
+            else:
+                print("\n\tTraining via " + preferences.transfer + "transfer")
+                transfer_mode = preferences.transfer
 
         # start training
         print("\n\tThis will take some time...\n")
@@ -453,18 +460,21 @@ def run(start_from, start_path):
 
         # update checkpoint file
         chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
-        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("//", "/")
+        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("\\", "/")
 
-        if chkpnt_weights == file_utils.ERROR or \
-             file_utils.CHECKPOINT_KEYWORD not in chkpnt_weights:
+        if chkpnt_weights == file_utils.ERROR or file_utils.CHECKPOINT_KEYWORD not in chkpnt_weights:
             err_message("No valid checkpoints found in " + file_utils.from_workbench(preferences.output))
             print("\t\tPlease use a trained checkpoint (e.g " + file_utils.CHECKPOINT_KEYWORD + "1.tf )")
             return
 
         file_utils.rename_checkpoints(preferences.output, preferences.max_checkpoints)
-        file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("//", "/"))
+        file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/"))
 
-        print("\n\tUsing checkpoint " + file_utils.from_workbench(chkpnt_weights) )
+        if chkpnt_weights == file_utils.ERROR:
+            err_message("No checkpoints found in " + start_path)
+            return
+
+        print("\n\tUsing checkpoint " + chkpnt_weights )
 
         # generating tensorflow models
         print("\nGenerating TensorFlow model...\n")
@@ -510,7 +520,7 @@ def run(start_from, start_path):
         try:
             print("\nCreating a CoreML model...")
 
-            create_coreml.export_coreml(preferences.output)
+            create_coreml.export_coreml(preferences.output, chkpnt_weights)
 
             print("\n\tCore ML model created!\n")
 
@@ -524,19 +534,13 @@ def run(start_from, start_path):
     else:
         test_img = preferences.validate_input
 
-    chkpnt_weights = (file_utils.get_last_checkpoint(preferences.output))
-    chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("//", "/")
-    if chkpnt_weights == file_utils.ERROR:
-        err_message("No checkpoints found in " + start_path)
-        return
-
     if not os.path.isdir(test_img) and file_utils.is_valid(test_img):
         print("\n\tTest image location not found " + test_img)
         return
 
     print("\nTesting Images...")
     if path.isfile(test_img):
-        out_img = (preferences.output + "/").replace("//", "/") + test_img.split(".")[0] + "-output.jpg"
+        out_img = preferences.output.replace("\\", "/") + test_img.split(".")[0] + "-output.jpg"
         detect_img.run_detect(preferences.classifier_file,
                               chkpnt_weights,
                               preferences.tiny,
@@ -545,10 +549,10 @@ def run(start_from, start_path):
                               out_img,
                               preferences.num_classes)
     else:
-        test_img = (test_img + "/").replace("//", "/")
+        test_img = (test_img + "/").replace("\\", "/")
         for file in os.listdir(test_img):
             if '.jpg' in file:
-                out_img = (preferences.output + "/").replace("//", "/") + file.split(".")[0]  +"-output.jpg"
+                out_img = preferences.output.replace("\\", "/") + file.split(".")[0] + "-output.jpg"
                 print(out_img)
                 detect_img.run_detect(preferences.classifier_file,
                                       chkpnt_weights,
