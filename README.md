@@ -21,10 +21,11 @@ Currently the data application app is set to detect polyhedral dice; however, it
 # 2. Data Collection Application
 First you will need to download the current [GitHub repository](https://github.com/tylerboice/Digital-Roll).
 
-Once installed you will need data to train the classifier.  If you do not have images, you can take and label images using the data collection app. If you already have the images then you can label them using the labeling application with the GitHub repository. It is recommened that you have 1000 images per classifier for a well trained model
+Once installed you will need data to train the classifier.  If you do not have images, you can take and label images using the data collection app. If you already have the images then you can label them using the labeling application with the GitHub repository. It is recommended that you have 1000 images per classifier for a well trained model
 ## Data Collection Application
 TO DO
 
+<a name="labelApp"></a>
 ## Labelling Application
 The labeling application is from this [repo](https://github.com/tzutalin/labelImg) and is already in the repository. To run the workbench you will need to have a conda environment created. [Create an environment](#env) to install all the packages needed for the application. Once in the environment you can cd to the "labelImg" folder located in the root of the repository. Then run:
 ```bash
@@ -32,7 +33,7 @@ pyrcc5 -o libs/resources.py resources.qrc
 python labelImg.py
 ```
 **Usage**
-Once that command is ran it will open the application. Within the application open the folder that contains the images you have taken. Label each image by creating a bounding box around. After a you have finished bounding all the classifiers within the image save the file. When you save the file it will save as a sperate *.xml* that contains the name of the image it is using. **Ensure you are saving the xml files as the same name as the image. If you change the name of the image after you save, the *.xml* file will not be able to find the image, so make sure the image names are the ones you want before you begin this process.**
+Once that command is ran it will open the application. Within the application use the "Open Dir" button located in the left column to open the folder that contains the images you have taken. Label each image by creating a bounding box around. After a you have finished bounding all the classifiers within the image save the file. When you save the file it will save as a sperate *.xml* that contains the name of the image it is using. **Ensure you are saving the xml files as the same name as the image. If you change the name of the image after you save, the *.xml* file will not be able to find the image, so make sure the image names are the ones you want before you begin this process.**
 
 **Tips**
 This can be a long and tedious process. To increase the speed you can use the following tips:
@@ -60,51 +61,55 @@ This can be a long and tedious process. To increase the speed you can use the fo
 # 3. TensorFlow Workbench
 This is a modified version of the [repo](https://github.com/zzh8829/yolov3-tf2). This repo is the basis for a workbench that will aid users in training and validating their own data and conversting the models produced into Apple CoreML to be used on apple mobile devices. It is highly recommend that you use a GPU. Since you are training a model from scratch, the more images and classifiers you have, the longer the training process takes. Make sure your system has a [valid GPU](https://developer.nvidia.com/cuda-gpus) before proceeding.
 
-## Programs needed (GPU Only)
+## Required (GPU Only)
 
-[CUDA 10.1](https://developer.nvidia.com/cuda-toolkit-archive) - The drivers needed to run TensorFlow GPU. Currently 10.1 is the most stable version that supports TensorFlow 2.0. Use the exe (local) installer type
+  - CUDA 10.1 - The drivers needed to run TensorFlow GPU. Currently 10.1 is the most stable version that supports TensorFlow 2.0. Use the exe (local) installer type
 
-[CUDNN 7.6.5](https://developer.nvidia.com/rdp/cudnn-archive) - The additional files needed for TensorFlow GPU. You will need to create a NVIDIA Developer account. CUDNN 7.6.5 is the most stable version for CUDA 10.1.
+ - CUDNN 7.6.4 - The additional files needed for TensorFlow GPU. You will need to create a NVIDIA Developer account. CUDNN 7.6.4 is the most stable version for CUDA 10.1.
 
-[Visual Studio 2019 (Community)](https://visualstudio.microsoft.com/downloads/) - Needed for TensorFlow GPU with a windows machine
+- Visual Studio 2019 (Community) - Needed for TensorFlow GPU with a windows machine
+
+Installation guide below
 
 ## Installation (GPU Only):
 
 1) Install [CUDA 10.1](https://developer.nvidia.com/cuda-toolkit-archive)and run the CUDA installer
 
-	  a.  Click OK on the first setup prompt
-      b.  Click Agree and Continue when prompted about the license agreement
-      c.   Select the Express installation
-      d. Complete final installation steps
+	  a) Click OK on the first setup prompt
+		b) Click Agree and Continue when prompted about the license agreement
+    c) Select the Express installation
+    d) Complete final installation steps
 
-2) Download [CUDNN 7.6.5](https://developer.nvidia.com/rdp/cudnn-archive) and add the CUDNN files to CUDA
+2) Download [CUDNN 7.6.4](https://developer.nvidia.com/rdp/cudnn-archive) and add the CUDNN files to CUDA
 
-      a.  Open the CUDA path: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1
-      b.  Open the CUDNN installer (you may need [7-zip](https://www.7-zip.org/download.html) to unzip the file)      When open it will contain 1 folder.
-     c.  Drag all the contents from the cuda folder from step one into the CUDNN folder.
+    a) Open the CUDA path: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1
+    b) Open the CUDNN installer (you may need [7-zip](https://www.7-zip.org/download.html) to unzip the file). When open it will contain 1 folder.
+    c) Drag all the contents from the cuda folder from step one into the CUDNN folder.
+
  ![cudnn](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/docs/cudnn.png)
 
 3) Install [Visual Studio 2019 (Community)](https://visualstudio.microsoft.com/downloads/)
 
-     a. Run the installer
-     b. Select the C++ development workload and finish downloading visual studio
+    a) Run the installer
+    b) Select the C++ development workload and finish downloading visual studio
+		<br/><br/>
 ![visual_studio](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/docs/visual_studio.png)
+<br/><br/>
 4) Set up environment variables:
 
-     a. Click on start and type “environment variables”. Select “Edit the system environment variables"
+    a) Click on start and type “environment variables”. Select “Edit the system environment variables"
 
     ![environment variables](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/docs/env_var.png)
-   <br/>
-      <br/>
-     b. Click on "environment variables"
+<br/><br/>
+    b) Click on "environment variables"
 
      ![system properties](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/docs/system_prop.png)
-  <br/>
-  <br/>
-     c. In the system path section, double click on path:
+<br/><br/>
+    c) In the system path section, double click on path:
 
  ![system variables path](https://raw.githubusercontent.com/tylerboice/Digital-Roll/master/Tensorflow2.0-Workbench/docs/sys_var_path.png)
-   <br/>     d. Enter variables manually by clicking “new”. Make sure you select “ok” when done or the variables will not save. Close the window and reopen to ensure the changes were made. The order of the variables does not matter.
+<br/><br/>     
+	  d) Enter variables manually by clicking “new”. Make sure you select “ok” when done or the variables will not save. Close the window and reopen to ensure the changes were made. The order of the variables does not matter.
 
 ```bash
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin
@@ -117,9 +122,10 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\extras\CUPTI\libx64
 
 
 ## Set up
+
 #### Install Anaconda
 1. Download[Anaconda (Python 3.7 version)](https://www.anaconda.com/distribution/#download-section) and run the installer.
-2. Select the "Just Me" option, however if you User contains a space, you will need to select "All Users" instead. This is because Anaconda can't have a directory with a space in it.
+2. Select the "Just Me" option, however if the file-path contains a space, you will need to select "All Users" instead. This is because Anaconda can't have a directory with a space in it.
 3. Select where you want Anaconda to be installed and click "next"
 4. Don't Select either of the Advanced Options and click "install"
 <a name="env"></a>
@@ -129,28 +135,45 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\extras\CUPTI\libx64
 #### Create Anaconda Environment
 
 cd into the "Tenorflow2.0-Workbench" directory
+#### Tensorflow CPU
 ```bash
-# Tensorflow CPU
 conda env create -f conda-cpu.yml
 conda activate cpu
+conda install anaconda git -y
 pip install -r requirements-cpu.txt
 
-# Tensorflow GPU
+```
+#### Tensorflow GPU
+```bash
 conda env create -f conda-gpu.yml
 conda activate gpu
+conda install anaconda git -y
 pip install -r requirements-gpu.txt
 ```
 
 ## Usage
+### Before you start the workbench, ensure the following:
 
-### Before you run, make sure you have the following files:
+- All your images are [labelled](#labelApp)
 
- - [yolov3.weights](https://pjreddie.com/media/files/yolov3.weights) placed in the data folder
+- [yolov3.weights](https://pjreddie.com/media/files/yolov3.weights) placed in the ./Tensorflow2.0-Workbench/data folder
 
-- All data collected place in the image folder:
+- All data collected is placed in the ./Tensorflow2.0-Workbench/image folder:
 	- All images with their .xml files if the labelling application was used
-	- All .xml files if the data collection app was used
+	- All .xml files if the mobile ios data collection app was used
 
+- You are in the conda environment
+  - To ensure this, look at then word before your current working directory. By default it says "(base)", it needs to say "(cpu)" or "(gpu)" depending on which you are using.
+  - To enter an environment, run:
+  ```bash
+  #cpu
+  conda activate cpu
+
+  #gpu
+  conda activate gpu
+  ```
+
+### Start the Workbench:
 ```bash
 # from the Tensorflow2.0-Workbench directory
 python run_workbench.py
