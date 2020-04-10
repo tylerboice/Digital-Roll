@@ -278,7 +278,8 @@ def save(save_path):
     files = 1
     changed_name = False
     if "." in save_path:
-        save_path = save_path.split(".")[0]
+        index_before_suffix = save_path.rfind(".")
+        save_path = save_path[0:index_before_suffix]
     new_file = save_path + ".txt"
     while os.path.exists(new_file):
         new_file = save_path + "-" + str(files) + ".txt"
@@ -304,7 +305,7 @@ def save(save_path):
         f.write(defaults.VALID_IN_VAR + "= " + str(preferences.validate_input) + "\n")
         f.write(defaults.WEIGHTS_PATH_VAR + "= " + str(preferences.weights) + "\n")
 
-    print("\n\tNew preference path " + file_utils.from_workbench(save_path) +" successfully saved!")
+    print("\n\tNew preference path " + save_path + " successfully saved!")
 
 
 def run(start_from, start_path):
@@ -398,7 +399,7 @@ def run(start_from, start_path):
         print("\tCheckpoint Converted!\n")
 
     # if training
-    if (((start_from) == CONTINUE and start_path != NONE) or start_from == START):
+    if ((start_from == CONTINUE and start_path != NONE) or start_from == START):
 
         # continue training from previous checkpoint
         if (start_from != START):
@@ -744,13 +745,6 @@ def main():
                                 print("\n\t       ==> fit, eager_fit, eager_tf")
                                 error = True
 
-                        elif userInputArr[1] == defaults.MODE_VAR:
-                            if path.exists(userInputArr[2]):
-                                preferences.output = userInputArr[2]
-                            else:
-                                print_to_terminal.err_message("Bad output directory given")
-                                error = True
-
                         elif userInputArr[1] == defaults.TINY_WEIGHTS_VAR:
                             try:
                                 preferences.tiny = bool(userInputArr[2])
@@ -782,6 +776,16 @@ def main():
                                 preferences.validate_input = userInputArr[2]
                             else:
                                 err_message("Failed to find directory for validation")
+                                error = True
+
+                        elif userInputArr[1] == defaults.OUTPUT_VAR:
+                            temp = userInputArr[2].replace("\\", "/")
+                            if path.exists(temp):
+                                preferences.output = temp
+                                if not preferences.output.endswith("/"):
+                                    preferences.output = preferences.output + "/"
+                            else:
+                                err_message("Failed to find output area")
                                 error = True
 
                         elif userInputArr[1] == defaults.WEIGHTS_NUM_VAR:
