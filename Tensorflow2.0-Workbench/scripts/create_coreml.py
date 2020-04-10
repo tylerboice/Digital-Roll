@@ -17,14 +17,18 @@ def export_coreml(output, weights):
 
     keras_model = ResNet50(weights=None, input_shape=(224, 224, 3))
 
+    print("Loading up a .h5 from the weights " + weights + " for conversion...")
     keras_model.load_weights(weights).expect_partial()
 
+    print("Weights Loaded!")
+
     keras_model.save(output + "model.h5")
+    print("Saved a copy of the .h5 at " + output + "model.h5")
 
     # print input shape
     print(keras_model.input_shape)
 
-    print("Converting CoreML Model from path: " + output + "model.h5")
+    print("Converting CoreML Model from path: " + output + "core_model.h5")
 
     # get input, output node names for the TF graph from the Keras model
     input_name = keras_model.inputs[0].name.split(':')[0]
@@ -36,4 +40,5 @@ def export_coreml(output, weights):
                              output_feature_names=[graph_output_node_name],
                              minimum_ios_deployment_target='13')
 
-    model.save(output + 'model.mlmodel')
+    model.save(output + 'core_model.mlmodel')
+    print("CoreML saved at " + output + "core_model.h5")
