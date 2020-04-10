@@ -1,6 +1,7 @@
 import os
 import sys
 from os import path
+import warnings
 
 try:
     from scripts import defaults
@@ -381,7 +382,7 @@ def run(start_from, start_path):
 
         # save previous sessions
         print("\nChecking for previous Sessions...\n")
-        file_utils.save_session(defaults.OUTPUT_PATH, preferences.output, defaults.SAVED_SESS_PATH,
+        file_utils.save_session(defaults.OUTPUT_PATH, preferences.output, preferences.sessions,
                                 preferences.max_saved_sess)
         print("\tDone!\n")
 
@@ -399,10 +400,10 @@ def run(start_from, start_path):
         print("\tCheckpoint Converted!\n")
 
     # if training
-    if ((start_from == CONTINUE and start_path != NONE) or start_from == START):
+    if (start_from == CONTINUE and start_path != NONE) or start_from == START:
 
         # continue training from previous checkpoint
-        if (start_from != START):
+        if start_from != START:
             weights = start_path
             if os.path.isdir(weights):
                 weights = file_utils.get_last_checkpoint(weights)
@@ -421,7 +422,7 @@ def run(start_from, start_path):
         # train from scratch
         else:
             print("\nBegin Training...")
-            if preferences.transfer == "none" :
+            if preferences.transfer == "none":
                 print("\n\tTraining from scratch...")
                 transfer_mode = preferences.transfer
             else:
@@ -446,7 +447,9 @@ def run(start_from, start_path):
                                             preferences.weight_num_classes,
                                             preferences.output,
                                             preferences.max_checkpoints)
+
         if not trained:
+            print("\n\tTraining Failed!\n")
             return
         print("\n\tTraining Complete!\n")
 
@@ -477,6 +480,8 @@ def run(start_from, start_path):
 
         print("\n\tUsing checkpoint " + chkpnt_weights )
 
+        start_path = chkpnt_weights
+
         # generating tensorflow models
         print("\nGenerating TensorFlow model...\n")
 
@@ -496,26 +501,6 @@ def run(start_from, start_path):
                                              preferences.classifier_file,
                                              test_img,
                                              preferences.num_classes)
-
-        """
-        # create Tensorflow Lite model
-        try:
-            # convert model to tensorflow lite for android use
-            print("\nGenerating Tflite...")
-
-            converter = tf.lite.TFLiteConverter.from_saved_model(preferences.output)
-            converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
-                                                   tf.lite.OpsSet.SELECT_TF_OPS]
-
-            converter.allow_custom_ops = False  # TFLite does not support custom operations,
-                                                # thus this be false, to have a model with nms set to True
-            tflite_model = converter.convert()
-            open(preferences.output + "tflite_model.tflite", "wb").write(tflite_model)
-            print("\n\tTensorflow Lite model created!\n")
-
-        except Exception as e:
-            err_message("Failed to create TF lite model: " + str(e))
-        """
 
         # Create Core ML Model
         try:
@@ -571,6 +556,7 @@ def run(start_from, start_path):
 
 ############################## MAIN ##########################
 def main():
+    warnings.simplefilter("ignore")
     check_admin()
     print("\nWelcome to the Digital Roll Workbench")
     print("\nEnter 'help' or 'h' for a list of commands:")
@@ -663,21 +649,36 @@ def main():
             elif userInput[0:7] == "modify " or userInput[0:2] == "m ":
                 error = False
                 userInputArr = userInput.split(" ")
-                if len(userInputArr) == 3:
+                if len(userInputArr) >= 3:
                     try:
+                        # Clause to catch Windows user name issues with file paths and spaces
+                        if len(userInputArr) > 3:
+                            tempPath = ""
+                            for item in userInputArr[2:]:
+                                tempPath = tempPath + item + " "
+                            tempPath.replace("\\", "/")
+                            tempPath = tempPath.rstrip()
+                            userInputArr = [userInputArr[0], userInputArr[1], tempPath]
+
                         if userInputArr[1] == defaults.BATCH_SIZE_VAR:
                             try:
                                 preferences.batch_size = int(userInputArr[2])
                             except:
-                                err_message(defaults.BATCH_SIZE_VAR + " taks an integer value")
+                                err_message(defaults.BATCH_SIZE_VAR + " takes an integer value")
                                 error = True
-
 
                         elif userInputArr[1] == "test_checkpoint":
                             if path.exists(userInputArr[2]):
                                 this.test_checkpoint = userInputArr[2]
                             else:
                                 err_message("Bad testing checkpoint directory given")
+                                error = True
+
+                        elif userInputArr[1] == "start_path":
+                            if path.exists(userInputArr[2]):
+                                this.start_path = userInputArr[2]
+                            else:
+                                err_message("Bad starting directory given")
                                 error = True
 
                         elif userInputArr[1] == defaults.CLASSIFIERS_VAR:
@@ -780,12 +781,22 @@ def main():
 
                         elif userInputArr[1] == defaults.OUTPUT_VAR:
                             temp = userInputArr[2].replace("\\", "/")
-                            if path.exists(temp):
+                            if not temp.endswith("/"):
+                                temp = temp + "/"
+                            if os.path.exists(temp):
                                 preferences.output = temp
-                                if not preferences.output.endswith("/"):
-                                    preferences.output = preferences.output + "/"
                             else:
                                 err_message("Failed to find output area")
+                                error = True
+
+                        elif userInputArr[1] == defaults.SAVED_SESS_VAR:
+                            temp = userInputArr[2].replace("\\", "/")
+                            if not temp.endswith("/"):
+                                temp = temp + "/"
+                            if os.path.exists(temp):
+                                preferences.sessions = temp
+                            else:
+                                err_message("Failed to find session saving area")
                                 error = True
 
                         elif userInputArr[1] == defaults.WEIGHTS_NUM_VAR:
@@ -811,8 +822,8 @@ def main():
                         else:
                             err_message("Unknown variable name")
                             error = True
-                    except:
-                        err_message("Failed to change variable to given value, try modify(m) without argument for list of names")
+                    except Exception as e:
+                        err_message("Failed to change variable to given value, try modify(m) without argument for list of names. ERROR: " + str(e))
                         error = True
                     if not error:
                         print("\n\tSet " + userInputArr[1] + " to " + userInputArr[2] + "\n")

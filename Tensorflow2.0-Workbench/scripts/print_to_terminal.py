@@ -28,8 +28,8 @@ def modify_commands():
     print("\tMax Checkpoints      ==> " + defaults.MAX_CHECK_VAR + "  ACCEPTS: int")
     print("\tMax Sessions         ==> " + defaults.MAX_SESS_VAR + "     ACCEPTS: int")
     print("\tMode                 ==> " + defaults.MODE_VAR + "             ACCEPTS: fit, eager_fit, eager_tf")
-    print("\tOutput Model         ==> " + defaults.OUTPUT_VAR + "           ACCEPTS: path to current session location")
-    print("\tSave Sessions        ==> " + defaults.SAVED_SESS_VAR + "         ACCEPTS: path to save previous sessions")
+    print("\tOutput               ==> " + defaults.OUTPUT_VAR + "           ACCEPTS: path to current session location")
+    print("\tSessions             ==> " + defaults.SAVED_SESS_VAR + "         ACCEPTS: path to save previous sessions to")
     print("\tTiny Weights         ==> " + defaults.TINY_WEIGHTS_VAR + "     ACCEPTS: true/false")
     print("\tTransfer             ==> " + defaults.TRANSFER_VAR + "         ACCEPTS: none, darknet, no_output, frozen, fine_tune")
     print("\tValid Images Extract ==> " + defaults.VALID_IMGS_VAR + "      ACCEPTS: int")
@@ -37,6 +37,7 @@ def modify_commands():
     print("\tWeights Path         ==> " + defaults.WEIGHTS_PATH_VAR + "          ACCEPTS: path to  a '.tf' or '.weights' file")
     print("\tWeighted Classes     ==X Automatically updated when weights is changed")
     print("\tPreference File      ==X Automatically your most recently loaded preference file")
+    print("\tStart Path           ==> Changes the starting path for using the 'continue' command")
 
 def help():
     print("\n COMMANDS")

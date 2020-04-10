@@ -575,7 +575,7 @@ def save_session(default_output, checkpoint_output, save_sess_path, max_saved_se
     if contents:
         os.mkdir(current_sess)
         print("\tPrevious session stored in: " + from_workbench(current_sess) + "\n")
-        if checkpoint_output == default_output:
+        if os.path.exists(checkpoint_output):
             for file in os.listdir(checkpoint_output):
                 shutil.move(checkpoint_output + file, current_sess)
 
