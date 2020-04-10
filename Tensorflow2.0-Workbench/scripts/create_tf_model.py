@@ -1,20 +1,12 @@
 import time
 from absl import app, flags, logging
-from absl.flags import FLAGS
-import cv2
-import numpy as np
-import os
 import tensorflow as tf
-import tensorflow.keras
-from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
+import warnings
+
 from yolov3_tf2.models import (
     YoloV3, YoloV3Tiny
 )
 from yolov3_tf2.dataset import transform_images
-
-from tensorflow.python.eager import def_function
-from tensorflow.python.framework import tensor_spec
-from tensorflow.python.util import nest
 from yolov3_tf2.utils import freeze_all
 
 # Funcion: run_weight_convert
@@ -27,6 +19,9 @@ from yolov3_tf2.utils import freeze_all
 #             num_classes - number of classes the model was trained on
 # Return: Nothing
 def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
+
+    warnings.simplefilter("ignore")
+
     if tiny:
         yolo = YoloV3Tiny(classes= num_classes)
     else:
@@ -36,7 +31,7 @@ def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
     yolo.load_weights(weights)
     logging.info('weights loaded')
 
-    freeze_all(yolo)
+    #freeze_all(yolo)
 
     tf.saved_model.save(yolo, output)
     logging.info("model saved to: {}".format(output))
