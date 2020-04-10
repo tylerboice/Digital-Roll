@@ -11,3 +11,4 @@ Tensorflow2.0-Workbench/data/classifier.names
 *.pb
 *.pb
 *.tflite
+*.txt
