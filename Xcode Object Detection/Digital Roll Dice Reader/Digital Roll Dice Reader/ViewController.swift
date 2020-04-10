@@ -33,6 +33,12 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         guard let captureDevice = AVCaptureDevice.default(for: .video)
             else {self.quickErr(myLine: #line, inputStr: ""); return}
         
+        try? captureDevice.lockForConfiguration()
+        captureDevice.activeVideoMaxFrameDuration = CMTime(value: 5, timescale: 120)
+        captureDevice.activeVideoMinFrameDuration = CMTime(value: 5, timescale: 120)
+        captureDevice.unlockForConfiguration()
+        
+        
         guard let input = try? AVCaptureDeviceInput(device: captureDevice)
             else{self.quickErr(myLine: #line, inputStr: ""); return}
         captureSession.addInput(input)
@@ -73,7 +79,6 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
                 myMessage = "The model is not confident enough to classify the object"
             }
             
-            print(myMessage)
             self.updateLabel(newLabel: myMessage)
         }
         
