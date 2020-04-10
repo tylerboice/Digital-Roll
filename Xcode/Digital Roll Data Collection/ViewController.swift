@@ -19,10 +19,10 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     var takePhoto = false
     
     // Initalize Variables for capturing accelerometer data
-   @IBOutlet weak var xAccel: UITextField!
-   @IBOutlet weak var yAccel: UITextField!
-   @IBOutlet weak var zAccel: UITextField!
-   var motion = CMMotionManager()
+    @IBOutlet weak var xAccel: UITextField!
+    @IBOutlet weak var yAccel: UITextField!
+    @IBOutlet weak var zAccel: UITextField!
+    var motion = CMMotionManager()
        
 
     // Tell the device to run the camera
