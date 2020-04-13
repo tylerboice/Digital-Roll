@@ -2,6 +2,7 @@ import os
 import random
 import shutil
 import time
+import math
 import xml.etree.ElementTree as ET
 import base64
 
@@ -113,6 +114,35 @@ def classifier_remove_dup(classifiers):
     print("\n\tTotal Objects: " + str(total_classifiers))
 
     return new_list
+
+########################## CONVERT TO TIME #############################
+# Description: takes in float and converts it to time
+# Parameters: time - FLOAT - time
+# Return: output - String - string of time
+def convert_to_time(time):
+    seconds = round(time)
+    minutes = math.floor(time/60)
+    hours = math.floor(minutes/60)
+    output = ""
+    if hours > 1:
+        output += str(hours) + " Hours, "
+        minutes %= 60
+    elif hours == 1:
+        output += str(hours) + " Hour, "
+        minutes %= 60
+
+    if minutes > 1:
+        output += str(minutes) + " Minutes, "
+        seconds %= 60
+    elif minutes == 1:
+        output += str(minutes) + " Minute, "
+        seconds %= 60
+
+    if seconds == 1:
+        output += str(minutes) + " Second"
+    else:
+        output += str(seconds) + " Seconds"
+    return output
 
 
 ########################## CREATE CLASSIFIER FILE #############################
@@ -354,16 +384,29 @@ def get_img_count(path):
     return total_images
 
 
-########################## GET INPUT ###########################
-# Description: extracts the input from a string. Ued for getting lines for preference file
-#              example: input = batch_size= 32
+########################## GET_INPUT_VALUE ###########################
+# Description: extracts the value from a string. Used for getting lines for preference file
+#              example: input  = batch_size: 32
 #                       output = 32
 # Parameters: input - String - line of input from preference file
 #             split_char - Char - charter that seperates variable name and value
 # Return: the value given for the input
-def get_input(input, split_char):
+def get_input_value(input, split_char):
     if split_char in input:
         input = input.split(split_char)[1]
+        input = input.strip()
+    return input
+
+########################## GET_INPUT_VAR ###########################
+# Description: extracts the variable from a string. Used for getting lines for preference file
+#              example: input = batch_size: 32
+#                       output = batch_size
+# Parameters: input - String - line of input from preference file
+#             split_char - Char - charter that seperates variable name and value
+# Return: the varibale given for the input
+def get_input_var(input, split_char):
+    if split_char in input:
+        input = input.split(split_char)[0]
         input = input.strip()
     return input
 

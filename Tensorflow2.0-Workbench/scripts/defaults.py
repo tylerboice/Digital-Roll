@@ -129,7 +129,7 @@ flags.DEFINE_enum( TRANSFER_VAR, DFEAULT_TRANSFER_TYPE, TRANSFER_OPTIONS,
 
 ############################## VALID IMAGE EXTRACTION ##################################
 VALID_IMGS_VAR = "val_img_num"
-DEFAULT_VALID_IMGS = 10
+DEFAULT_VALID_IMGS = 5
 flags.DEFINE_integer( VALID_IMGS_VAR, DEFAULT_VALID_IMGS, 'images to extract')
 
 ########################### VALID IMAGE PATH ####################################

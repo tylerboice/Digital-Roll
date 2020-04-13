@@ -3,6 +3,7 @@ import os
 import sys
 from os import path
 import warnings
+import time
 
 # try to import scripts
 try:
@@ -421,6 +422,9 @@ def save(save_path):
 # Return: Nothing
 def run(start_from, start_path):
 
+    # start timer
+    start_workbench_time = time.perf_counter()
+
     # check if necessary files exist
     # run was called, start from beginning
     # Setting for memory growth from old train_workbench.py
@@ -540,6 +544,7 @@ def run(start_from, start_path):
                 transfer_mode = preferences.transfer
 
         # start training
+        start_train_time = time.perf_counter()
         print("\n\tThis will take some time...\n")
         trained = train_workbench.run_train(preferences.dataset_train,
                                             preferences.dataset_test,
@@ -562,6 +567,8 @@ def run(start_from, start_path):
             print("\n\tTraining Failed!\n")
             return
         print("\n\tTraining Complete!\n")
+
+    training_time = time.perf_counter() - start_train_time
 
     if (start_from == CONTINUE or start_from == START):
         if not file_utils.is_valid(preferences.output):
@@ -658,9 +665,17 @@ def run(start_from, start_path):
                                       out_img,
                                       preferences.num_classes)
 
+    # Save Runtimes
+    total_runtime = file_utils.convert_to_time(time.perf_counter() - start_workbench_time)
+    train_runtime = file_utils.convert_to_time(training_time)
+
     if (start_from != TEST_IMAGE):
-        print("\n\n=============================== Workbench Successful! ===============================")
+        print("\n\n=============================== Workbench Successful! ===============================\n")
+        print("\tTotal Training Runtime : " + train_runtime)
+        print("\tTotal Workbench Runtime: " + total_runtime)
     print("\n\tAll models and images saved in " + preferences.output + "\n")
+    print("=====================================================================================\n")
+
 
 
 
