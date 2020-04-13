@@ -1,7 +1,10 @@
 import base64
+import time
 from PIL import Image
 
-def importer(picture, xAccel, yAccel, zAccel, dshape, dvalue, bboxminx, bboxminy, bboxmaxx, bboxmaxy):
+#tempfile: file
+
+def importer(picture, xAccel, yAccel, zAccel, dshape, dvalue, bboxparams):
     #file = open("test.xml", "w")
     try:
         shapestring = dshape[1:]
@@ -41,13 +44,21 @@ def importer(picture, xAccel, yAccel, zAccel, dshape, dvalue, bboxminx, bboxminy
         zvec = str(zAccel)
     except:
         print("could not convert zAccel to string")
+    if len(bboxparams) != 4:
+        raise Exception("invalid number of bounding box parameters")
+    bboxminx = bboxparams[0]
+    bboxminy = bboxparams[1]
+    bboxmaxx = bboxparams[2]
+    bboxmaxy = bboxparams[3]
     if bboxminx > bboxmaxx or bboxminy > bboxmaxy :
         raise Exception("invalid bounding box parameters")
-    convert(picture, xvec, yvec, zvec, dshape, dvalue, bboxminx, bboxminy, bboxmaxx, bboxmaxy)
+    return convert(picture, xvec, yvec, zvec, dshape, dvalue, bboxminx, bboxminy, bboxmaxx, bboxmaxy)
+
 
 def convert(image, xvec, yvec, zvec, dshape, dvalue, bboxminx, bboxminy, bboxmaxx, bboxmaxy):
+    timestamp = str(time.time())
     try:
-        converted_file = open( dshape + "-" + dvalue + ".xml", "w")
+        converted_file = open( dshape + "-" + dvalue + "("  + timestamp + ").xml", "w")
     except:
         print("failed to open requested file")
 
@@ -81,22 +92,53 @@ def convert(image, xvec, yvec, zvec, dshape, dvalue, bboxminx, bboxminy, bboxmax
     try:
         converted_file.write("<annotation>\n <filename>" + converted_file.name + "</filename>\n <img>" + str(converted_string) + "</img>\n " +
         " <xAccel>" + xvec + "</xAccel>\n <yAccel>" + yvec + "</yAccel>\n <zAccel>" + zvec + "</zAccel>\n" +
-        " <size>\n \t<width>" + widthstr + "</width> \n <height>" + heightstr + "</height> \n<depth>3</depth> \n</size>"
-        + "<object> \n \t <name>" + dshape + "-" + dvalue + "</name>\n <pose>Unspecified</pose> \n <truncated>0</truncated>\n <difficult>0</difficult>\n "
-        + "<bndbox> \n \t <xmin>" + str(bboxminx) + "</xmin>\n <ymin>" + str(bboxminy) + "</ymin> \n <xmax>" + str(bboxmaxx) + "</xmax> \n <ymax>" + str(bboxmaxy) + " </ymax> \n </bndbox> \n </object>"
-        + "</annotation>")
+        " <size>\n \t<width>" + widthstr + "</width> \n <height>" + heightstr + "</height> \n<depth>3</depth> \n</size> <object> \n \t <name>" + dshape + "-" + dvalue + "</name>\n <pose>Unspecified</pose> \n <truncated>0</truncated>\n <difficult>0</difficult>\n "
+            + "<bndbox> \n \t <xmin>" + str(bboxminx) + "</xmin>\n <ymin>" + str(bboxminy) + "</ymin> \n <xmax>" + str(bboxmaxx) + "</xmax> \n <ymax>" + str(bboxmaxy) + " </ymax> \n </bndbox> \n </object>"
+            + "</annotation>")
     except:
         print("could not write requested string to file")
     finally:
         converted_file.close()
 
-    output(converted_file)
+    return output(converted_file)
 
 def output(output_file):
+    #tempfile = output_file
+    print(output_file)
     return output_file
+
+def addbbox(bboxparams, dshape, dvalue, file):
+    file = file.name
+    try:
+        shapestring = dshape[1:]
+    except:
+        print("dice shape is funky")
+    if dvalue <= int(shapestring):
+        pass
+    else:
+        raise Exception("dice value is invalid for dice shape")
+    if isinstance(dvalue, int):
+        dvalue = str(dvalue)
+    if len(bboxparams) != 4:
+        raise Exception("invalid number of bounding box parameters")
+    bboxminx = bboxparams[0]
+    bboxminy = bboxparams[1]
+    bboxmaxx = bboxparams[2]
+    bboxmaxy = bboxparams[3]
+    if bboxminx > bboxmaxx or bboxminy > bboxmaxy :
+        raise Exception("invalid bounding box parameters")
+
+    editedfile = open(file, "a")
+
+    editedfile.close()
+    return editedfile
+
 
 #testpic = open("snowwhite.jpg", "rb") as img_file
 #file = open("test.xml", "w")
 #file.close
 #im = Image.open(r"/snowwhite")
-importer("snowwhite.jpg", 0, 0, 0, 'd10', 10, 180, 315, 396, 508)
+bbox = [1, 1, 10, 10]
+tempfile = importer("snowwhite.jpg", 0, 0, 0, 'd10', 9, bbox)
+
+#addbbox(bbox , 'd4', 3, tempfile)
