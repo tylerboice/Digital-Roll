@@ -707,6 +707,7 @@ def main():
             # LITE
             elif get_input(userInput) == "lite" or get_input(userInput) == "l":
                 # convert model to tensorflow lite for android use
+                print("WARNING: This method is still untested and in development.")
                 try:
                     # convert model to tensorflow lite for android use
                     print("Model Loading")
