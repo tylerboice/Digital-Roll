@@ -179,13 +179,14 @@ def modify(user_var, user_input):
 
        user_input = check_input(user_input, defaults.INT)
 
-    # check if it is varibale that should be a File
+    # check if it is variable that should be a File
     elif user_var == defaults.CLASSIFIERS_VAR or \
          user_var == defaults.DATASET_TEST_VAR or \
          user_var == defaults.DATASET_TRAIN_VAR or \
          user_var == defaults.OUTPUT_VAR or \
          user_var == defaults.SAVED_SESS_VAR or \
-         user_var == defaults.VALID_IN_VAR:
+         user_var == defaults.VALID_IN_VAR or \
+         user_var == defaults.WEIGHTS_PATH_VAR:
 
          user_input = check_input(user_input, defaults.FILE)
 
@@ -223,7 +224,7 @@ def modify(user_var, user_input):
 
         # dataset_test - File(string)
         elif user_var == defaults.DATASET_TEST_VAR:
-            if ".tfrecord" in user_var:
+            if ".tfrecord" in user_input:
                 preferences.dataset_test = user_input
             else:
                 err_message("Testing Dataset must be a .tfrecord file")
@@ -231,7 +232,7 @@ def modify(user_var, user_input):
 
         # dataset_train - File(string)
         elif user_var == defaults.DATASET_TRAIN_VAR != INPUT_ERR:
-            if ".tfrecord" in user_var:
+            if ".tfrecord" in user_input:
                 preferences.dataset_train = user_input
             else:
                 err_message("Training Dataset must be a .tfrecord file")
@@ -241,12 +242,12 @@ def modify(user_var, user_input):
         elif user_var == defaults.EPOCH_NUM_VAR and user_input != INPUT_ERR:
             preferences.epochs = user_input
 
-        # image_size - INT(256 and 416)
+        # image_size - INT(256 and 416 and 224)
         elif user_var == defaults.IMAGE_SIZE_VAR and user_input != INPUT_ERR:
-            if  user_var == 256 or user_var == 416:
+            if user_input == 256 or user_input == 416 or user_input == 224:
                 preferences.image_size = user_input
             else:
-                err_message("Image size must be 256 or 416")
+                err_message("Image size must be 224, 256 or 416")
                 user_input = INPUT_ERR
 
         # max_checkpoints - INT
@@ -299,8 +300,8 @@ def modify(user_var, user_input):
 
         # weights_path
         elif user_var == defaults.WEIGHTS_PATH_VAR:
-            if ".tf" in user_var or ".weights" in user_var:
-                preferences.dataset_train = user_input
+            if ".tf" in user_input or ".weights" in user_input:
+                preferences.weights = user_input
             else:
                 err_message("Weights must be a .tf or .weights file")
                 user_input = INPUT_ERR
@@ -724,6 +725,7 @@ def main():
             # LITE
             elif get_input(userInput) == "lite" or get_input(userInput) == "l":
                 # convert model to tensorflow lite for android use
+                print("WARNING: This method is still untested and in development.")
                 try:
                     # convert model to tensorflow lite for android use
                     print("Model Loading")
