@@ -15,10 +15,12 @@ def export_coreml(output, weights):
     # keras_model.save(output, save_format='tf')
     # tf.saved_model.save(keras_model, './savedmodel')
 
-    keras_model = ResNet50(weights=None, input_shape=(224, 224, 3))
+    keras_model = ResNet50(weights=None,
+                           #input_tensor=Input(shape=(224, 224, 3), name='image'),
+                           input_shape=(224, 224, 3))
 
     print("Loading up a .h5 from the weights " + weights + " for conversion...")
-    keras_model.load_weights(weights).expect_partial()
+    keras_model.load_weights(weights)#.expect_partial()
 
     print("Weights Loaded!")
 
@@ -34,6 +36,7 @@ def export_coreml(output, weights):
     input_name = keras_model.inputs[0].name.split(':')[0]
     keras_output_node_name = keras_model.outputs[0].name.split(':')[0]
     graph_output_node_name = keras_output_node_name.split('/')[-1]
+    print("Output:" + graph_output_node_name)
 
     model = tfcoreml.convert(output + "model.h5",
                              input_name_shape_dict={input_name: (1, 224, 224, 3)},
@@ -41,4 +44,4 @@ def export_coreml(output, weights):
                              minimum_ios_deployment_target='13')
 
     model.save(output + 'core_model.mlmodel')
-    print("CoreML saved at " + output + "core_model.h5")
+    print("CoreML saved at " + output + "core_model.mlmodel")
