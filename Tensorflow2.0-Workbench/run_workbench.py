@@ -2,6 +2,7 @@
 import os
 import sys
 from os import path
+from os.path import dirname
 import warnings
 import time
 
@@ -151,11 +152,10 @@ def check_input(value, type):
 
     # list variable
     else:
-        value = txt_input.replace(" ", "")
-        value = txt_input.replace("\n", "")
+        value = value.replace(" ", "")
+        value = value.replace("\n", "")
         if value in type:
             return value
-        err_message( value + " is not an option")
 
     return INPUT_ERR
 
@@ -243,7 +243,7 @@ def modify(user_var, user_input):
 
         # image_size - INT(256 and 416)
         elif user_var == defaults.IMAGE_SIZE_VAR and user_input != INPUT_ERR:
-            if  int(user_var) == 256 or int(user_var) == 416:
+            if  user_var == 256 or user_var == 416:
                 preferences.image_size = user_input
             else:
                 err_message("Image size must be 256 or 416")
@@ -334,6 +334,7 @@ def load(pref_path):
         err_message("Bad Preferences File, could not find file")
         return
 
+    print("\n=======================================================\n Loading Prferences...\n\n")
     # Open file and set new preferences
     preferences.pref_file = pref_path
     with open(pref_path, "r") as f:
@@ -342,21 +343,23 @@ def load(pref_path):
         for line in f.readlines():
             value = file_utils.get_input_value(line, SPLIT_CHAR)    # value of the variable
             variable =  file_utils.get_input_var(line, SPLIT_CHAR)  # name of the variable
+            print("Found " + variable)
             modified = modify(variable, value)                      # boolean if the varible was last_modified
 
             # if variable was modified add to changed, else add to modifed
-            if modified == NO_ERROR:
-                changed.append(varibale + SPECIAL_CHAR + value)
-            elif modifed == INPUT_ERROR:
-                failed.append(varibale)
+            if modified == INPUT_ERR:
+                failed.append(variable)
+            else:
+                changed.append(variable + SPECIAL_CHAR + value)
 
+    print("=======================================================\n")
     # Print all variabels that were changed
     if len(changed) != 0:
         print("\n\tValues changed:")
         for item in changed:
             item = item.split(SPECIAL_CHAR)
             print("\t\t -" + item[0] + " to " + item[1])
-        print("\t\tUse the display(d) command to current preferences")
+        print("\n\t\tUse the display(d) command to current preferences")
     else:
         print("\n\tNo values were altered")
 
@@ -365,7 +368,7 @@ def load(pref_path):
         print("\n\n\tWARNING: The following items didn't change due incompatible input or incorrect file path:" )
         for item in failed:
             print("\t\t -" + item)
-        print("\t\tUse the modify(m) command with no arguments to see accepted types")
+        print("\n\t\tUse the modify(m) command with no arguments to see accepted types")
 
 
 ########################## SAVE #############################
@@ -375,23 +378,37 @@ def load(pref_path):
 def save(save_path):
 
     # initialize variabels
-    changed_name = False    # if file has already been used
-    files = 0               # nubers of files that have already been used
+    changed_name = False      # if file has already been used
+    files = 0                 # nubers of files that have already been used
+    path = os.getcwd()
+    file_name = "preferences"
+    file_chaned = False
+    BACKSLASH = "\ ".replace(" ", "")
 
-    if "." in save_path:
-        index_before_suffix = save_path.rfind(".")
-        save_path = save_path[0:index_before_suffix]
+    # if user included filename
+    if ".txt" in save_path:
+        temp_path = dirname(save_path)
+        file_name  = save_path.replace(temp_path + BACKSLASH, "").replace(".txt", "")
+        save_path = temp_path
+        file_changed = True
 
-    if ".txt" not in save_path:
-        new_file = save_path + ".txt"
+    # if user give filepath exists
+    if os.path.exists(save_path) and not save_path:
+        path = save_path
+
+    # else using current working directory if not already
+    elif save_path or save_path == ".":
+        err_message("Path " + save_path + " does not exist")
+        print("\t\tUsing current directory")
+        if file_changed:
+            print("\t\tKeeping filename " + file_name + ".txt")
+
+    new_file = path + BACKSLASH + file_name + ".txt"
+
+    # if file aready exists append with a dash and number
     while os.path.exists(new_file):
         files += 1
-        new_file = save_path + "-" + str(files) + ".txt"
-        changed_name = True
-
-    # if file given was already taken
-    if changed_name:
-        print("\n\tFile " + save_path + " is already a file, using " + new_file + " instead")
+        new_file = path + BACKSLASH + file_name + "-"  + str(files) + ".txt"
 
     # open preference file and write all variables to it
     with open(new_file, "w") as f:
@@ -412,7 +429,7 @@ def save(save_path):
         f.write(defaults.VALID_IN_VAR + "= " + str(preferences.validate_input) + "\n")
         f.write(defaults.WEIGHTS_PATH_VAR + "= " + str(preferences.weights) + "\n")
 
-    print("\n\tNew preference path " + save_path + " successfully saved!")
+    print("\n\tNew preference path " + new_file + " successfully saved!")
 
 
 ########################## RUN #############################
@@ -763,12 +780,7 @@ def main():
 
             # SAVE from current working directory
             elif get_input(userInput) == "save" or get_input(userInput) == "s":
-                files = 1
-                new_files = os.getcwd() + "/preferences-" + str(files) + ".txt"
-                while os.path.exists(new_files):
-                    files += 1
-                    new_files = os.getcwd() + "/preferences-"  + str(files) + ".txt"
-                save(new_files)
+                save(os.getcwd())
 
             # SAVE to user specified path
             elif userInput[0:5] == "save " or userInput[0:2] == "s ":
@@ -798,7 +810,7 @@ def main():
                 exit()
             else:
                 # end of cases, inform the user that their input was invalid
-                print("\nCommand not recognized, try 'help' or 'h' for a list of options")
+                print("\n\tCommand not recognized, try 'help' or 'h' for a list of options")
 
         except KeyboardInterrupt:
             print("\n\n\n\n------ Current process stopped by user ------")
