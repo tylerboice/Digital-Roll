@@ -40,8 +40,8 @@ try:
     NO_ERROR = -99999998
 
 # if script not found
-except FileNotFoundError:
-    print("\n\n\tERROR: files needed for the workbench to run were not found")
+except FileNotFoundError as e:
+    print("\n\n\tERROR: " + str(e))
     print("\n\t\tEnsure that:")
     print("\t\t        - The scripts folder and yolov3_tf2 folder have not been removed or altered")
     print("\t\t        - You are in the proper directory")
@@ -49,8 +49,8 @@ except FileNotFoundError:
     exit()
 
 # if package not found
-except ImportError:
-    print("\n\n\tERROR: packages needed for the workbench to run were not found")
+except ImportError as e:
+    print("\n\n\tERROR: " + str(e))
     print("\n\t\tEnsure that:")
     print("\t\t        - Your conda enviorment is activated")
     print("\t\t        - You have installed the proper packages using the requirements.txt file")
