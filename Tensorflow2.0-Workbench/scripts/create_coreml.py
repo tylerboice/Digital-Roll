@@ -2,6 +2,7 @@ import coremltools
 from tensorflow.keras.applications import MobileNet
 from tensorflow.keras.applications import ResNet50
 import tfcoreml
+import tensorflow as tf
 
 
 from scripts import preferences
