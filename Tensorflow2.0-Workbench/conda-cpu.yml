@@ -5,6 +5,7 @@ dependencies:
   - pip
   - matplotlib
   - opencv
+  - git
   - pip:
     - tensorflow==2.0
     - pandas
@@ -13,3 +14,4 @@ dependencies:
     - -e .
     - pyqt5-sip
     - pyqt5
+    - h5py==2.10

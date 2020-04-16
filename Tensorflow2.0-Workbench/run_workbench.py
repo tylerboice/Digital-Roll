@@ -439,7 +439,6 @@ def save(save_path):
 #             start_path - string - where the workbecnh is starting form
 # Return: Nothing
 def run(start_from, start_path):
-
     # start timer
     start_workbench_time = time.perf_counter()
 
@@ -459,7 +458,8 @@ def run(start_from, start_path):
                                                     defaults.TEST_IMAGE_PATH,
                                                     defaults.TRAIN_IMAGE_PATH,
                                                     defaults.VALIDATE_IMAGE_PATH,
-                                                    preferences.weights)
+                                                    preferences.weights,
+                                                    preferences.transfer)
 
         if total_images == 0:
             err_message("No images have been found in the image folder")
@@ -630,12 +630,18 @@ def run(start_from, start_path):
             print("validate_input is not an image or does not contain an image")
             return
 
-        create_tf_model.run_export_tfserving(chkpnt_weights,
-                                             preferences.tiny,
-                                             preferences.output,
-                                             preferences.classifier_file,
-                                             test_img,
-                                             preferences.num_classes)
+        try:
+            create_tf_model.run_export_tfserving(chkpnt_weights,
+                                                 preferences.tiny,
+                                                 preferences.output,
+                                                 preferences.classifier_file,
+                                                 test_img,
+                                                 preferences.num_classes)
+
+            print("\n\t Successfully created TensorFlow model\n")
+
+        except Exception as e:
+            err_message("Failed to create TensorFlow model: " + str(e))
 
         # Create Core ML Model
         try:
@@ -674,7 +680,6 @@ def run(start_from, start_path):
         for file in os.listdir(test_img):
             if '.jpg' in file:
                 out_img = preferences.output.replace("\\", "/") + file.split(".")[0] + "-output.jpg"
-                print(out_img)
                 detect_img.run_detect(preferences.classifier_file,
                                       chkpnt_weights,
                                       preferences.tiny,
@@ -682,6 +687,7 @@ def run(start_from, start_path):
                                       test_img + file,
                                       out_img,
                                       preferences.num_classes)
+
 
     # Save Runtimes
     total_runtime = file_utils.convert_to_time(time.perf_counter() - start_workbench_time)

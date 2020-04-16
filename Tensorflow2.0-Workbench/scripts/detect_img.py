@@ -12,6 +12,17 @@ from yolov3_tf2.models import (
 from yolov3_tf2.dataset import transform_images, load_tfrecord_dataset
 from yolov3_tf2.utils import draw_outputs
 
+def from_workbench(path):
+    keyword = "Workbench"
+    path = path.replace("//", "/")
+    try:
+        if keyword in path:
+            return "." + path.split(keyword)[1]
+        else:
+            return path
+    except:
+        return str(path)
+
 
 def run_detect(classes, weights, tiny, size, image, output, num_classes):
     tfrecord = None
@@ -49,7 +60,7 @@ def run_detect(classes, weights, tiny, size, image, output, num_classes):
 
     logging.info('detections:')
     no_classifier = True
-    print("\n\tTesting on image: " + image + "\n")
+    print("\n\tTesting on image: " + from_workbench(image) + "\n")
     for i in range(nums[0]):
         object_name = class_names[int(classesArr[0][i])]
         object_acc = round(100 * np.array(scores[0][i]), 2)

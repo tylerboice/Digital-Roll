@@ -29,7 +29,7 @@ ERROR = "ERROR_MESSAGE"              # Error message value
 #             weights_path = String - patht o weights file to train model from
 # Return: Number of images, unless weights path does not exist, then return false
 def check_files_exist(image_path, data_path, min_images, output_path, save_sess,
-                      test_image_path, train_image_path, val_image_path, weights_path):
+                      test_image_path, train_image_path, val_image_path, weights_path, trans):
 
     image_path = (image_path + "/").replace("//", "/")
 
@@ -78,7 +78,7 @@ def check_files_exist(image_path, data_path, min_images, output_path, save_sess,
             os.mkdir(val_image_path)
 
         ####### WEIGHTS PATH #######
-        if not os.path.exists(weights_path):
+        if not os.path.exists(weights_path) and trans == "darknet":
             print("\nERROR: The weights path does not exist")
             print("\n\tWeights Path Location: " + weights_path)
             print("\n\tDownload the yolo3_weight file at https://pjreddie.com/media/files/yolov3.weights")

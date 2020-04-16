@@ -139,7 +139,6 @@ cd into the "Tenorflow2.0-Workbench" directory
 ```bash
 conda env create -f conda-cpu.yml
 conda activate cpu
-conda install anaconda git -y
 pip install -r requirements-cpu.txt
 
 ```
@@ -147,7 +146,6 @@ pip install -r requirements-cpu.txt
 ```bash
 conda env create -f conda-gpu.yml
 conda activate gpu
-conda install anaconda git -y
 pip install -r requirements-gpu.txt
 ```
 
@@ -155,8 +153,6 @@ pip install -r requirements-gpu.txt
 ### Before you start the workbench, ensure the following:
 
 - All your images are [labelled](#labelApp)
-
-- [yolov3.weights](https://pjreddie.com/media/files/yolov3.weights) placed in the ./Tensorflow2.0-Workbench/data folder
 
 - All data collected is placed in the ./Tensorflow2.0-Workbench/image folder:
 	- All images with their .xml files if the labelling application was used
