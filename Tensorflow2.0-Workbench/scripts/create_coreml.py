@@ -2,6 +2,8 @@ import coremltools
 from tensorflow.keras.applications import MobileNet
 from tensorflow.keras.applications import ResNet50
 import tfcoreml
+
+
 from scripts import preferences
 #from scripts import preferences
 
@@ -19,18 +21,18 @@ def export_coreml(output, weights):
 
     keras_model = ResNet50(weights=None, input_shape=(224, 224, 3))
 
-    print("Loading up a .h5 from the weights " + weights + " for conversion...")
+    print("\n\tLoading up a .h5 from the weights " + weights + " for conversion...\n")
     keras_model.load_weights(weights).expect_partial()
 
-    print("\nWeights Loaded!")
-    print(output + keras_model_name + ".h5")
+    print("\n\tWeights Loaded!\n")
+
     keras_model.save(output + keras_model_name + ".h5")
-    print("Saved a copy of the .h5 at " + output + keras_model_name + ".h5")
+    print("\n\tSaved a copy of the .h5 at " + output + keras_model_name + ".h5\n")
 
     # print input shape
-    print(keras_model.input_shape)
+    print("\t Using input shape: " + str(keras_model.input_shape))
 
-    print("Converting CoreML Model from path: " + output + coreml_model_name + ".h5")
+    print("\n\tConverting CoreML Model from path: " + output + coreml_model_name + ".h5\n")
 
     # get input, output node names for the TF graph from the Keras model
     input_name = keras_model.inputs[0].name.split(':')[0]
@@ -43,4 +45,4 @@ def export_coreml(output, weights):
                              minimum_ios_deployment_target='13')
 
     model.save(output + coreml_model_name + '.mlmodel')
-    print("CoreML saved at " + output + coreml_model_name + ".h5")
+    print("\n\tCoreML saved at " + output + coreml_model_name + ".h5\n")

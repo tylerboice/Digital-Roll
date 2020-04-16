@@ -1,8 +1,7 @@
 import time
 from absl import app, flags, logging
 import tensorflow as tf
-import warnings
-
+tf.get_logger().setLevel('ERROR')
 from yolov3_tf2.models import (
     YoloV3, YoloV3Tiny
 )
@@ -20,14 +19,13 @@ from yolov3_tf2.utils import freeze_all
 # Return: Nothing
 def run_export_tfserving(weights, tiny, output, classes, image, num_classes):
 
-    warnings.simplefilter("ignore")
 
     if tiny:
         yolo = YoloV3Tiny(classes= num_classes)
     else:
         yolo = YoloV3(classes= num_classes)
 
-    print("\n\tSaving using the weights: " + weights)
+    print("\n\tSaving using the weights: " + weights + "\n")
     yolo.load_weights(weights)
     logging.info('weights loaded')
 

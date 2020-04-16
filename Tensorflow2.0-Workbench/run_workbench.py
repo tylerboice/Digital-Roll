@@ -4,6 +4,8 @@ import sys
 from os import path
 from os.path import dirname
 import warnings
+
+
 import time
 
 # try to import scripts
@@ -441,6 +443,7 @@ def save(save_path):
 def run(start_from, start_path):
     # start timer
     start_workbench_time = time.perf_counter()
+    training_time = None
 
     # check if necessary files exist
     # run was called, start from beginning
@@ -555,38 +558,40 @@ def run(start_from, start_path):
         else:
             print("\nBegin Training...")
             if preferences.transfer == "none":
-                print("\n\tTraining from scratch...")
+                print("\n\tTraining from scratch, this will take some time...\n")
                 transfer_mode = preferences.transfer
             else:
                 print("\n\tTraining via " + preferences.transfer + "transfer")
+                print("\n\tThis will take some time...\n")
                 transfer_mode = preferences.transfer
 
         # start training
         start_train_time = time.perf_counter()
-        print("\n\tThis will take some time...\n")
-        trained = train_workbench.run_train(preferences.dataset_train,
-                                            preferences.dataset_test,
-                                            preferences.tiny,
-                                            defaults.IMAGES_PATH,
-                                            weights,
-                                            preferences.classifier_file,
-                                            preferences.mode,
-                                            transfer_mode,
-                                            preferences.image_size,
-                                            preferences.epochs,
-                                            preferences.batch_size,
-                                            defaults.DEFAULT_LEARN_RATE,
-                                            preferences.num_classes,
-                                            preferences.weight_num_classes,
-                                            preferences.output,
-                                            preferences.max_checkpoints)
+        try:
+            trained = train_workbench.run_train(preferences.dataset_train,
+                                                preferences.dataset_test,
+                                                preferences.tiny,
+                                                defaults.IMAGES_PATH,
+                                                weights,
+                                                preferences.classifier_file,
+                                                preferences.mode,
+                                                transfer_mode,
+                                                preferences.image_size,
+                                                preferences.epochs,
+                                                preferences.batch_size,
+                                                defaults.DEFAULT_LEARN_RATE,
+                                                preferences.num_classes,
+                                                preferences.weight_num_classes,
+                                                preferences.output,
+                                                preferences.max_checkpoints)
+            print("\n\n\tTraining Complete!\n")
 
-        if not trained:
-            print("\n\tTraining Failed!\n")
+        except Exception as e:
+            print("\n\n\tTraining Failed: " + str(e) + "\n")
             return
-        print("\n\tTraining Complete!\n")
 
-    training_time = time.perf_counter() - start_train_time
+    else:
+        training_time = time.perf_counter() - start_train_time
 
     if (start_from == CONTINUE or start_from == START):
         if not file_utils.is_valid(preferences.output):
@@ -612,8 +617,6 @@ def run(start_from, start_path):
         if chkpnt_weights == file_utils.ERROR:
             err_message("No checkpoints found in " + start_path)
             return
-
-        print("\n\tUsing checkpoint " + chkpnt_weights )
 
         start_path = chkpnt_weights
 
@@ -642,10 +645,11 @@ def run(start_from, start_path):
 
         except Exception as e:
             err_message("Failed to create TensorFlow model: " + str(e))
+            return
 
         # Create Core ML Model
         try:
-            print("\nCreating a CoreML model...")
+            print("\nCreating a CoreML model...\n")
 
             create_coreml.export_coreml(preferences.output, chkpnt_weights)
 
@@ -691,11 +695,13 @@ def run(start_from, start_path):
 
     # Save Runtimes
     total_runtime = file_utils.convert_to_time(time.perf_counter() - start_workbench_time)
-    train_runtime = file_utils.convert_to_time(training_time)
+    if training_time != None:
+        train_runtime = file_utils.convert_to_time(training_time)
 
     if (start_from != TEST_IMAGE):
         print("\n\n=============================== Workbench Successful! ===============================\n")
-        print("\tTotal Training Runtime : " + train_runtime)
+        if training_time != None:
+            print("\tTotal Training Runtime : " + train_runtime)
         print("\tTotal Workbench Runtime: " + total_runtime)
     print("\n\tAll models and images saved in " + preferences.output + "\n")
     print("=====================================================================================\n")
@@ -823,5 +829,4 @@ def main():
         except KeyboardInterrupt:
             print("\n\n\n\n------ Current process stopped by user ------")
             print("\nEnter 'help' or 'h' for a list of commands:")
-            running = True
 main()

@@ -71,7 +71,7 @@ def run_detect(classes, weights, tiny, size, image, output, num_classes):
                                            np.array(scores[0][i]),
                                            np.array(boxes[0][i])))
     if no_classifier:
-        print("\t\tNo objects found in image")
+        print("\t\tNo objects found in image\n")
     img = cv2.cvtColor(img_raw.numpy(), cv2.COLOR_RGB2BGR)
     img = draw_outputs(img, (boxes, scores, classesArr, nums), class_names)
     cv2.imwrite(output, img)
