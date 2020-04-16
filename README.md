@@ -69,6 +69,8 @@ This is a modified version of the [repo](https://github.com/zzh8829/yolov3-tf2).
 
 - Visual Studio 2019 (Community) - Needed for TensorFlow GPU with a windows machine
 
+- At minimum 50GB of free space on your machine 
+
 Installation guide below
 
 ## Installation (GPU Only):
