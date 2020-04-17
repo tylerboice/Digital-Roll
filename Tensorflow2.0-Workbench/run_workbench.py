@@ -535,6 +535,7 @@ def run(start_from, start_path):
         print("\tCheckpoint Converted!\n")
 
     # if training
+    start_train_time = time.perf_counter()
     if (start_from == CONTINUE and start_path != NONE) or start_from == START:
 
         # continue training from previous checkpoint
@@ -566,7 +567,6 @@ def run(start_from, start_path):
                 transfer_mode = preferences.transfer
 
         # start training
-        start_train_time = time.perf_counter()
         try:
             trained = train_workbench.run_train(preferences.dataset_train,
                                                 preferences.dataset_test,
