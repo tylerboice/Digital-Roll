@@ -438,7 +438,7 @@ def save(save_path):
 ########################## RUN #############################
 # Description: runs the workbench
 # Parameters: start_from - string - value to  determine if run or continue workbench
-#             start_path - string - where the workbecnh is starting form
+#             start_path - string - where the workbench is starting form
 # Return: Nothing
 def run(start_from, start_path):
     # start timer
@@ -536,10 +536,19 @@ def run(start_from, start_path):
 
     # if training
     start_train_time = time.perf_counter()
-    if (start_from == CONTINUE and start_path != NONE) or start_from == START:
-
+    if start_from == CONTINUE or start_from == START:
+        #If NONE was given to start path than use the most recent checkpoint in current session
+        if(start_path == NONE):
+            try:
+                temp = file_utils.get_last_checkpoint(preferences.output)
+                temp = (temp.split(".tf")[0] + ".tf").replace("\\", "/")
+            except:
+                print("\n\t\tNOTICE: Current Session is empty\n\n")
+                print("\n\t\tYou will need to use 'run' before you can use the continue command\n\n")
+                return
+            start_path = temp
         # continue training from previous checkpoint
-        if start_from != START:
+        if start_from == CONTINUE:
             weights = start_path
             if os.path.isdir(weights):
                 weights = file_utils.get_last_checkpoint(weights)
@@ -591,6 +600,7 @@ def run(start_from, start_path):
             return
 
     else:
+        print("\n\n\tTraining Did Not Occur\n")
         training_time = time.perf_counter() - start_train_time
 
     if (start_from == CONTINUE or start_from == START):
