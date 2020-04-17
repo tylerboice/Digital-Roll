@@ -46,6 +46,13 @@ def export_coreml(output, weights):
                              input_name_shape_dict={input_name: (1, 224, 224, 3)},
                              output_feature_names=[graph_output_node_name],
                              minimum_ios_deployment_target='13')
+    # Set Metadata of madel to add clarity of use
+    model.author = 'Jason Robinson & Team Digital Roll'
+    model.license = 'See https://github.com/tylerboice/Digital-Roll for more info.'
+    model.short_description = 'A converted YOLO model for predicting polyhedral dice.'
+    model.input_description['Image'] = 'Input Image scene to be classified'
+    model.output_description['Identity'] = 'Array of data contianing bounding boxes,' \
+                                           ' scores, class label, and a prediction ID number'
 
     model.save(output + coreml_model_name + '.mlmodel')
     print("\n\tCoreML saved at " + output + coreml_model_name + ".mlmodel\n")
