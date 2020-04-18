@@ -28,10 +28,10 @@ try:
     )
 
     test_checkpoint = file_utils.get_last_checkpoint(preferences.output)
-    output_file = file_utils.get_output_file()
+    output_file = file_utils.get_output_file("./logs/")
     SPLIT_CHAR = "="
     NONE = ""
-    START = 1001
+    RUN = 1001
     CONTINUE = 1002
     SINGLE = 1003
     TEST_IMAGE = 1004
@@ -91,6 +91,16 @@ def check_admin():
        print("\t\t        - You close the anaconda prompt and re-run the anaconda prompt as admin")
        exit()
 
+########################## CHECK_TRAIN #############################
+# Description: takes a boolean if session has had training in it, returns message if so
+# Parameters: Boolean - trained - if training has happened in session
+# Return: trained
+def check_train(trained):
+    if trained:
+        print("\n\tWARNING: You have trained an AI model in this session and memeory is still in RAM")
+        print("\t         If you wish to run or continue, save your preferences if nessacary and restart the workbench")
+        print("\t         Proceed with caution")
+    return trained
 
 ########################## ERR_MESSAGE #############################
 # Description: takes a string and prints it with a "\n\tERROR: " prefix
@@ -105,7 +115,7 @@ def err_message(string):
 # Parameters: input - String - string to remove spaces a make lower
 # Return: String - input string with spaces removed and lower case
 def get_input(input):
-    return input.replace(" ", "").lower()
+    return input.lstrip().lower()
 
 
 ########################## CHECK_INPUT #############################
@@ -441,18 +451,20 @@ def save(save_path):
 #             start_path - string - where the workbench is starting form
 # Return: Nothing
 def run(start_from, start_path):
-    # start timer
-    start_workbench_time = time.perf_counter()
-    training_time = None
 
-    # check if necessary files exist
-    # run was called, start from beginning
-    # Setting for memory growth from old train_workbench.py
+    # initialize variables
+    start_workbench_time = time.perf_counter()   # Start Workbench timer
+    training_time = None                         # Set Training timer variable
+
+    # Check if GPU is present
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     if len(physical_devices) > 0:
         tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    else:
+        print("You are not currently using GPU, the workbench will take expononetail longer without a GPU")
 
-    if start_from == START:
+    # If starting from scratch
+    if start_from == RUN:
         total_images = file_utils.check_files_exist(defaults.IMAGES_PATH,
                                                     defaults.DATA_PATH,
                                                     defaults.MIN_IMAGES,
@@ -464,6 +476,7 @@ def run(start_from, start_path):
                                                     preferences.weights,
                                                     preferences.transfer)
 
+        # check if any images found, if not print error message and exit run command
         if total_images == 0:
             err_message("No images have been found in the image folder")
             print("\t\tImage Folder Location: " + defaults.IMAGES_PATH)
@@ -471,57 +484,57 @@ def run(start_from, start_path):
                 "\n\t\tFor an example set, look at the Pre_Labeled_Images folder in the repository or at https://github.com/tylerboice/Digital-Roll\n")
             return
 
+        # check if images found meets the required amount, if not print error messafe and exit run command
         elif total_images < defaults.MIN_IMAGES:
             err_message("Workbench needs at minimum " + str(defaults.MIN_IMAGES) + " to train. Current Count: " + str(total_images))
             print("\t       However it is recommended you have around 1000 per classifier")
             return
 
-        # create classifiers.names
+        # print total images found
         print("\nTraining Data Info:")
         print("\n\tTotal images = " + str(total_images))
 
+        # counts all objects labeled and saves them in all_classifers
         all_classifiers = file_utils.get_classifiers(defaults.IMAGES_PATH)
+        # counts all unique objects labeled
         classifiers = file_utils.classifier_remove_dup(all_classifiers)
+        # resets classifier list to save memory
         all_classifiers = []
+
+        # creates classifier file using the unique classifiers found if any found, if not return
+        if len(classifiers) == 0:
+            err_message("No Classifiers found, make sure you labelled the images")
+            return
         file_utils.create_classifier_file(preferences.classifier_file, classifiers)
 
-        # sort all the images
+
+        # sort all the images into TRAIN, TEST, AND VALIDATE folders
         print("\nSorting images...")
         file_utils.sort_images(preferences.validate_img_num,
                                defaults.IMAGES_PATH,
                                defaults.TEST_IMAGE_PATH,
                                defaults.TRAIN_IMAGE_PATH,
                                preferences.validate_input,
-                               total_images
-                               )
+                               total_images)
         print("\n\tAll images sorted!\n\n")
 
-        # generate tf records
-        if len(classifiers) == 0:
-            err_message("No Classifiers found, make sure you labelled the images")
-            return
-
+        # generate train.tfrecord and test.tfrecord
         print("Generating images and xml files into tfrecords...\n")
         generate_tf.generate_tfrecords(defaults.TRAIN_IMAGE_PATH,
                                        preferences.dataset_train)
         generate_tf.generate_tfrecords(defaults.TEST_IMAGE_PATH,
                                        preferences.dataset_test)
-
-        if not file_utils.is_valid(preferences.dataset_test) or not file_utils.is_valid(preferences.dataset_train):
-            err_message("Not enough image given for the workbench, or the data is not properly set-up")
-            print("\t\tMake sure every .xml has a corresponing image and you have at least " + str(
-                defaults.MIN_IMAGES) + " images")
-            exit()
-
         print("\n\tSuccessfully generated tf records!\n")
 
-        # save previous sessions
+        # save previous session
         print("\nChecking for previous Sessions...\n")
-        file_utils.save_session(defaults.OUTPUT_PATH, preferences.output, preferences.sessions,
+        file_utils.save_session(defaults.OUTPUT_PATH,
+                                preferences.output,
+                                preferences.sessions,
                                 preferences.max_saved_sess)
         print("\tDone!\n")
 
-        # convert to checkpoint
+        # convert to checkpoint if nessacary, if not train from scratch
         if preferences.transfer == "darknet":
             print("\nConverting darknet records to checkpoint...\n")
             convert_weights.run_weight_convert(preferences.weights,
@@ -529,54 +542,51 @@ def run(start_from, start_path):
                                                preferences.tiny,
                                                preferences.weight_num_classes)
             weights = (preferences.output + "/yolov3.tf").replace("\\", "/")
+            print("\tCheckpoint Converted!\n")
         else:
             weights = None
 
-        print("\tCheckpoint Converted!\n")
+    # if continue or run command was called
+    if (start_from == CONTINUE and start_path != NONE) or start_from == RUN:
 
-    # if training
-    start_train_time = time.perf_counter()
-    if start_from == CONTINUE or start_from == START:
-        #If NONE was given to start path than use the most recent checkpoint in current session
-        if(start_path == NONE):
-            try:
-                temp = file_utils.get_last_checkpoint(preferences.output)
-                temp = (temp.split(".tf")[0] + ".tf").replace("\\", "/")
-            except:
-                print("\n\t\tNOTICE: Current Session is empty\n\n")
-                print("\n\t\tYou will need to use 'run' before you can use the continue command\n\n")
-                return
-            start_path = temp
-        # continue training from previous checkpoint
+        # If continue training from previous checkpoint
         if start_from == CONTINUE:
             weights = start_path
+
+            # if folder given, search folder for most recent checkpoint
             if os.path.isdir(weights):
                 weights = file_utils.get_last_checkpoint(weights)
                 weights = (weights.split(".tf")[0] + ".tf").replace("\\", "/")
+
+            # check to make sure file is correct type, if not return
             if ".tf" not in weights:
                 err_message("File is not a checkpoint")
                 print("\n\t\tCheckpoint Example: yolov3_train_3.tf")
                 return
-            if "ERROR" in weights:
+
+            # if checkpoint not found and using preferences.output, return error
+            if "ERROR" in weights and "ERROR" in start_path:
                 err_message("No checkpoints found in " + start_path)
                 return
+
             print("\n\tContinuing from " + weights)
             print("\nResume Training...")
             transfer_mode = 'fine_tune'
 
-        # train from scratch
+        # run command was called, train from scratch
         else:
             print("\nBegin Training...")
             if preferences.transfer == "none":
                 print("\n\tTraining from scratch, this will take some time...\n")
-                transfer_mode = preferences.transfer
             else:
-                print("\n\tTraining via " + preferences.transfer + "transfer")
-                print("\n\tThis will take some time...\n")
-                transfer_mode = preferences.transfer
+                print("\n\tTraining via " + preferences.transfer + "transfer, this will take some time...")
+            transfer_mode = preferences.transfer
 
-        # start training
+        # TRAINING
         try:
+            # start training counter
+            start_train_time = time.perf_counter()
+            # start training
             trained = train_workbench.run_train(preferences.dataset_train,
                                                 preferences.dataset_test,
                                                 preferences.tiny,
@@ -593,21 +603,23 @@ def run(start_from, start_path):
                                                 preferences.weight_num_classes,
                                                 preferences.output,
                                                 preferences.max_checkpoints)
+            training_time = time.perf_counter() - start_train_time
             print("\n\n\tTraining Complete!\n")
 
+        # Training Failed
         except Exception as e:
-            print("\n\n\tTraining Failed: " + str(e) + "\n")
+            err_message("Training Failed: " + str(e))
             return
 
-    else:
-        print("\n\n\tTraining Did Not Occur\n")
-        training_time = time.perf_counter() - start_train_time
+    # Create Models and test validate images
+    if (start_from == CONTINUE or start_from == RUN):
 
-    if (start_from == CONTINUE or start_from == START):
+        # Ensure output exists and is not empty
         if not file_utils.is_valid(preferences.output):
             err_message(preferences.output + " not found or is empty")
             return
 
+        # Ensure classifier.names file exists and is not empty
         if not file_utils.is_valid(preferences.classifier_file):
             err_message(preferences.classifier_file + " not found or is empty")
             return
@@ -616,34 +628,35 @@ def run(start_from, start_path):
         chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
         chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("\\", "/")
 
+        # If Error happend in getting new checkpoint
         if chkpnt_weights == file_utils.ERROR or file_utils.CHECKPOINT_KEYWORD not in chkpnt_weights:
             err_message("No valid checkpoints found in " + file_utils.from_workbench(preferences.output))
             print("\t\tPlease use a trained checkpoint (e.g " + file_utils.CHECKPOINT_KEYWORD + "1.tf )")
             return
 
-        file_utils.rename_checkpoints(preferences.output, preferences.max_checkpoints)
+        # Rename checkpoints to ensure the newest one has the greatest number
+        file_utils.rename_checkpoints(preferences.output)
         file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/"))
 
+        # if no checkpoint found, return
         if chkpnt_weights == file_utils.ERROR:
             err_message("No checkpoints found in " + start_path)
             return
 
         start_path = chkpnt_weights
-
-        # generating tensorflow models
-        print("\nGenerating TensorFlow model...\n")
-
         test_img = preferences.validate_input
 
+        # GENERATING TENSORFLOW MODEL
+        print("\nGenerating TensorFlow model...\n")
         if os.path.isdir(test_img):
             for file in os.listdir(preferences.validate_input):
                 if '.jpg' in file:
                     test_img = preferences.validate_input + file
         if ".jpg" not in test_img:
-            print("validate_input is not an image or does not contain an image")
+            print("No validate images found, ensure you have a .jpg image in the ./images/validate folder")
             return
 
-        try:
+        try:  # create model
             create_tf_model.run_export_tfserving(chkpnt_weights,
                                                  preferences.tiny,
                                                  preferences.output,
@@ -653,24 +666,41 @@ def run(start_from, start_path):
 
             print("\n\t Successfully created TensorFlow model\n")
 
-        except Exception as e:
+        except Exception as e: # if model fails, return
             err_message("Failed to create TensorFlow model: " + str(e))
             return
 
         # Create Core ML Model
         try:
             print("\nCreating a CoreML model...\n")
-
             create_coreml.export_coreml(preferences.output, chkpnt_weights)
-
             print("\n\tCore ML model created!\n")
 
-        except Exception as e:
+        except Exception as e: # if CoreML model fails print error message
             err_message("Failed to create CoreML model: " + str(e))
 
     # generating tensorflow models
     if (start_from == TEST_IMAGE):
         test_img = start_path
+
+        # Get checkpoint
+        chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
+        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("\\", "/")
+
+        # If Error happend in getting new checkpoint
+        if chkpnt_weights == file_utils.ERROR or file_utils.CHECKPOINT_KEYWORD not in chkpnt_weights:
+            err_message("No valid checkpoints found in " + file_utils.from_workbench(preferences.output))
+            print("\t\tPlease use a trained checkpoint (e.g " + file_utils.CHECKPOINT_KEYWORD + "1.tf )")
+            return
+
+        # Rename checkpoints to ensure the newest one has the greatest number
+        file_utils.rename_checkpoints(preferences.output)
+        file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/"))
+
+        # if no checkpoint found, return
+        if chkpnt_weights == file_utils.ERROR:
+            err_message("No checkpoints found in " + start_path)
+            return
 
     else:
         test_img = preferences.validate_input
@@ -679,20 +709,28 @@ def run(start_from, start_path):
         print("\n\tTest image location not found " + test_img)
         return
 
-    print("\nTesting Images...")
+    # TEST VALIDATE IMAGES AGAINST MODEL
+    print("\nTesting Image(s)...")
+    files_found = False
+    # test_img given was a signle file, test file
     if path.isfile(test_img):
-        out_img = preferences.output.replace("\\", "/") + test_img.split(".")[0] + "-output.jpg"
-        detect_img.run_detect(preferences.classifier_file,
-                              chkpnt_weights,
-                              preferences.tiny,
-                              preferences.image_size,
-                              test_img,
-                              out_img,
-                              preferences.num_classes)
-    else:
+        if ".jpg" in test_img:
+            files_found = True
+            out_img = preferences.output.replace("\\", "/") + test_img.split(".")[0] + "-output.jpg"
+            detect_img.run_detect(preferences.classifier_file,
+                                  chkpnt_weights,
+                                  preferences.tiny,
+                                  preferences.image_size,
+                                  test_img,
+                                  out_img,
+                                  preferences.num_classes)
+
+    # test_img given was a signle folder, test entire folder
+    elif path.isdir(test_img):
         test_img = (test_img + "/").replace("\\", "/")
         for file in os.listdir(test_img):
             if '.jpg' in file:
+                files_found = True
                 out_img = preferences.output.replace("\\", "/") + file.split(".")[0] + "-output.jpg"
                 detect_img.run_detect(preferences.classifier_file,
                                       chkpnt_weights,
@@ -701,6 +739,12 @@ def run(start_from, start_path):
                                       test_img + file,
                                       out_img,
                                       preferences.num_classes)
+    else:
+        fiels_found = True
+        err_message("Test file(s) not found " + file_utils.from_workbench(test_img))
+
+    if not files_found:
+        err_message( file_utils.from_workbench(test_img) + " is not an image or does not contain images")
 
 
     # Save Runtimes
@@ -708,15 +752,14 @@ def run(start_from, start_path):
     if training_time != None:
         train_runtime = file_utils.convert_to_time(training_time)
 
+    # Finsh workbench output
     if (start_from != TEST_IMAGE):
         print("\n\n=============================== Workbench Successful! ===============================\n")
         if training_time != None:
             print("\tTotal Training Runtime : " + train_runtime)
         print("\tTotal Workbench Runtime: " + total_runtime)
-    print("\n\tAll models and images saved in " + preferences.output + "\n")
-    print("=====================================================================================\n")
-
-
+        print("\n\tAll models and images saved in " + file_utils.from_workbench(preferences.output) + "\n")
+        print("=====================================================================================\n")
 
 
 ############################## MAIN ##########################
@@ -725,27 +768,59 @@ def main():
     check_admin()
     print("\nWelcome to the Digital Roll Workbench")
     print("\nEnter 'help' or 'h' for a list of commands:")
+    trained = False
     while True:
         try:
+
             try:
                 userInput = input("\n<WORKBENCH>: ")
 
             except EOFError:
                 print("\n\n\n\n------ Current process stopped by user ------")
                 print("\nEnter 'help' or 'h' for a list of commands:")
-                running = True
             print("\nGiven Input: " + userInput)
 
+            userInput = get_input(userInput)
+
+            # CONTINUE from last checkpoint
+            if userInput == "continue" or userInput == "c":
+                if not check_train(trained):
+                    try:
+                        run(CONTINUE, NONE)
+                    except Exception as e:
+                        err_message(str(e))
+                else:
+                    trained = False
+
+            # CONTINUE from user given file
+            elif userInput[0:5] == "continue " or userInput[0:2] == "c ":
+                if not check_train(trained):
+                    trained = True
+                    if userInput[0:2] == "c ":
+                        prev_check = userInput[2:]
+                    else:
+                        prev_check = userInput[5:]
+                    try:
+                        run(CONTINUE, prev_check)
+                    except Exception as e:
+                        err_message(str(e))
+                else:
+                    trained = False
+
+            # DISPLAY
+            elif userInput == "display" or userInput == "d":
+                print(print_to_terminal.current_pref())
+
             # HELP
-            if get_input(userInput) == "help" or get_input(userInput) == "h":
+            elif userInput == "help" or userInput == "h":
                 print_to_terminal.help()
 
-           # RUN
-            elif get_input(userInput) == "run" or get_input(userInput) == "r":
-                run(START, NONE)
+            # INFO
+            elif userInput == "info" or userInput == "i":
+                print_to_terminal.info()
 
             # LITE
-            elif get_input(userInput) == "lite" or get_input(userInput) == "l":
+            elif userInput == "lite" or userInput == "l":
                 # convert model to tensorflow lite for android use
                 print("WARNING: This method is still untested and in development.")
                 try:
@@ -764,35 +839,6 @@ def main():
                 except Exception as e:
                     err_message("Failed to create TF lite model: " + str(e))
 
-            # TEST
-            elif userInput[0:5] == "test " or userInput[0:2] == "t ":
-                if userInput[0:2] == "t ":
-                    img_path = userInput[2:]
-                else:
-                    img_path = userInput[5:]
-                img_path.strip("\n\r")
-                run(TEST_IMAGE, img_path)
-
-            # CONTINUE from last checkpoint
-            elif get_input(userInput) == "continue" or get_input(userInput) == "c":
-                run(CONTINUE, NONE)
-
-            # CONTINUE from user given file
-            elif userInput[0:5] == "continue " or userInput[0:2] == "c ":
-                if userInput[0:2] == "c ":
-                    prev_check = userInput[2:]
-                else:
-                    prev_check = userInput[5:]
-                run(CONTINUE, prev_check)
-
-            # DISPLAY
-            elif get_input(userInput) == "display" or get_input(userInput) == "d":
-                print(print_to_terminal.current_pref())
-
-            # INFO
-            elif get_input(userInput) == "info" or get_input(userInput) == "i":
-                print_to_terminal.info()
-
             # LOAD
             elif userInput[0:5] == "load " or userInput[0:2] == "l ":
                 if userInput[0:2] == "l ":
@@ -802,21 +848,8 @@ def main():
                 pref_path.strip("\n")
                 load(pref_path)
 
-            # SAVE from current working directory
-            elif get_input(userInput) == "save" or get_input(userInput) == "s":
-                save(os.getcwd())
-
-            # SAVE to user specified path
-            elif userInput[0:5] == "save " or userInput[0:2] == "s ":
-                if userInput[0:2] == "s ":
-                    save_path = userInput[2:]
-                else:
-                    save_path = userInput[5:]
-                save_path.strip("\n\r")
-                save(save_path)
-
             # MODIFY DISPLAY VARIABLES
-            elif get_input(userInput) == "modify" or get_input(userInput) == "m":
+            elif userInput == "modify" or userInput == "m":
                 print_to_terminal.modify_commands()
 
             # MODIFY user given variable
@@ -829,9 +862,48 @@ def main():
                     print("Incorrect arguments, please provide a variable and a value (i.e. batch_size 3)")
 
             # QUIT
-            elif get_input(userInput) == "quit" or get_input(userInput) == "q":
+            elif userInput == "quit" or userInput == "q":
                 print("\n\tExiting workbench...")
                 exit()
+
+            # RUN
+            elif userInput == "run" or userInput == "r":
+                if not check_train(trained):
+                    trained = True
+                    try:
+                        run(RUN, NONE)
+                    except Exception as e:
+                        err_message(str(e))
+                else:
+                    trained = False
+
+            # SAVE from current working directory
+            elif userInput == "save" or userInput == "s":
+                save(os.getcwd())
+
+            # SAVE to user specified path
+            elif userInput[0:5] == "save " or userInput[0:2] == "s ":
+                if userInput[0:2] == "s ":
+                    save_path = userInput[2:]
+                else:
+                    save_path = userInput[5:]
+                try:
+                    save(save_path.strip("\n\r"))
+                except Exception as e:
+                    err_message(str(e))
+
+            # TEST
+            elif userInput[0:5] == "test " or userInput[0:2] == "t ":
+                if userInput[0:2] == "t ":
+                    img_path = userInput[2:]
+                else:
+                    img_path = userInput[5:]
+
+                try:
+                    run(TEST_IMAGE, img_path.strip("\n\r"))
+                except Exception as e:
+                    err_message(str(e))
+
             else:
                 # end of cases, inform the user that their input was invalid
                 print("\n\tCommand not recognized, try 'help' or 'h' for a list of options")

@@ -74,7 +74,7 @@ flags.DEFINE_integer( IMAGE_SIZE_VAR, DEFAULT_IMAGE_SIZE, 'image size')
 
 ############################## MAX CHECKPOINTS ##################################
 MAX_CHECK_VAR = "max_checkpoints"
-DEFAULT_MAX_CHECK = 10
+DEFAULT_MAX_CHECK = 5
 flags.DEFINE_integer( MAX_CHECK_VAR, DEFAULT_MAX_CHECK, 'maximum checkpoints')
 
 
@@ -129,7 +129,7 @@ flags.DEFINE_enum( TRANSFER_VAR, DFEAULT_TRANSFER_TYPE, TRANSFER_OPTIONS,
 
 ############################## VALID IMAGE EXTRACTION ##################################
 VALID_IMGS_VAR = "val_img_num"
-DEFAULT_VALID_IMGS = 5
+DEFAULT_VALID_IMGS = 3
 flags.DEFINE_integer( VALID_IMGS_VAR, DEFAULT_VALID_IMGS, 'images to extract')
 
 ########################### VALID IMAGE PATH ####################################

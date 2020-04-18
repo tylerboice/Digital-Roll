@@ -250,20 +250,6 @@ def from_workbench(path):
     except:
         return str(path)
 
-############################ GET CHECKPOINT NAME ###############################
-# Description: helper method that takes a checkpoint file and returns the prefix of the name
-#              example: input = yolov3_train_23.tf.index
-#                       output = yolov3_train_
-# Parameters: file - String - checkpoint file
-# Return: prefix name of the checkpoint file
-def get_checkpoint_name(file):
-    try:
-        file_name = file.split(".")[0].split("_")
-        file_name = file_name[0] + "_" + file_name[1] + "_"
-        return file_name
-    except:
-        return file
-
 
 ############################ GET OLDEST CHECKPOINT ###############################
 # Description: find the checkpoint that has the oldest "last_modified" time
@@ -293,22 +279,6 @@ def get_oldest_checkpoint(checkpoint_path):
     return oldest_file
 
 
-############################ GET CHECKPOINT NAME ###############################
-# Description: counts amount of checkpoints found in path
-#              example: input = yolov3_train_23.tf.index
-#                       output = yolov3_train_
-# Parameters: path - String - checkpoint directory
-# Return: checkpoint_count - Int - amount of checkponts in path
-def get_checkpoint_count(path):
-    checkpoint_count = 0
-
-    # loop thorugh directory and increase count if checkpoint found
-    for files in os.listdir(path):
-        if CHECKPOINT_KEYWORD in files and ".tf.index" in files:
-            checkpoint_count += 1
-    return checkpoint_count
-
-
 ############################ GET CHECKPOINT INT ###############################
 # Description: helper method that takes a checkpoint file and returns the integer portion of the name
 #              example: input = yolov3_train_23.tf.index
@@ -318,7 +288,7 @@ def get_checkpoint_count(path):
 def get_checkpoint_int(file):
     try:
         file_name = file.split(".")[0]
-        return int(file_name.split(CHECKPOINT_KEYWORD)[1])
+        return file_name - CHECKPOINT_KEYWORD
     except:
         return 0
 
@@ -496,15 +466,14 @@ def get_num_classes(file):
 # Description: gets the number of classes given the .names file
 # Parameters: file - String - .names file
 # Return:  Int - number of classifers
-def get_output_file():
-    path = "./logs/"
+def get_output_file(output):
     file = "workbench_log.txt"
     file_count = 1
-    file_path =  path + file
-    if not os.path.exists(path):
-        os.mkdir(path)
+    file_path = output + file
+    if not os.path.exists(output):
+        os.mkdir(output)
     while os.path.exists(file_path):
-        file_path = path + "workbench_log-" + str(file_count) + ".txt"
+        file_path = output + "workbench_log-" + str(file_count) + ".txt"
         file_count += 1
     return file_path
 
@@ -568,39 +537,72 @@ def remove_temp(new_path, temp_path):
     shutil.rmtree(temp_path)
 
 
+def find_max_checkpoint(path):
+    max_checkpoint = 0
+    for file in os.listdir(path):
+        temp = get_checkpoint_int(file)
+        if temp > max_checkpoint:
+            max_checkpoint = temp
+    return max_checkpoint
+
+def get_checkpoint_suffix(file):
+    if ".tf" in file:
+        return ".tf" + file.split(".tf")[1]
+    return file
+
+
 ############################ REANAME CHECKPOINTS ###############################
 # Example: yolov3_train_1.tf.index
 # returns: .tf.index
-def rename_checkpoints(checkpoint_path, max_checkpoints):
-    checkpoint_count = get_checkpoint_count(checkpoint_path)
-    if checkpoint_count != max_checkpoints:
-        return
+def rename_checkpoints(checkpoint_path):
+    max_checkpoints = find_max_checkpoint(checkpoint_path) # max checkpoints
+    oldest_file = get_oldest_checkpoint(checkpoint_path)   # path of the checkpoint
+    oldest_file_int = get_checkpoint_int(oldest_file)      # value of the checkpoint
+    oldest_file_diff = max_checkpoints - oldest_file_int   # difference between max_checkpoint and oldest file
 
-    files_renamed = 0
-    oldest_file = get_oldest_checkpoint(checkpoint_path)
-    oldest_file_int = get_checkpoint_int(oldest_file)
-    oldest_file_diff = max_checkpoints - oldest_file_int
-    while oldest_file_diff != 0:
-        oldest_file_int += 1
-        for file in os.listdir(checkpoint_path):
-            if CHECKPOINT_KEYWORD in file:
-                if get_checkpoint_name(file) + str(oldest_file_int) in file:
+    temp_file_int =  oldest_file_int
+    files_renamed = max_checkpoints + 1
+    max_files = max_checkpoints * 2
+
+
+    if oldest_file_diff != 0:
+
+        # rename all the older files
+        while oldest_file_diff != 0:
+            temp_file_int += 1
+            for file in os.listdir(checkpoint_path):
+                if CHECKPOINT_KEYWORD in file:
+                    if CHECKPOINT_KEYWORD + str(temp_file_int) in file:
+                        old_file = checkpoint_path + file
+                        new_file = checkpoint_path + CHECKPOINT_KEYWORD + str(files_renamed) + get_checkpoint_suffix(file)
+                        os.rename(old_file, new_file)
+            files_renamed += 1
+            oldest_file_diff -= 1
+
+        # rename all the newer fiels
+        while files_renamed > 0:
+            for file in os.listdir(checkpoint_path):
+                if CHECKPOINT_KEYWORD in file:
+                    if CHECKPOINT_KEYWORD + str(oldest_file_int) in file:
+                        old_file = checkpoint_path + file
+                        new_file = checkpoint_path + CHECKPOINT_KEYWORD + str(files_renamed) + get_checkpoint_suffix(file)
+                        os.rename(old_file, new_file)
+            files_renamed -= 1
+            oldest_file_int -= 1
+
+        current_checkpoint = max_checkpoints + files_renamed
+
+        highest_checkpoint = find_max_checkpoint(checkpoint_path)
+
+        # rename all files
+        while max_checkpoints > 0:
+            for file in os.listdir(checkpoint_path):
+                if CHECKPOINT_KEYWORD + str(highest_checkpoint) in file:
                     old_file = checkpoint_path + file
-                    new_file = checkpoint_path + get_checkpoint_name(file) + str(files_renamed) + file.split("_" + str(get_checkpoint_int(file)))[1]
+                    new_file = checkpoint_path + get_checkpoint_name(file) + str(max_checkpoints) + get_checkpoint_suffix(file)
                     os.rename(old_file, new_file)
-        files_renamed -= 1
-        oldest_file_diff -= 1
-    current_checkpoint = max_checkpoints + files_renamed
-    set_to_value = max_checkpoints
-
-    while set_to_value > 0:
-        for file in os.listdir(checkpoint_path):
-            if CHECKPOINT_KEYWORD + str(current_checkpoint) in file:
-                old_file = checkpoint_path + file
-                new_file = checkpoint_path + get_checkpoint_name(file) + str(set_to_value) + file.split("_" + str(current_checkpoint))[1]
-                os.rename(old_file, new_file)
-        set_to_value -= 1
-        current_checkpoint -= 1
+            max_checkpoints -= 1
+            highest_checkpoint -= 1
 
 
 ########################## SAVE CHECKPOINTS ##########################
