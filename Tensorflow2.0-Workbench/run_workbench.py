@@ -395,7 +395,7 @@ def save(save_path):
     files = 0                 # nubers of files that have already been used
     path = os.getcwd()
     file_name = "preferences"
-    file_chaned = False
+    file_changed = False
     BACKSLASH = "\ ".replace(" ", "")
 
     # if user included filename
@@ -406,7 +406,7 @@ def save(save_path):
         file_changed = True
 
     # if user give filepath exists
-    if os.path.exists(save_path) and not save_path:
+    if os.path.exists(save_path):
         path = save_path
 
     # else using current working directory if not already
@@ -442,7 +442,7 @@ def save(save_path):
         f.write(defaults.VALID_IN_VAR + "= " + str(preferences.validate_input) + "\n")
         f.write(defaults.WEIGHTS_PATH_VAR + "= " + str(preferences.weights) + "\n")
 
-    print("\n\tNew preference path " + new_file + " successfully saved!")
+    print("\n\tNew preference file " + new_file + " successfully saved!")
 
 
 ########################## RUN #############################

@@ -363,9 +363,11 @@ def get_img_count(path):
 # Return: the value given for the input
 def get_input_value(input, split_char):
     if split_char in input:
-        input = input.split(split_char)[1]
-        input = input.strip()
-    return input
+        input = input.split(split_char)
+        input = ''.join(input[1:])
+    return input.strip()
+
+
 
 ########################## GET_INPUT_VAR ###########################
 # Description: extracts the variable from a string. Used for getting lines for preference file
