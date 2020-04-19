@@ -280,6 +280,8 @@ def modify(user_var, user_input):
 
         # output - File(string)
         elif user_var == defaults.OUTPUT_VAR:
+            if user_input[:-1] != "/":
+                user_input = user_input + "/"
             preferences.output = user_input
 
         # sessions - INT
