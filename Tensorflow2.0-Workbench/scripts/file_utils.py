@@ -13,6 +13,8 @@ unlabelled_files = []                # all imgs found that don't have correspodi
 temp_classifiers = []                # temporary classifiers list
 CHECKPOINT_KEYWORD = "yolov3_train_" # prefix to all checkpoints
 ERROR = "ERROR_MESSAGE"              # Error message value
+IMAGE_TYPES = ['.png', '.jpeg', '.jpg']
+XML_TYPE = '.xml'
 
 
 ########################## CHECK FILES EXIST #############################
@@ -189,7 +191,7 @@ def extract_img_from_xml(path):
             extract_img_from_xml(path + file)
 
     # if xml file found
-    elif ".xml" in path:
+    elif XML_TYPE in path:
         tree = ET.parse(path)
         root = tree.getroot()
 
@@ -200,7 +202,7 @@ def extract_img_from_xml(path):
             while base64_remainder > 0:
                 base64_str += "="
                 base64_remainder -= 1
-            filename = path.replace(".xml", ".jpg")
+            filename = path.replace(XML_TYPE, ".jpg")
             decoded_str = base64.b64decode(base64_str)
 
             # create .jpg
@@ -222,15 +224,17 @@ def extract_sub_dirs(image_path, current_path):
 
     # search for images in the directory
     for filename in os.listdir(current_path):
-        if '.jpg' in filename:
+        filename = filename.lower()
+        if filename.endswith(tuple(IMAGE_TYPES)):
             new_images = True
 
     # if new images found, then extract all images and xml from sub-dir and place in image_path
     if new_images:
         for filename in os.listdir(current_path):
+            filename = filename.lower()
             if os.path.isdir(current_path + filename):
                 extract_sub_dirs(image_path, current_path + filename)
-            elif '.jpg' in filename or ".xml" in filename:
+            elif filename.endswith(tuple(IMAGE_TYPES)) or filename.endswith(XML_TYPE):
                 shutil.move(current_path + filename, image_path + filename)
 
 
@@ -314,7 +318,7 @@ def get_classifiers(path):
                 classifiers = classifiers + nested_folder
 
     # if path is .xml extract classifiers and append to classifiers list
-    if ".xml" in path:
+    if XML_TYPE in path:
         tree = ET.parse(path)
         root = tree.getroot()
         for object in root.findall('object'):
@@ -328,6 +332,7 @@ def get_classifiers(path):
 # Parameters: path - String - path of image and xml files
 # Return: total_images - Int - count of total images found
 def get_img_count(path):
+    path = path.lower()
     total_images = 0
 
     # path is directory - For every file image in the path, check if it has an xml file and move it
@@ -338,10 +343,11 @@ def get_img_count(path):
         for filename in os.listdir(path):
             total_images += get_img_count(path + filename)
 
-    # file is imaeg, add it to count and check if it has a xml file of the same name
-    if  '.jpg' in path:
+    # file is image, add it to count and check if it has a xml file of the same name
+    if path.endswith(tuple(IMAGE_TYPES)):
+        path_type = get_type(path)
         found_label = False
-        xml_version = path.split(".jpg")[0] + ".xml"
+        xml_version = path.split(path_type)[0] + XML_TYPE
         total_images += 1
 
         # xml found
@@ -480,6 +486,11 @@ def get_output_file(output):
     return file_path
 
 
+def get_type(file):
+    if file.endswith(tuple(IMAGE_TYPES)):
+        file = "." + file.split('.')[-1]
+    return file
+    
 ############################ FILE IS VALID ###########################
 # Returns true if the file exists and is not empty, else false
 def is_valid(file):
@@ -642,9 +653,10 @@ def sort_images(num_validate, image_path, test_image_path, train_image_path, val
 
     # For every file image in the image dir, check if it has an xml file and move it
     for filename in os.listdir(image_path):
-        if '.jpg' in filename:
+        filename = filename.lower()
+        if filename.endswith(tuple(IMAGE_TYPES)):
             found_label = False
-            xml_version = filename.split(".")[0] + ".xml"
+            xml_version = filename.split(".")[0] + XML_TYPE
             current_image += 1
 
             # move to test
@@ -666,7 +678,8 @@ def sort_images(num_validate, image_path, test_image_path, train_image_path, val
 
     # count all image and .xml files in train
     for filename in os.listdir(train_image_path):
-        if '.png' in filename or '.jpg' in filename or '.jpeg' in filename:
+        filename = filename.lower()
+        if filename.endswith(tuple(IMAGE_TYPES)):
             train_images += 1
 
     # move all files in validate to train
@@ -684,9 +697,10 @@ def sort_images(num_validate, image_path, test_image_path, train_image_path, val
     # move random valid images from train to validate
     file_count = 0
     for file in os.listdir(train_image_path):
-        if '.png' in file or '.jpg' in file or '.jpeg' in file:
+        file = file.lower()
+        if file.endswith(tuple(IMAGE_TYPES)):
             file_count += 1
-            xml_version = file.split(".")[0] + ".xml"
+            xml_version = file.split(".")[0] + XML_TYPE
             if file_count in valid_images:
                 shutil.move(train_image_path + file, val_image_path)
                 if path.exists(train_image_path + xml_version):

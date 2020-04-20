@@ -200,7 +200,7 @@ def modify(user_var, user_input):
          user_var == defaults.VALID_IN_VAR or \
          user_var == defaults.WEIGHTS_PATH_VAR:
 
-         user_input = check_input(user_input, defaults.FILE)
+         user_input = check_input(user_input, defaults.FILE).lower()
 
     # check if it is varibale that should be a Boolean
     elif user_var == defaults.TINY_WEIGHTS_VAR:
@@ -646,16 +646,17 @@ def run(start_from, start_path):
             return
 
         start_path = chkpnt_weights
-        test_img = preferences.validate_input
+        test_img = preferences.validate_input.lower()
 
         # GENERATING TENSORFLOW MODEL
         print("\nGenerating TensorFlow model...\n")
         if os.path.isdir(test_img):
             for file in os.listdir(preferences.validate_input):
-                if '.jpg' in file:
+                file = file.lower()
+                if file.endswith(tuple(file_utils.IMAGE_TYPES)) :
                     test_img = preferences.validate_input + file
-        if ".jpg" not in test_img:
-            print("No validate images found, ensure you have a .jpg image in the ./images/validate folder")
+        if not test_img.endswith(tuple(file_utils.IMAGE_TYPES)):
+            print("No validate images found, ensure you have a valid image type in the ./images/validate folder")
             return
 
         try:  # create model
@@ -716,9 +717,11 @@ def run(start_from, start_path):
     files_found = False
     # test_img given was a signle file, test file
     if path.isfile(test_img):
-        if ".jpg" in test_img:
+        test_img = test_img.lower()
+        if test_img.endswith(tuple(file_utils.IMAGE_TYPES)):
             files_found = True
-            out_img = preferences.output.replace("\\", "/") + test_img.split(".")[0] + "-output.jpg"
+            file_type = file_utils.get_type(test_img)
+            out_img = preferences.output.replace("\\", "/") + test_img.split(".")[0] + "-output" + file_type
             detect_img.run_detect(preferences.classifier_file,
                                   chkpnt_weights,
                                   preferences.tiny,
@@ -731,9 +734,11 @@ def run(start_from, start_path):
     elif path.isdir(test_img):
         test_img = (test_img + "/").replace("\\", "/")
         for file in os.listdir(test_img):
-            if '.jpg' in file:
+            file = file.lower()
+            if file.endswith(tuple(file_utils.IMAGE_TYPES)):
                 files_found = True
-                out_img = preferences.output.replace("\\", "/") + file.split(".")[0] + "-output.jpg"
+                file_type = file_utils.get_type(file)
+                out_img = preferences.output.replace("\\", "/") + file.split(".")[0] + "-output" + file_type
                 detect_img.run_detect(preferences.classifier_file,
                                       chkpnt_weights,
                                       preferences.tiny,
