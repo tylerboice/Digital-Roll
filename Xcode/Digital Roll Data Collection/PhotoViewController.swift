@@ -41,11 +41,12 @@ class PhotoViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        if takenPhoto == nil{
+            print("recieved no image")
+        }
         if let availableImage = takenPhoto {
             imageView.image = availableImage
         }
-        
         readAccelerometer()
     }
     
@@ -75,6 +76,20 @@ class PhotoViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
     
     // Share button functionality
     @IBAction func sharePressed(_ sender: Any) {
+        if takenPhoto == nil {
+                let alertView = UIAlertController(title: "Image unable to load", message:
+                    "The image was invalid. Please take another", preferredStyle: .alert)
+                alertView.addAction(UIAlertAction(title: "Dismiss", style: .default))
+                self.present(alertView, animated: true, completion: nil)
+                return
+               }
+        if touchArray.count != 4{
+            let alertView = UIAlertController(title: "Bounding Box is invalid", message:
+                "Please tap the 'Bounding Box' button and select two box corners", preferredStyle: .alert)
+            alertView.addAction(UIAlertAction(title: "Dismiss", style: .default))
+            self.present(alertView, animated: true, completion: nil)
+            return
+        }
         // Dropbox only works with 1 arguement therefore pass just xml file
         convertXML(img: takenPhoto!, xAccel: self.xAccel.text!, yAccel: self.yAccel.text!, zAccel: self.zAccel.text!)
         
@@ -140,8 +155,8 @@ class PhotoViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
     
     // bounding Box button funcitonality
     @IBAction func boundingBoxPressed(_ sender: Any) {
+        touchArray = []
         touchesBegan(touchSet, with: touchHandler)
-        print(touchArray)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -150,7 +165,9 @@ class PhotoViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
             touchArray.append(position.x)
             touchArray.append(position.y)
         }
-        touchesEnded(touchSet, with: touchHandler)
+        if touchArray.count > 4{
+            self.touchesEnded(touchSet, with: touchHandler)
+        }
     }
     
 }

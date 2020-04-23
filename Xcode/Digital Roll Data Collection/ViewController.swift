@@ -87,20 +87,18 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     }
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        
         // Sets take photo to false after button is pressed, so we only take one photo
         if takePhoto {
             takePhoto = false
-        
-        // Get image
-            if let image = self.getImageSampleBuffer(buffer: sampleBuffer) {
-                let photoVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "PhotoVC") as! PhotoViewController
+            
+            DispatchQueue.main.async {
+                if let image = self.getImageSampleBuffer(buffer: sampleBuffer) {
+                    let photoVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "PhotoVC") as! PhotoViewController
+                        
+                    photoVC.takenPhoto = image
                 
-                photoVC.takenPhoto = image
-                
-                DispatchQueue.main.async {
                     self.present(photoVC, animated: true, completion: {
-                        self.stopCaptureSession()
+                        //self.stopCaptureSession()
                     })
                 }
             }
@@ -152,7 +150,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
                 self.xAccel.text = "X: \(Double(x).rounded(toPlaces: 3))"
                 self.yAccel.text = "Y: \(Double(y).rounded(toPlaces: 3))"
                 self.zAccel.text = "Z: \(Double(z).rounded(toPlaces: 3))"
-                }
+            }
         }
     }
 }
