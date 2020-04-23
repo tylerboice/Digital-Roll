@@ -200,7 +200,14 @@ def modify(user_var, user_input):
          user_var == defaults.VALID_IN_VAR or \
          user_var == defaults.WEIGHTS_PATH_VAR:
 
-         user_input = check_input(user_input, defaults.FILE).lower()
+         temp = check_input(user_input, defaults.FILE)
+         if temp != INPUT_ERR:
+             try:
+                user_input = temp.lower()
+             except:
+                 user_input = INPUT_ERR
+         else:
+             user_input = INPUT_ERR
 
     # check if it is varibale that should be a Boolean
     elif user_var == defaults.TINY_WEIGHTS_VAR:
