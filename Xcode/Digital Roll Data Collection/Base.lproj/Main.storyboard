@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="MSr-7g-NjL">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment version="4400" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -17,46 +17,50 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="dhs-Xv-7qW">
-                                <rect key="frame" x="88" y="524" width="200" height="34"/>
+                                <rect key="frame" x="16" y="518" width="200" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <accessibility key="accessibilityConfiguration">
                                     <accessibilityTraits key="traits" notEnabled="YES"/>
                                 </accessibility>
+                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="0wC-g6-X9w">
-                                <rect key="frame" x="88" y="560" width="200" height="34"/>
+                                <rect key="frame" x="16" y="560" width="200" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemBrownColor" red="0.63529411759999999" green="0.51764705879999995" blue="0.36862745099999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <accessibility key="accessibilityConfiguration">
                                     <accessibilityTraits key="traits" notEnabled="YES"/>
                                 </accessibility>
+                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="MUz-el-oIf">
-                                <rect key="frame" x="88" y="599" width="200" height="34"/>
+                                <rect key="frame" x="16" y="602" width="200" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <accessibility key="accessibilityConfiguration">
                                     <accessibilityTraits key="traits" notEnabled="YES"/>
                                 </accessibility>
+                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yg1-LE-1CL">
+                                <rect key="frame" x="224" y="518.5" width="135" height="109"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" backgroundImage="camera" catalog="system"/>
+                                <connections>
+                                    <action selector="takePhoto:" destination="BYZ-38-t0r" eventType="touchUpInside" id="63B-KQ-Jth"/>
+                                </connections>
+                            </button>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
-                    <navigationItem key="navigationItem" id="OOT-bU-ED0">
-                        <barButtonItem key="rightBarButtonItem" systemItem="camera" id="xWo-AV-1oC">
-                            <connections>
-                                <action selector="takePhoto:" destination="BYZ-38-t0r" id="Ftx-6p-tK9"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
                     <connections>
                         <outlet property="xAccel" destination="dhs-Xv-7qW" id="lMG-uv-PZE"/>
                         <outlet property="yAccel" destination="0wC-g6-X9w" id="P53-w8-abP"/>
@@ -65,7 +69,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1042.0289855072465" y="116.51785714285714"/>
+            <point key="canvasLocation" x="1040.8" y="116.49175412293854"/>
         </scene>
         <!--Photo View Controller-->
         <scene sceneID="7xP-QD-ocx">
@@ -79,39 +83,39 @@
                                 <rect key="frame" x="16" y="0.0" width="34" height="30"/>
                                 <state key="normal" title="Back"/>
                                 <connections>
-                                    <action selector="goBack:" destination="EyY-eg-fsr" eventType="touchUpInside" id="bso-sN-ppQ"/>
+                                    <action selector="goBack:" destination="EyY-eg-fsr" eventType="touchUpInside" id="meo-NI-ULh"/>
                                 </connections>
                             </button>
-                            <textField opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="YnH-YQ-3HW">
-                                <rect key="frame" x="22" y="518" width="165" height="34"/>
+                            <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="YnH-YQ-3HW">
+                                <rect key="frame" x="22" y="508" width="165" height="34"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <accessibility key="accessibilityConfiguration">
                                     <accessibilityTraits key="traits" notEnabled="YES"/>
                                 </accessibility>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="34" id="LU0-uR-Dt3"/>
-                                </constraints>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <textField opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="gvf-5Y-FeV">
-                                <rect key="frame" x="22" y="554" width="165" height="34"/>
+                            <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="gvf-5Y-FeV">
+                                <rect key="frame" x="22" y="551" width="165" height="34"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemBrownColor" red="0.63529411759999999" green="0.51764705879999995" blue="0.36862745099999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <accessibility key="accessibilityConfiguration">
                                     <accessibilityTraits key="traits" notEnabled="YES"/>
                                 </accessibility>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="34" id="jgs-HT-z2P"/>
-                                </constraints>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <textField opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Tdk-Kl-ViY">
-                                <rect key="frame" x="22" y="593" width="165" height="34"/>
+                            <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Tdk-Kl-ViY">
+                                <rect key="frame" x="22" y="596" width="165" height="34"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <accessibility key="accessibilityConfiguration">
                                     <accessibilityTraits key="traits" notEnabled="YES"/>
                                 </accessibility>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
@@ -125,68 +129,49 @@
                                     <action selector="sharePressed:" destination="EyY-eg-fsr" eventType="touchUpInside" id="iqz-P2-dey"/>
                                 </connections>
                             </button>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="6hc-ju-JyD">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6hc-ju-JyD">
                                 <rect key="frame" x="22" y="50" width="330" height="444"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <viewLayoutGuide key="safeArea" id="Lr0-JC-4fe"/>
                             </imageView>
-                            <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ibz-l7-4E7">
-                                <rect key="frame" x="213" y="576" width="139" height="51"/>
-                                <connections>
-                                    <outlet property="dataSource" destination="EyY-eg-fsr" id="uqw-6O-Et6"/>
-                                    <outlet property="delegate" destination="EyY-eg-fsr" id="QUR-7b-N1Z"/>
-                                </connections>
-                            </pickerView>
-                            <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="L6T-U9-hVY">
-                                <rect key="frame" x="213" y="537" width="139" height="51"/>
+                            <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="L6T-U9-hVY">
+                                <rect key="frame" x="213" y="517" width="139" height="51"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <connections>
                                     <outlet property="dataSource" destination="EyY-eg-fsr" id="keb-TH-Ztc"/>
                                     <outlet property="delegate" destination="EyY-eg-fsr" id="bYZ-Du-ugi"/>
                                 </connections>
                             </pickerView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rog-BC-yjK">
-                                <rect key="frame" x="213" y="502" width="139" height="34"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="34" id="FEY-ep-L3r"/>
-                                    <constraint firstAttribute="width" constant="139" id="ywq-jq-wt9"/>
-                                </constraints>
+                            <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ibz-l7-4E7">
+                                <rect key="frame" x="213" y="561" width="139" height="51"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="EyY-eg-fsr" id="uqw-6O-Et6"/>
+                                    <outlet property="delegate" destination="EyY-eg-fsr" id="QUR-7b-N1Z"/>
+                                </connections>
+                            </pickerView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rog-BC-yjK">
+                                <rect key="frame" x="213" y="482" width="139" height="34"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <state key="normal" title="Bounding Box"/>
                                 <connections>
                                     <action selector="boundingBoxPressed:" destination="EyY-eg-fsr" eventType="touchUpInside" id="yfP-8w-aSt"/>
                                 </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="gvf-5Y-FeV" firstAttribute="top" secondItem="YnH-YQ-3HW" secondAttribute="bottom" constant="2" id="0TS-Go-7HE"/>
-                            <constraint firstItem="Rog-BC-yjK" firstAttribute="leading" secondItem="YnH-YQ-3HW" secondAttribute="trailing" constant="26" id="4AO-9j-yFF"/>
-                            <constraint firstItem="YlU-hv-tMO" firstAttribute="bottom" secondItem="L6T-U9-hVY" secondAttribute="bottom" constant="79" id="CVI-0r-Nze"/>
-                            <constraint firstItem="Rog-BC-yjK" firstAttribute="top" secondItem="6hc-ju-JyD" secondAttribute="bottom" constant="8" id="EzQ-TC-p6x"/>
-                            <constraint firstItem="gvf-5Y-FeV" firstAttribute="leading" secondItem="Tdk-Kl-ViY" secondAttribute="leading" id="HzS-vJ-YhD"/>
-                            <constraint firstItem="YlU-hv-tMO" firstAttribute="trailing" secondItem="Rog-BC-yjK" secondAttribute="trailing" constant="23" id="KvI-vf-ShE"/>
                             <constraint firstItem="pd7-zJ-NxG" firstAttribute="top" secondItem="YlU-hv-tMO" secondAttribute="top" id="NV2-gf-bXf"/>
-                            <constraint firstItem="Rog-BC-yjK" firstAttribute="trailing" secondItem="L6T-U9-hVY" secondAttribute="trailing" id="Ox0-WB-Dys"/>
-                            <constraint firstItem="YnH-YQ-3HW" firstAttribute="top" secondItem="6hc-ju-JyD" secondAttribute="bottom" constant="24" id="PcS-XL-TC9"/>
                             <constraint firstItem="pd7-zJ-NxG" firstAttribute="leading" secondItem="5mE-HB-o8a" secondAttribute="leadingMargin" id="SRU-I6-jDc"/>
-                            <constraint firstItem="Rog-BC-yjK" firstAttribute="trailing" secondItem="6hc-ju-JyD" secondAttribute="trailing" id="arn-sz-Ffz"/>
-                            <constraint firstItem="YnH-YQ-3HW" firstAttribute="leading" secondItem="gvf-5Y-FeV" secondAttribute="leading" id="bcl-Ip-lcB"/>
-                            <constraint firstItem="L6T-U9-hVY" firstAttribute="top" secondItem="Rog-BC-yjK" secondAttribute="bottom" constant="1" id="bdY-yB-ps8"/>
-                            <constraint firstItem="gvf-5Y-FeV" firstAttribute="trailing" secondItem="Tdk-Kl-ViY" secondAttribute="trailing" id="c4v-Sg-16E"/>
-                            <constraint firstItem="Rog-BC-yjK" firstAttribute="leading" secondItem="L6T-U9-hVY" secondAttribute="leading" id="h0y-nQ-l24"/>
-                            <constraint firstItem="Tdk-Kl-ViY" firstAttribute="bottom" secondItem="Ibz-l7-4E7" secondAttribute="bottom" id="kdc-FE-h3d"/>
-                            <constraint firstItem="YnH-YQ-3HW" firstAttribute="leading" secondItem="6hc-ju-JyD" secondAttribute="leading" id="kuD-Ja-vcG"/>
-                            <constraint firstItem="6hc-ju-JyD" firstAttribute="top" secondItem="pd7-zJ-NxG" secondAttribute="bottom" constant="20" id="mTW-3d-Xg0"/>
-                            <constraint firstItem="Ibz-l7-4E7" firstAttribute="top" secondItem="Rog-BC-yjK" secondAttribute="bottom" constant="40" id="mwk-OB-CyL"/>
                             <constraint firstItem="Wpl-wA-vIc" firstAttribute="top" secondItem="YlU-hv-tMO" secondAttribute="top" id="oO7-a8-Mld"/>
-                            <constraint firstItem="YnH-YQ-3HW" firstAttribute="leading" secondItem="YlU-hv-tMO" secondAttribute="leading" constant="22" id="oWD-pO-tPa"/>
-                            <constraint firstItem="gvf-5Y-FeV" firstAttribute="bottom" secondItem="L6T-U9-hVY" secondAttribute="bottom" id="rM8-xb-Vur"/>
-                            <constraint firstItem="YnH-YQ-3HW" firstAttribute="trailing" secondItem="gvf-5Y-FeV" secondAttribute="trailing" id="taW-KM-MYZ"/>
-                            <constraint firstItem="L6T-U9-hVY" firstAttribute="trailing" secondItem="Ibz-l7-4E7" secondAttribute="trailing" id="udP-jA-Yek"/>
                             <constraint firstItem="Wpl-wA-vIc" firstAttribute="trailing" secondItem="5mE-HB-o8a" secondAttribute="trailingMargin" id="uvQ-fJ-kZ7"/>
-                            <constraint firstItem="YlU-hv-tMO" firstAttribute="bottom" secondItem="Tdk-Kl-ViY" secondAttribute="bottom" constant="40" id="wMW-Bg-Vdx"/>
-                            <constraint firstItem="L6T-U9-hVY" firstAttribute="leading" secondItem="Ibz-l7-4E7" secondAttribute="leading" id="yiM-zj-c7X"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="YlU-hv-tMO"/>
                     </view>
+                    <navigationItem key="navigationItem" id="bci-2x-lO4"/>
                     <connections>
                         <outlet property="ImageView" destination="6hc-ju-JyD" id="rn9-7i-Phh"/>
                         <outlet property="diceNumberPV" destination="Ibz-l7-4E7" id="xJW-hh-9hM"/>
@@ -200,23 +185,8 @@
             </objects>
             <point key="canvasLocation" x="1717.5999999999999" y="118.29085457271366"/>
         </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="bKZ-7U-6Jk">
-            <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="MSr-7g-NjL" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Pv0-ay-Deg">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="tJo-Jv-L1o"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="fVo-Tn-AVk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="131.8840579710145" y="116.51785714285714"/>
-        </scene>
     </scenes>
+    <resources>
+        <image name="camera" catalog="system" width="128" height="96"/>
+    </resources>
 </document>
