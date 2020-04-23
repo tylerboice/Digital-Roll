@@ -108,6 +108,8 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
     if mode == 'eager_tf':
         # Eager mode is great for debugging
         # Non eager graph mode is recommended for real training
+        print("\nEager Training Starting...\n")
+        print("\n\t NOTICE: This mode is mainly for debugging and should not be used for real training\n")
         avg_loss = tf.keras.metrics.Mean('loss', dtype=tf.float32)
         avg_val_loss = tf.keras.metrics.Mean('val_loss', dtype=tf.float32)
 
@@ -162,42 +164,48 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                             verbose=1, save_weights_only=True),
             TensorBoard(log_dir='logs')
         ]
-        total_batches = math.floor(epochs/total_checkpoints)
-        batch_remainder = epochs % total_checkpoints
-        batches = 1
-        extra_batch = 0
-
-        if batch_remainder != 0:
-            extra_batch = 1
+        total_runs = math.floor(epochs/total_checkpoints)
+        runs_remainder = epochs % total_checkpoints
+        run = 1
+        extra_run = 0
+        print("\n===================================================================================================\n")
+        if runs_remainder != 0:
+            extra_run = 1
 
         if total_checkpoints > 0 and total_checkpoints < epochs:
-            print("\tTraining in batches to save memory")
-            while batches <= total_batches:
+            print("\tTraining in runs to save memory")
+            while run <= total_runs:
                 print("\n=======================================")
-                print("             Batch " + str(batches) + "/" + str(total_batches + extra_batch))
+                print("             Training Run " + str(run) + "/" + str(total_runs + extra_run))
                 print("=======================================\n")
                 history = model.fit(train_dataset,
                                     epochs=total_checkpoints,
                                     callbacks=callbacks,
                                     validation_data=val_dataset)
 
-                # Increment the batches
-                batches += 1
+                # Increment the run
+                run += 1
 
-            if batch_remainder != 0:
+            if runs_remainder != 0:
                 print("\n=======================================")
-                print("             Batch " + str(batches) + "/" + str(total_batches + extra_batch))
+                print("             Training Run " + str(run) + "/" + str(total_runs + extra_run))
                 print("=======================================\n")
                 history = model.fit(train_dataset,
-                                     epochs=batch_remainder,
+                                     epochs=runs_remainder,
                                      callbacks=callbacks,
                                      validation_data=val_dataset)
+                # plot training history
+                # pyplot.plot(history.history['loss'], label='train')
+                # pyplot.plot(history.history['val_loss'], label='test')
+                # pyplot.legend()
+                # pyplot.show()
 
         else:
             history = model.fit(train_dataset,
                                 epochs=epochs,
                                 callbacks=callbacks,
                                 validation_data=val_dataset)
+
     return True
 
 
