@@ -5,6 +5,7 @@ import tensorflow as tf
 import numpy as np
 import math
 import cv2
+import os
 from tensorflow.keras.callbacks import (
     ReduceLROnPlateau,
     EarlyStopping,
@@ -161,7 +162,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                       run_eagerly=(mode == 'eager_fit'))
         callbacks = [
             ReduceLROnPlateau(verbose=1),
-            EarlyStopping(monitor='val_loss', verbose=1, patience=3),
+            EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=3),
             ModelCheckpoint(checkpoint_path + 'yolov3_train_{epoch}.tf',
                             verbose=1, save_weights_only=True),
             TensorBoard(log_dir='logs')
@@ -210,8 +211,9 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
             # Show Overall Plot
             pyplot.plot(train_data, label='train')
             pyplot.plot(test_data, label='test')
+            # Use a fork for the display to allow the main thread to finish so that the graph doesn't halt the system
             pyplot.legend()
-            pyplot.show()
+            pyplot.show(block=False)
 
         else:
             history = model.fit(train_dataset,
@@ -221,8 +223,9 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
             # plot training history
             pyplot.plot(history.history['loss'], label='train')
             pyplot.plot(history.history['val_loss'], label='test')
+            # Use a fork for the display to allow the main thread to finish so that the graph doesn't halt the system
             pyplot.legend()
-            pyplot.show()
+            pyplot.show(block=False)
 
     return True
 
