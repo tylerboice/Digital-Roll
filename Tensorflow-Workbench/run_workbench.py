@@ -753,7 +753,7 @@ def run(start_from, start_path):
                                       out_img,
                                       preferences.num_classes)
     else:
-        fiels_found = True
+        files_found = True
         err_message("Test file(s) not found " + file_utils.from_workbench(test_img))
 
     if not files_found:
@@ -797,7 +797,9 @@ def main():
             # CONTINUE from last checkpoint
             if userInput == "continue" or userInput == "c":
                 try:
-                    run(CONTINUE, NONE)
+                    last_weight = file_utils.get_last_checkpoint(preferences.output)
+                    last_weight = (last_weight.split(".tf")[0] + ".tf").replace("\\", "/")
+                    run(CONTINUE, last_weight)
                 except Exception as e:
                     err_message(str(e))
 
