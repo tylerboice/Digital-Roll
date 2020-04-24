@@ -26,6 +26,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
               weights, classifiers, mode, transfer, size, epochs, batch_size,
               learning_rate, num_classes, weights_num_classes, checkpoint_path, total_checkpoints):
 
+    global history
     checkpoint_path = checkpoint_path.replace("\\", "/")
 
     if tiny:
@@ -160,7 +161,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                       run_eagerly=(mode == 'eager_fit'))
         callbacks = [
             ReduceLROnPlateau(verbose=1),
-            EarlyStopping(patience=3, monitor='val_loss', verbose=1),
+            EarlyStopping(monitor='val_loss', verbose=1, patience=3),
             ModelCheckpoint(checkpoint_path + 'yolov3_train_{epoch}.tf',
                             verbose=1, save_weights_only=True),
             TensorBoard(log_dir='logs')
@@ -170,7 +171,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
         epochs_performed = 0
         run = 1
         extra_run = 0
-        full_history = dict()
+        train_data = []
         test_data = []
         print("\n===================================================================================================\n")
         if runs_remainder != 0:
@@ -183,7 +184,6 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                 print("             Training Run " + str(run) + "/" + str(total_runs + extra_run))
                 print("=======================================\n")
                 history = model.fit(train_dataset,
-                                    #initial_epoch=epochs_performed,
                                     epochs=total_checkpoints,
                                     callbacks=callbacks,
                                     validation_data=val_dataset)
@@ -192,23 +192,24 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                 run += 1
                 epochs_performed += 1
                 # add data for later plotting
-                full_history.update(history)
+                train_data.extend(history.history['loss'])
+                train_data.extend(history.history['val_loss'])
 
             if runs_remainder != 0:
                 print("\n=======================================")
                 print("             Training Run " + str(run) + "/" + str(total_runs + extra_run))
                 print("=======================================\n")
                 history = model.fit(train_dataset,
-                                    #initial_epoch=epochs_performed,
                                     epochs=runs_remainder,
                                     callbacks=callbacks,
                                     validation_data=val_dataset)
                 # add data for later plotting
-                full_history.update(history)
+                train_data.extend(history.history['loss'])
+                test_data.extend(history.history['val_loss'])
 
             # Show Overall Plot
-            pyplot.plot(history.full_history['loss'], label='train')
-            pyplot.plot(history.full_history['val_loss'], label='test')
+            pyplot.plot(train_data, label='train')
+            pyplot.plot(test_data, label='test')
             pyplot.legend()
             pyplot.show()
 
