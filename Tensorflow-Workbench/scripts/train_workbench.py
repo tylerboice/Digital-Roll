@@ -17,6 +17,7 @@ from yolov3_tf2.models import (
     yolo_tiny_anchors, yolo_tiny_anchor_masks
 )
 from yolov3_tf2.utils import freeze_all
+from matplotlib import pyplot
 import yolov3_tf2.dataset as dataset
 
 
@@ -101,7 +102,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
             # freeze everything
             freeze_all(model)
 
-    optimizer = tf.keras.optimizers.Adam(lr=learning_rate)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate, amsgrad=True)
     loss = [YoloLoss(anchors[mask], classes=num_classes)
             for mask in anchor_masks]
 
@@ -166,8 +167,11 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
         ]
         total_runs = math.floor(epochs/total_checkpoints)
         runs_remainder = epochs % total_checkpoints
+        epochs_performed = 0
         run = 1
         extra_run = 0
+        full_history = dict()
+        test_data = []
         print("\n===================================================================================================\n")
         if runs_remainder != 0:
             extra_run = 1
@@ -179,32 +183,45 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                 print("             Training Run " + str(run) + "/" + str(total_runs + extra_run))
                 print("=======================================\n")
                 history = model.fit(train_dataset,
+                                    #initial_epoch=epochs_performed,
                                     epochs=total_checkpoints,
                                     callbacks=callbacks,
                                     validation_data=val_dataset)
 
                 # Increment the run
                 run += 1
+                epochs_performed += 1
+                # add data for later plotting
+                full_history.update(history)
 
             if runs_remainder != 0:
                 print("\n=======================================")
                 print("             Training Run " + str(run) + "/" + str(total_runs + extra_run))
                 print("=======================================\n")
                 history = model.fit(train_dataset,
-                                     epochs=runs_remainder,
-                                     callbacks=callbacks,
-                                     validation_data=val_dataset)
-                # plot training history
-                # pyplot.plot(history.history['loss'], label='train')
-                # pyplot.plot(history.history['val_loss'], label='test')
-                # pyplot.legend()
-                # pyplot.show()
+                                    #initial_epoch=epochs_performed,
+                                    epochs=runs_remainder,
+                                    callbacks=callbacks,
+                                    validation_data=val_dataset)
+                # add data for later plotting
+                full_history.update(history)
+
+            # Show Overall Plot
+            pyplot.plot(history.full_history['loss'], label='train')
+            pyplot.plot(history.full_history['val_loss'], label='test')
+            pyplot.legend()
+            pyplot.show()
 
         else:
             history = model.fit(train_dataset,
                                 epochs=epochs,
                                 callbacks=callbacks,
                                 validation_data=val_dataset)
+            # plot training history
+            pyplot.plot(history.history['loss'], label='train')
+            pyplot.plot(history.history['val_loss'], label='test')
+            pyplot.legend()
+            pyplot.show()
 
     return True
 
