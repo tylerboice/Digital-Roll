@@ -74,7 +74,7 @@ flags.DEFINE_integer( IMAGE_SIZE_VAR, DEFAULT_IMAGE_SIZE, 'image size')
 
 ############################## MAX CHECKPOINTS ##################################
 MAX_CHECK_VAR = "max_checkpoints"
-DEFAULT_MAX_CHECK = 5
+DEFAULT_MAX_CHECK = 15
 flags.DEFINE_integer( MAX_CHECK_VAR, DEFAULT_MAX_CHECK, 'maximum checkpoints')
 
 
