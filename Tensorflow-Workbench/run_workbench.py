@@ -91,16 +91,6 @@ def check_admin():
        print("\t\t        - You close the anaconda prompt and re-run the anaconda prompt as admin")
        exit()
 
-########################## CHECK_TRAIN #############################
-# Description: takes a boolean if session has had training in it, returns message if so
-# Parameters: Boolean - trained - if training has happened in session
-# Return: trained
-def check_train(trained):
-    if trained:
-        print("\n\tWARNING: You have trained an AI model in this session and memory is still in RAM")
-        print("\t         If you wish to run or continue, save your preferences if necessary and restart the workbench")
-        print("\t         Proceed with caution")
-    return trained
 
 ########################## ERR_MESSAGE #############################
 # Description: takes a string and prints it with a "\n\tERROR: " prefix
@@ -791,7 +781,6 @@ def main():
     check_admin()
     print("\nWelcome to the Digital Roll Workbench")
     print("\nEnter 'help' or 'h' for a list of commands:")
-    trained = False
     while True:
         try:
 
@@ -807,28 +796,22 @@ def main():
 
             # CONTINUE from last checkpoint
             if userInput == "continue" or userInput == "c":
-                if not check_train(trained):
-                    try:
-                        run(CONTINUE, NONE)
-                    except Exception as e:
-                        err_message(str(e))
-                else:
-                    trained = False
+                try:
+                    run(CONTINUE, NONE)
+                except Exception as e:
+                    err_message(str(e))
 
             # CONTINUE from user given file
             elif userInput[0:5] == "continue " or userInput[0:2] == "c ":
-                if not check_train(trained):
-                    trained = True
-                    if userInput[0:2] == "c ":
-                        prev_check = userInput[2:]
-                    else:
-                        prev_check = userInput[5:]
-                    try:
-                        run(CONTINUE, prev_check)
-                    except Exception as e:
-                        err_message(str(e))
+                if userInput[0:2] == "c ":
+                    prev_check = userInput[2:]
                 else:
-                    trained = False
+                    prev_check = userInput[5:]
+                try:
+                    run(CONTINUE, prev_check)
+                except Exception as e:
+                    err_message(str(e))
+
 
             # DISPLAY
             elif userInput == "display" or userInput == "d":
@@ -891,14 +874,11 @@ def main():
 
             # RUN
             elif userInput == "run" or userInput == "r":
-                if not check_train(trained):
-                    trained = True
-                    try:
-                        run(RUN, NONE)
-                    except Exception as e:
-                        err_message(str(e))
-                else:
-                    trained = False
+                try:
+                    run(RUN, NONE)
+                except Exception as e:
+                    err_message(str(e))
+
 
             # SAVE from current working directory
             elif userInput == "save" or userInput == "s":
