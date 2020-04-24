@@ -507,6 +507,7 @@ def run(start_from, start_path):
         all_classifiers = file_utils.get_classifiers(defaults.IMAGES_PATH)
         # counts all unique objects labeled
         classifiers = file_utils.classifier_remove_dup(all_classifiers)
+        preferences.num_classes = len(classifiers)
         # resets classifier list to save memory
         all_classifiers = []
 
@@ -633,9 +634,17 @@ def run(start_from, start_path):
             err_message(preferences.classifier_file + " not found or is empty")
             return
 
+
         # update checkpoint file
         chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
         chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("\\", "/")
+
+        # Rename checkpoints to ensure the newest one has the greatest number
+        try:
+            file_utils.rename_checkpoints(preferences.output)
+            file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/"))
+        except Exception as e:
+            err_message("Could not rename files due to: " + e)
 
         # If Error happend in getting new checkpoint
         if chkpnt_weights == file_utils.ERROR or file_utils.CHECKPOINT_KEYWORD not in chkpnt_weights:
@@ -643,9 +652,6 @@ def run(start_from, start_path):
             print("\t\tPlease use a trained checkpoint (e.g " + file_utils.CHECKPOINT_KEYWORD + "1.tf )")
             return
 
-        # Rename checkpoints to ensure the newest one has the greatest number
-        file_utils.rename_checkpoints(preferences.output)
-        file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/"))
 
         # if no checkpoint found, return
         if chkpnt_weights == file_utils.ERROR:
@@ -704,8 +710,11 @@ def run(start_from, start_path):
             return
 
         # Rename checkpoints to ensure the newest one has the greatest number
-        file_utils.rename_checkpoints(preferences.output)
-        file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/"))
+        try:
+            file_utils.rename_checkpoints(preferences.output)
+            file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/"))
+        except Exception as e:
+            err_message("Could not rename files due to: " + e)
 
         # if no checkpoint found, return
         if chkpnt_weights == file_utils.ERROR:
@@ -728,7 +737,7 @@ def run(start_from, start_path):
         if test_img.endswith(tuple(file_utils.IMAGE_TYPES)):
             files_found = True
             file_type = file_utils.get_type(test_img)
-            out_img = preferences.output.replace("\\", "/") + test_img.split(".")[0] + "-output" + file_type
+            out_img = preferences.output + test_img.split(".")[0] + "-output" + file_type
             detect_img.run_detect(preferences.classifier_file,
                                   chkpnt_weights,
                                   preferences.tiny,
@@ -745,7 +754,7 @@ def run(start_from, start_path):
             if file.endswith(tuple(file_utils.IMAGE_TYPES)):
                 files_found = True
                 file_type = file_utils.get_type(file)
-                out_img = preferences.output.replace("\\", "/") + file.split(".")[0] + "-output" + file_type
+                out_img = preferences.output + file.split(".")[0] + "-output" + file_type
                 detect_img.run_detect(preferences.classifier_file,
                                       chkpnt_weights,
                                       preferences.tiny,
