@@ -98,7 +98,7 @@ def check_admin():
 def check_train(trained):
     if trained:
         print("\n\tWARNING: You have trained an AI model in this session and memeory is still in RAM")
-        print("\t         If you wish to run or continue, save your preferences if nessacary and restart the workbench")
+        print("\t         If you wish to run or continue, save your preferences if necessary and restart the workbench")
         print("\t         Proceed with caution")
     return trained
 
