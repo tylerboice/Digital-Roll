@@ -777,6 +777,7 @@ def run(start_from, start_path):
 
 ############################## MAIN ##########################
 def main():
+    tf.keras.backend.clear_session()
     warnings.simplefilter("ignore")
     check_admin()
     print("\nWelcome to the Digital Roll Workbench")
@@ -872,6 +873,7 @@ def main():
             # QUIT
             elif userInput == "quit" or userInput == "q":
                 print("\n\tExiting workbench...")
+                tf.keras.backend.clear_session()
                 exit()
 
             # RUN
