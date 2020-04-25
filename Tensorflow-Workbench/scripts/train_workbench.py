@@ -28,6 +28,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
               learning_rate, num_classes, weights_num_classes, checkpoint_path, total_checkpoints):
 
     checkpoint_path = checkpoint_path.replace("\\", "/")
+    global drawer
 
     if tiny:
         model = YoloV3Tiny(size=size, training=True,
@@ -207,10 +208,6 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                 train_data.extend(history.history['loss'])
                 test_data.extend(history.history['val_loss'])
 
-            # Show Overall Plot
-            drawer = threading.Thread(target=plot_test_train, args=(train_data, test_data), daemon=True)
-            drawer.start()
-
         else:
             history = model.fit(train_dataset,
                                 epochs=epochs,
@@ -220,9 +217,10 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
             # add data for later plotting
             train_data.extend(history.history['loss'])
             test_data.extend(history.history['val_loss'])
-            drawer = threading.Thread(target=plot_test_train, args=(train_data, test_data), daemon=True)
-            drawer.start()
-
+        # End of the else, set the threads variables
+        drawer = threading.Thread(target=plot_test_train, args=(train_data, test_data), daemon=True)
+    # End of the function start the thread to draw the graph
+    drawer.start()
     return True
 
 
