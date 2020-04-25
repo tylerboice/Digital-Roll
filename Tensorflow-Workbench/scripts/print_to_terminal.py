@@ -54,6 +54,7 @@ def help():
     print("\n run or r                       ==> Starts the process of training and validation")
     print("\n                                    + Saves the model at given output location")
     print("\n                                      and creates a Apple CoreML converted version")
+    print("\n graph or g                     ==> Displays a graph showing the train and test loss of the last training session")
     print("\n save or s <new .txt path>      ==> Saves the current settings to the path + name given")
     print("\n                                        example: save new_pref.txt")
     print("\n                                        if no argument given, saves in current working directory as preferences_<number>")

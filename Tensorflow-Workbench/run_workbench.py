@@ -21,6 +21,7 @@ try:
     from scripts import detect_img
     from scripts import create_coreml
     import tensorflow as tf
+    from matplotlib import pyplot
     from tensorflow.keras.applications import MobileNet
 
     from yolov3_tf2.models import (
@@ -38,6 +39,8 @@ try:
     SPECIAL_CHAR = "?<#>@"
     INPUT_ERR = -99999999
     NO_ERROR = -99999998
+    training_data = []
+    testing_data = []
 
 # if script not found
 except FileNotFoundError as e:
@@ -587,7 +590,7 @@ def run(start_from, start_path):
             # start training counter
             start_train_time = time.perf_counter()
             # start training
-            trained = train_workbench.run_train(preferences.dataset_train,
+            train, test = train_workbench.run_train(preferences.dataset_train,
                                                 preferences.dataset_test,
                                                 preferences.tiny,
                                                 defaults.IMAGES_PATH,
@@ -603,6 +606,8 @@ def run(start_from, start_path):
                                                 preferences.weight_num_classes,
                                                 preferences.output,
                                                 preferences.max_checkpoints)
+            training_data.extend(train)
+            testing_data.extend(test)
             training_time = time.perf_counter() - start_train_time
             print("\n\n\tTraining Complete!\n")
 
@@ -775,6 +780,14 @@ def run(start_from, start_path):
         print("=====================================================================================\n")
 
 
+def plot_test_train(train_data, test_data):
+    pyplot.plot(train_data, label='train')
+    pyplot.plot(test_data, label='test')
+    # Use a fork for the display to allow the main thread to finish so that the graph doesn't halt the system
+    pyplot.legend()
+    pyplot.show()
+
+
 ############################## MAIN ##########################
 def main():
     tf.keras.backend.clear_session()
@@ -815,6 +828,8 @@ def main():
                 except Exception as e:
                     err_message(str(e))
 
+            elif userInput == "graph" or userInput == "g":
+                plot_test_train(training_data, testing_data)
 
             # DISPLAY
             elif userInput == "display" or userInput == "d":

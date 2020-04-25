@@ -19,7 +19,6 @@ from yolov3_tf2.models import (
     yolo_tiny_anchors, yolo_tiny_anchor_masks
 )
 from yolov3_tf2.utils import freeze_all
-from matplotlib import pyplot
 import yolov3_tf2.dataset as dataset
 
 
@@ -28,7 +27,6 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
               learning_rate, num_classes, weights_num_classes, checkpoint_path, total_checkpoints):
 
     checkpoint_path = checkpoint_path.replace("\\", "/")
-    global drawer
 
     if tiny:
         model = YoloV3Tiny(size=size, training=True,
@@ -184,6 +182,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                 print("\n=======================================")
                 print("             Training Run " + str(run) + "/" + str(total_runs + extra_run))
                 print("=======================================\n")
+                tf.keras.backend.clear_session()
                 history = model.fit(train_dataset,
                                     epochs=total_checkpoints,
                                     callbacks=callbacks,
@@ -200,6 +199,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                 print("\n=======================================")
                 print("             Training Run " + str(run) + "/" + str(total_runs + extra_run))
                 print("=======================================\n")
+                tf.keras.backend.clear_session()
                 history = model.fit(train_dataset,
                                     epochs=runs_remainder,
                                     callbacks=callbacks,
@@ -217,19 +217,8 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
             # add data for later plotting
             train_data.extend(history.history['loss'])
             test_data.extend(history.history['val_loss'])
-        # End of the else, set the threads variables
-        drawer = threading.Thread(target=plot_test_train, args=(train_data, test_data), daemon=True)
-    # End of the function start the thread to draw the graph
-    drawer.start()
-    return True
 
-
-def plot_test_train(train_data, test_data):
-    pyplot.plot(train_data, label='train')
-    pyplot.plot(test_data, label='test')
-    # Use a fork for the display to allow the main thread to finish so that the graph doesn't halt the system
-    pyplot.legend()
-    pyplot.show()
+    return train_data, test_data
 
 
 def find_lowest_check(checkpoints):
