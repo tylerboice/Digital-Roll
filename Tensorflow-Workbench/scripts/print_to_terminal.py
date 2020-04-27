@@ -41,10 +41,13 @@ def modify_commands():
 
 def help():
     print("\n COMMANDS")
-    print("\n continue or c                  ==> Continue workbench if training was manually stopped")
-    print("\n                                        You can also continue from previous checkpoint or session")
+    print("\n continue or c                  ==> Continue workbench from a checkpoint or session")
+    print("\n                                        example continue   (this uses the most recent check in your output folder)"
+    print("\n                                        example: continue ./output/yolov3_train_5.tf"
     print("\n                                        example: continue ./saved_session/session_1")
     print("\n display or d                   ==> Displays current settings")
+    print("\n finish or f                    ==> Finishes the workbench if training was stopped manually")
+    print("\n graph or g                     ==> Displays a graph showing the train and test loss of the last training session")
     print("\n help or h                      ==> Brings up this help display")
     print("\n info or i                      ==> Displays information on the workbench values")
     print("\n modify or m <variable> <value> ==> Modifys the setting variable to a new value")
@@ -54,7 +57,6 @@ def help():
     print("\n run or r                       ==> Starts the process of training and validation")
     print("\n                                    + Saves the model at given output location")
     print("\n                                      and creates a Apple CoreML converted version")
-    print("\n graph or g                     ==> Displays a graph showing the train and test loss of the last training session")
     print("\n save or s <new .txt path>      ==> Saves the current settings to the path + name given")
     print("\n                                        example: save new_pref.txt")
     print("\n                                        if no argument given, saves in current working directory as preferences_<number>")

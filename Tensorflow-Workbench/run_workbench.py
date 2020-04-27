@@ -544,7 +544,7 @@ def run(start_from, start_path):
                                                preferences.output + "/yolov3.tf",
                                                preferences.tiny,
                                                preferences.weight_num_classes)
-            weights = (preferences.output + "/yolov3.tf").replace("\\", "/")
+            weights = (preferences.output + "/yolov3.tf").replace("\\", "/").replace("//", "/")
             print("\tCheckpoint Converted!\n")
         else:
             weights = None
@@ -559,7 +559,7 @@ def run(start_from, start_path):
             # if folder given, search folder for most recent checkpoint
             if os.path.isdir(weights):
                 weights = file_utils.get_last_checkpoint(weights)
-                weights = (weights.split(".tf")[0] + ".tf").replace("\\", "/")
+                weights = (weights.split(".tf")[0] + ".tf").replace("\\", "/").replace("//", "/")
 
             # check to make sure file is correct type, if not return
             if ".tf" not in weights:
@@ -632,12 +632,12 @@ def run(start_from, start_path):
 
         # update checkpoint file
         chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
-        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("\\", "/")
+        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("\\", "/").replace("//", "/")
 
         # Rename checkpoints to ensure the newest one has the greatest number
         try:
             file_utils.rename_checkpoints(preferences.output)
-            file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/"))
+            file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/").replace("//", "/"))
         except Exception as e:
             err_message("Could not rename files due to: " + e)
 
@@ -696,7 +696,7 @@ def run(start_from, start_path):
 
         # Get checkpoint
         chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
-        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("\\", "/")
+        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("\\", "/").replace("//", "/")
 
         # If Error happend in getting new checkpoint
         if chkpnt_weights == file_utils.ERROR or file_utils.CHECKPOINT_KEYWORD not in chkpnt_weights:
@@ -707,7 +707,7 @@ def run(start_from, start_path):
         # Rename checkpoints to ensure the newest one has the greatest number
         try:
             file_utils.rename_checkpoints(preferences.output)
-            file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/"))
+            file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/").replace("//", "/"))
         except Exception as e:
             err_message("Could not rename files due to: " + e)
 
@@ -743,7 +743,7 @@ def run(start_from, start_path):
 
     # test_img given was a signle folder, test entire folder
     elif path.isdir(test_img):
-        test_img = (test_img + "/").replace("\\", "/")
+        test_img = (test_img + "/").replace("\\", "/").replace("//", "/")
         for file in os.listdir(test_img):
             file = file.lower()
             if file.endswith(tuple(file_utils.IMAGE_TYPES)):
@@ -812,7 +812,7 @@ def main():
             if userInput == "continue" or userInput == "c":
                 try:
                     last_weight = file_utils.get_last_checkpoint(preferences.output)
-                    last_weight = (last_weight.split(".tf")[0] + ".tf").replace("\\", "/")
+                    last_weight = (last_weight.split(".tf")[0] + ".tf").replace("\\", "/").replace("//", "/")
                     run(CONTINUE, last_weight)
                 except Exception as e:
                     err_message(str(e))
@@ -825,6 +825,12 @@ def main():
                     prev_check = userInput[5:]
                 try:
                     run(CONTINUE, prev_check)
+                except Exception as e:
+                    err_message(str(e))
+
+            elif userInput == "finish" or userInput == "f":
+                try:
+                    run(CONTINUE, NONE)
                 except Exception as e:
                     err_message(str(e))
 
