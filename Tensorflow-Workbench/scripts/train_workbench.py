@@ -26,6 +26,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
               weights, classifiers, mode, transfer, size, epochs, batch_size,
               learning_rate, num_classes, weights_num_classes, checkpoint_path, total_checkpoints):
 
+    global test_data, train_data
     checkpoint_path = checkpoint_path.replace("\\", "/")
 
     if tiny:
@@ -193,7 +194,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                 epochs_performed += 1
                 # add data for later plotting
                 train_data.extend(history.history['loss'])
-                train_data.extend(history.history['val_loss'])
+                test_data.extend(history.history['val_loss'])
 
             if runs_remainder != 0:
                 print("\n=======================================")
