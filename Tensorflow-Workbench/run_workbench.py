@@ -698,7 +698,7 @@ def run(start_from, start_path):
             file_utils.rename_checkpoints(preferences.output)
             file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/").replace("//", "/"))
         except Exception as e:
-            err_message("Could not rename files due to: " + e)
+            err_message("Could not rename files due to: " + str(e))
 
         # Get checkpoint
         chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
