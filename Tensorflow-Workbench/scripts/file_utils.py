@@ -585,22 +585,27 @@ def rename_checkpoints(checkpoint_path):
     max_checkpoints = find_max_checkpoint(checkpoint_path) # max checkpoints
     newest_file = get_newest_checkpoint(checkpoint_path)   # path of the checkpoint
     newest_file_int = get_checkpoint_int(newest_file, checkpoint_path)      # value of the checkpoint
-
+    highest_check_int = get_checkpoint_int(get_last_checkpoint(checkpoint_path), checkpoint_path)
+    print("max:" + str(max_checkpoints))
+    print("new:" + str(newest_file_int))
+    print("high:" + str(highest_check_int))
     counter = 1
-    if get_checkpoint_int(get_last_checkpoint(checkpoint_path), checkpoint_path) != newest_file_int:
+    if highest_check_int != newest_file_int:
+
         # rename all the older files
-        while newest_file_int != 0:
+        while counter <= newest_file_int:
             for file in os.listdir(checkpoint_path):
-                if CHECKPOINT_KEYWORD + str(counter) in file:
+                if CHECKPOINT_KEYWORD + str(counter) + ".tf" in file and not os.path.isdir(file):
                     old_file = checkpoint_path + file
-                    new_file = checkpoint_path + CHECKPOINT_KEYWORD + str(counter + max_checkpoints) + get_checkpoint_suffix(file)
+                    new_file = checkpoint_path + CHECKPOINT_KEYWORD + str(counter + highest_check_int) + get_checkpoint_suffix(file)
+                    print("old_file:" + str(old_file))
+                    print("new_file:" + str(new_file))
                     os.rename(old_file, new_file)
             counter += 1
-            newest_file_int -= 1
 
     # while the highest checkpoint doesnt equal max_checkpoints
     counter = 1
-    if max_checkpoints !=  get_checkpoint_int(get_last_checkpoint(checkpoint_path), checkpoint_path):
+    if max_checkpoints !=  highest_check_int:
         while counter <= max_checkpoints:
             lowest_check = get_lowest_checkpoint(checkpoint_path, counter)
             for file in os.listdir(checkpoint_path):
@@ -704,9 +709,10 @@ def sort_images(num_validate, image_path, test_image_path, train_image_path, val
 def write_to_checkpoint(checkpoint_name, filename):
     quote = '"'
     if CHECKPOINT_KEYWORD in checkpoint_name:
-        checkpoint_name = CHECKPOINT_KEYWORD + checkpoint_name.split(CHECKPOINT_KEYWORD)[1]
+        checkpoint_name = CHECKPOINT_KEYWORD + str(checkpoint_name.split(CHECKPOINT_KEYWORD)[1])
         models = "model_checkpoint_path: "
         all_models = "all_model_checkpoint_paths: "
+        print(checkpoint_name)
         with open(filename, "w") as f:
             f.write(models + quote + checkpoint_name + quote)
             f.write("\n")

@@ -282,7 +282,7 @@ def modify(user_var, user_input):
         elif user_var == defaults.OUTPUT_VAR:
             if user_input[:-1] != "/":
                 user_input = user_input + "/"
-            preferences.output = user_input.replace("//", "/")
+            preferences.output = user_input
 
         # sessions - INT
         elif user_var == defaults.SAVED_SESS_VAR:
@@ -629,25 +629,23 @@ def run(start_from, start_path):
             err_message(preferences.classifier_file + " not found or is empty")
             return
 
+        try:
+            file_utils.rename_checkpoints(preferences.output)
+        except Exception as e:
+            err_message(e)
 
         # update checkpoint file
         chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
-        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("\\", "/").replace("//", "/")
-
+        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("//", "/")
         # Rename checkpoints to ensure the newest one has the greatest number
-        try:
-            file_utils.rename_checkpoints(preferences.output)
-            file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/").replace("//", "/"))
-        except Exception as e:
-            err_message("Could not rename files due to: " + e)
 
+        file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/").replace("//", "/"))
         # If Error happend in getting new checkpoint
         if chkpnt_weights == file_utils.ERROR or file_utils.CHECKPOINT_KEYWORD not in chkpnt_weights:
             err_message("No valid checkpoints found in " + file_utils.from_workbench(preferences.output))
             print("\t\tPlease use a trained checkpoint (e.g " + file_utils.CHECKPOINT_KEYWORD + "1.tf )")
             return
-
-
+        print(preferences.output)
         # if no checkpoint found, return
         if chkpnt_weights == file_utils.ERROR:
             err_message("No checkpoints found in " + start_path)
@@ -694,6 +692,13 @@ def run(start_from, start_path):
     if (start_from == TEST_IMAGE):
         test_img = start_path
 
+        # Rename checkpoints to ensure the newest one has the greatest number
+        try:
+            file_utils.rename_checkpoints(preferences.output)
+            file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/").replace("//", "/"))
+        except Exception as e:
+            err_message("Could not rename files due to: " + e)
+
         # Get checkpoint
         chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
         chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("\\", "/").replace("//", "/")
@@ -703,13 +708,6 @@ def run(start_from, start_path):
             err_message("No valid checkpoints found in " + file_utils.from_workbench(preferences.output))
             print("\t\tPlease use a trained checkpoint (e.g " + file_utils.CHECKPOINT_KEYWORD + "1.tf )")
             return
-
-        # Rename checkpoints to ensure the newest one has the greatest number
-        try:
-            file_utils.rename_checkpoints(preferences.output)
-            file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/").replace("//", "/"))
-        except Exception as e:
-            err_message("Could not rename files due to: " + e)
 
         # if no checkpoint found, return
         if chkpnt_weights == file_utils.ERROR:
