@@ -42,8 +42,8 @@ def modify_commands():
 def help():
     print("\n COMMANDS")
     print("\n continue or c                  ==> Continue workbench from a checkpoint or session")
-    print("\n                                        example continue   (this uses the most recent check in your output folder)"
-    print("\n                                        example: continue ./output/yolov3_train_5.tf"
+    print("\n                                        example continue   (this uses the most recent check in your output folder")
+    print("\n                                        example: continue ./output/yolov3_train_5.tf")
     print("\n                                        example: continue ./saved_session/session_1")
     print("\n display or d                   ==> Displays current settings")
     print("\n finish or f                    ==> Finishes the workbench if training was stopped manually")
