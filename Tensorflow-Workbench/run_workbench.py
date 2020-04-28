@@ -21,6 +21,7 @@ try:
     from scripts import detect_img
     from scripts import create_coreml
     import tensorflow as tf
+    from matplotlib import pyplot
     from tensorflow.keras.applications import MobileNet
 
     from yolov3_tf2.models import (
@@ -38,6 +39,8 @@ try:
     SPECIAL_CHAR = "?<#>@"
     INPUT_ERR = -99999999
     NO_ERROR = -99999998
+    training_data = []
+    testing_data = []
 
 # if script not found
 except FileNotFoundError as e:
@@ -91,16 +94,6 @@ def check_admin():
        print("\t\t        - You close the anaconda prompt and re-run the anaconda prompt as admin")
        exit()
 
-########################## CHECK_TRAIN #############################
-# Description: takes a boolean if session has had training in it, returns message if so
-# Parameters: Boolean - trained - if training has happened in session
-# Return: trained
-def check_train(trained):
-    if trained:
-        print("\n\tWARNING: You have trained an AI model in this session and memeory is still in RAM")
-        print("\t         If you wish to run or continue, save your preferences if nessacary and restart the workbench")
-        print("\t         Proceed with caution")
-    return trained
 
 ########################## ERR_MESSAGE #############################
 # Description: takes a string and prints it with a "\n\tERROR: " prefix
@@ -151,6 +144,8 @@ def check_input(value, type):
     # string/file variable
     elif type == defaults.FILE:
         if path.exists(value):
+            if os.path.isdir(value):
+                value = (value + "/").replace("//", "/")
             return value
         err_message( value + " does not exist")
 
@@ -200,7 +195,14 @@ def modify(user_var, user_input):
          user_var == defaults.VALID_IN_VAR or \
          user_var == defaults.WEIGHTS_PATH_VAR:
 
-         user_input = check_input(user_input, defaults.FILE).lower()
+         temp = check_input(user_input, defaults.FILE)
+         if temp != INPUT_ERR:
+             try:
+                user_input = temp.lower()
+             except:
+                 user_input = INPUT_ERR
+         else:
+             user_input = INPUT_ERR
 
     # check if it is varibale that should be a Boolean
     elif user_var == defaults.TINY_WEIGHTS_VAR:
@@ -280,8 +282,7 @@ def modify(user_var, user_input):
 
         # output - File(string)
         elif user_var == defaults.OUTPUT_VAR:
-            if user_input[:-1] != "/":
-                user_input = user_input + "/"
+            user_input = (user_input + "/").replace("//", "/")
             preferences.output = user_input
 
         # sessions - INT
@@ -500,6 +501,7 @@ def run(start_from, start_path):
         all_classifiers = file_utils.get_classifiers(defaults.IMAGES_PATH)
         # counts all unique objects labeled
         classifiers = file_utils.classifier_remove_dup(all_classifiers)
+        preferences.num_classes = len(classifiers)
         # resets classifier list to save memory
         all_classifiers = []
 
@@ -543,7 +545,7 @@ def run(start_from, start_path):
                                                preferences.output + "/yolov3.tf",
                                                preferences.tiny,
                                                preferences.weight_num_classes)
-            weights = (preferences.output + "/yolov3.tf").replace("\\", "/")
+            weights = (preferences.output + "/yolov3.tf").replace("\\", "/").replace("//", "/")
             print("\tCheckpoint Converted!\n")
         else:
             weights = None
@@ -558,7 +560,7 @@ def run(start_from, start_path):
             # if folder given, search folder for most recent checkpoint
             if os.path.isdir(weights):
                 weights = file_utils.get_last_checkpoint(weights)
-                weights = (weights.split(".tf")[0] + ".tf").replace("\\", "/")
+                weights = (weights.split(".tf")[0] + ".tf").replace("\\", "/").replace("//", "/")
 
             # check to make sure file is correct type, if not return
             if ".tf" not in weights:
@@ -589,7 +591,7 @@ def run(start_from, start_path):
             # start training counter
             start_train_time = time.perf_counter()
             # start training
-            trained = train_workbench.run_train(preferences.dataset_train,
+            train, test = train_workbench.run_train(preferences.dataset_train,
                                                 preferences.dataset_test,
                                                 preferences.tiny,
                                                 defaults.IMAGES_PATH,
@@ -605,6 +607,8 @@ def run(start_from, start_path):
                                                 preferences.weight_num_classes,
                                                 preferences.output,
                                                 preferences.max_checkpoints)
+            training_data.extend(train)
+            testing_data.extend(test)
             training_time = time.perf_counter() - start_train_time
             print("\n\n\tTraining Complete!\n")
 
@@ -626,20 +630,23 @@ def run(start_from, start_path):
             err_message(preferences.classifier_file + " not found or is empty")
             return
 
+        try:
+            file_utils.rename_checkpoints(preferences.output)
+        except Exception as e:
+            err_message(e)
+
         # update checkpoint file
         chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
-        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("\\", "/")
+        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("//", "/")
+        # Rename checkpoints to ensure the newest one has the greatest number
 
+        file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/").replace("//", "/"))
         # If Error happend in getting new checkpoint
         if chkpnt_weights == file_utils.ERROR or file_utils.CHECKPOINT_KEYWORD not in chkpnt_weights:
             err_message("No valid checkpoints found in " + file_utils.from_workbench(preferences.output))
             print("\t\tPlease use a trained checkpoint (e.g " + file_utils.CHECKPOINT_KEYWORD + "1.tf )")
             return
-
-        # Rename checkpoints to ensure the newest one has the greatest number
-        file_utils.rename_checkpoints(preferences.output)
-        file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/"))
-
+        print(preferences.output)
         # if no checkpoint found, return
         if chkpnt_weights == file_utils.ERROR:
             err_message("No checkpoints found in " + start_path)
@@ -686,19 +693,22 @@ def run(start_from, start_path):
     if (start_from == TEST_IMAGE):
         test_img = start_path
 
+        # Rename checkpoints to ensure the newest one has the greatest number
+        try:
+            file_utils.rename_checkpoints(preferences.output)
+            file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/").replace("//", "/"))
+        except Exception as e:
+            err_message("Could not rename files due to: " + e)
+
         # Get checkpoint
         chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
-        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("\\", "/")
+        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("\\", "/").replace("//", "/")
 
         # If Error happend in getting new checkpoint
         if chkpnt_weights == file_utils.ERROR or file_utils.CHECKPOINT_KEYWORD not in chkpnt_weights:
             err_message("No valid checkpoints found in " + file_utils.from_workbench(preferences.output))
             print("\t\tPlease use a trained checkpoint (e.g " + file_utils.CHECKPOINT_KEYWORD + "1.tf )")
             return
-
-        # Rename checkpoints to ensure the newest one has the greatest number
-        file_utils.rename_checkpoints(preferences.output)
-        file_utils.write_to_checkpoint(chkpnt_weights, (preferences.output + "/checkpoint").replace("\\", "/"))
 
         # if no checkpoint found, return
         if chkpnt_weights == file_utils.ERROR:
@@ -721,7 +731,7 @@ def run(start_from, start_path):
         if test_img.endswith(tuple(file_utils.IMAGE_TYPES)):
             files_found = True
             file_type = file_utils.get_type(test_img)
-            out_img = preferences.output.replace("\\", "/") + test_img.split(".")[0] + "-output" + file_type
+            out_img = preferences.output + test_img.split(".")[0] + "-output" + file_type
             detect_img.run_detect(preferences.classifier_file,
                                   chkpnt_weights,
                                   preferences.tiny,
@@ -732,13 +742,13 @@ def run(start_from, start_path):
 
     # test_img given was a signle folder, test entire folder
     elif path.isdir(test_img):
-        test_img = (test_img + "/").replace("\\", "/")
+        test_img = (test_img + "/").replace("\\", "/").replace("//", "/")
         for file in os.listdir(test_img):
             file = file.lower()
             if file.endswith(tuple(file_utils.IMAGE_TYPES)):
                 files_found = True
                 file_type = file_utils.get_type(file)
-                out_img = preferences.output.replace("\\", "/") + file.split(".")[0] + "-output" + file_type
+                out_img = preferences.output + file.split(".")[0] + "-output" + file_type
                 detect_img.run_detect(preferences.classifier_file,
                                       chkpnt_weights,
                                       preferences.tiny,
@@ -747,7 +757,7 @@ def run(start_from, start_path):
                                       out_img,
                                       preferences.num_classes)
     else:
-        fiels_found = True
+        files_found = True
         err_message("Test file(s) not found " + file_utils.from_workbench(test_img))
 
     if not files_found:
@@ -769,13 +779,21 @@ def run(start_from, start_path):
         print("=====================================================================================\n")
 
 
+def plot_test_train(train_data, test_data):
+    pyplot.plot(train_data, label='train')
+    pyplot.plot(test_data, label='test')
+    # Use a fork for the display to allow the main thread to finish so that the graph doesn't halt the system
+    pyplot.legend()
+    pyplot.show()
+
+
 ############################## MAIN ##########################
 def main():
+    tf.keras.backend.clear_session()
     warnings.simplefilter("ignore")
     check_admin()
     print("\nWelcome to the Digital Roll Workbench")
     print("\nEnter 'help' or 'h' for a list of commands:")
-    trained = False
     while True:
         try:
 
@@ -791,28 +809,32 @@ def main():
 
             # CONTINUE from last checkpoint
             if userInput == "continue" or userInput == "c":
-                if not check_train(trained):
-                    try:
-                        run(CONTINUE, NONE)
-                    except Exception as e:
-                        err_message(str(e))
-                else:
-                    trained = False
+                try:
+                    last_weight = file_utils.get_last_checkpoint(preferences.output)
+                    last_weight = (last_weight.split(".tf")[0] + ".tf").replace("\\", "/").replace("//", "/")
+                    run(CONTINUE, last_weight)
+                except Exception as e:
+                    err_message(str(e))
 
             # CONTINUE from user given file
             elif userInput[0:5] == "continue " or userInput[0:2] == "c ":
-                if not check_train(trained):
-                    trained = True
-                    if userInput[0:2] == "c ":
-                        prev_check = userInput[2:]
-                    else:
-                        prev_check = userInput[5:]
-                    try:
-                        run(CONTINUE, prev_check)
-                    except Exception as e:
-                        err_message(str(e))
+                if userInput[0:2] == "c ":
+                    prev_check = userInput[2:]
                 else:
-                    trained = False
+                    prev_check = userInput[5:]
+                try:
+                    run(CONTINUE, prev_check)
+                except Exception as e:
+                    err_message(str(e))
+
+            elif userInput == "finish" or userInput == "f":
+                try:
+                    run(CONTINUE, NONE)
+                except Exception as e:
+                    err_message(str(e))
+
+            elif userInput == "graph" or userInput == "g":
+                plot_test_train(training_data, testing_data)
 
             # DISPLAY
             elif userInput == "display" or userInput == "d":
@@ -871,18 +893,16 @@ def main():
             # QUIT
             elif userInput == "quit" or userInput == "q":
                 print("\n\tExiting workbench...")
+                tf.keras.backend.clear_session()
                 exit()
 
             # RUN
             elif userInput == "run" or userInput == "r":
-                if not check_train(trained):
-                    trained = True
-                    try:
-                        run(RUN, NONE)
-                    except Exception as e:
-                        err_message(str(e))
-                else:
-                    trained = False
+                try:
+                    run(RUN, NONE)
+                except Exception as e:
+                    err_message(str(e))
+
 
             # SAVE from current working directory
             elif userInput == "save" or userInput == "s":

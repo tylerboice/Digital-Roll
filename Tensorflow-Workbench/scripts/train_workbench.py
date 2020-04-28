@@ -5,6 +5,8 @@ import tensorflow as tf
 import numpy as np
 import math
 import cv2
+import os
+import threading
 from tensorflow.keras.callbacks import (
     ReduceLROnPlateau,
     EarlyStopping,
@@ -20,11 +22,11 @@ from yolov3_tf2.utils import freeze_all
 import yolov3_tf2.dataset as dataset
 
 
-
 def run_train(train_dataset_in, val_dataset_in, tiny, images,
               weights, classifiers, mode, transfer, size, epochs, batch_size,
               learning_rate, num_classes, weights_num_classes, checkpoint_path, total_checkpoints):
 
+    global test_data, train_data
     checkpoint_path = checkpoint_path.replace("\\", "/")
 
     if tiny:
@@ -101,13 +103,15 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
             # freeze everything
             freeze_all(model)
 
-    optimizer = tf.keras.optimizers.Adam(lr=learning_rate)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate, amsgrad=True)
     loss = [YoloLoss(anchors[mask], classes=num_classes)
             for mask in anchor_masks]
 
     if mode == 'eager_tf':
         # Eager mode is great for debugging
         # Non eager graph mode is recommended for real training
+        print("\nEager Training Starting...\n")
+        print("\n\t NOTICE: This mode is mainly for debugging and should not be used for real training\n")
         avg_loss = tf.keras.metrics.Mean('loss', dtype=tf.float32)
         avg_val_loss = tf.keras.metrics.Mean('val_loss', dtype=tf.float32)
 
@@ -157,51 +161,65 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                       run_eagerly=(mode == 'eager_fit'))
         callbacks = [
             ReduceLROnPlateau(verbose=1),
-            EarlyStopping(patience=3, monitor='val_loss', verbose=1),
+            EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=3),
             ModelCheckpoint(checkpoint_path + 'yolov3_train_{epoch}.tf',
                             verbose=1, save_weights_only=True),
             TensorBoard(log_dir='logs')
         ]
-        total_batches = math.floor(epochs/total_checkpoints)
-        batch_remainder = epochs % total_checkpoints
-        batches = 1
-        extra_batch = 0
-
-        if batch_remainder != 0:
-            extra_batch = 1
+        total_runs = math.floor(epochs/total_checkpoints)
+        runs_remainder = epochs % total_checkpoints
+        epochs_performed = 0
+        run = 1
+        extra_run = 0
+        train_data = []
+        test_data = []
+        print("\n===================================================================================================\n")
+        if runs_remainder != 0:
+            extra_run = 1
 
         if total_checkpoints > 0 and total_checkpoints < epochs:
-            print("\tTraining in batches to save memory")
-            while batches <= total_batches:
+            print("\tTraining in runs to save memory")
+            while run <= total_runs:
                 print("\n=======================================")
-                print("             Batch " + str(batches) + "/" + str(total_batches + extra_batch))
+                print("             Training Run " + str(run) + "/" + str(total_runs + extra_run))
                 print("=======================================\n")
+                tf.keras.backend.clear_session()
                 history = model.fit(train_dataset,
                                     epochs=total_checkpoints,
                                     callbacks=callbacks,
                                     validation_data=val_dataset)
 
-                # Increment the batches
-                batches += 1
+                # Increment the run
+                run += 1
+                epochs_performed += 1
+                # add data for later plotting
+                train_data.extend(history.history['loss'])
+                test_data.extend(history.history['val_loss'])
 
-            if batch_remainder != 0:
+            if runs_remainder != 0:
                 print("\n=======================================")
-                print("             Batch " + str(batches) + "/" + str(total_batches + extra_batch))
+                print("             Training Run " + str(run) + "/" + str(total_runs + extra_run))
                 print("=======================================\n")
+                tf.keras.backend.clear_session()
                 history = model.fit(train_dataset,
-                                     epochs=batch_remainder,
-                                     callbacks=callbacks,
-                                     validation_data=val_dataset)
+                                    epochs=runs_remainder,
+                                    callbacks=callbacks,
+                                    validation_data=val_dataset)
+                # add data for later plotting
+                train_data.extend(history.history['loss'])
+                test_data.extend(history.history['val_loss'])
 
         else:
             history = model.fit(train_dataset,
                                 epochs=epochs,
                                 callbacks=callbacks,
                                 validation_data=val_dataset)
-    return True
+            # plot training history
+            # add data for later plotting
+            train_data.extend(history.history['loss'])
+            test_data.extend(history.history['val_loss'])
 
-
-
+    return train_data, test_data
 
 
 def find_lowest_check(checkpoints):
@@ -210,6 +228,7 @@ def find_lowest_check(checkpoints):
         if checks < lowest_check:
             lowest_check = checks
     return lowest_check
+
 
 if __name__ == '__main__':
     try:

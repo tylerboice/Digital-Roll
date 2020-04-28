@@ -255,17 +255,17 @@ def from_workbench(path):
         return str(path)
 
 
-############################ GET OLDEST CHECKPOINT ###############################
-# Description: find the checkpoint that has the oldest "last_modified" time
+############################ GET NEWEST CHECKPOINT ###############################
+# Description: find the checkpoint that has the newest "last_modified" time
 #              This is used because epochs loop though and overwrite, so if epochs were
 #              canceled by user or stopped, then a lower number epoch may be newer then a
 #              epoch with a higher value
 # Parameters: checkpoint_path - String - path to checkpoints
-# Return: the oldest cehckpoint file
-def get_oldest_checkpoint(checkpoint_path):
-    oldest = -1
+# Return: the newest cehckpoint file
+def get_newest_checkpoint(checkpoint_path):
+    newest = -1
     checkpoint = checkpoint_path
-    oldest_file = ""
+    newest_file = ""
 
     # loop though checkpoints
     for file in os.listdir(checkpoint_path):
@@ -276,11 +276,11 @@ def get_oldest_checkpoint(checkpoint_path):
             str_last_mod = str(last_modified[4]) + str(get_month(last_modified[1])) + str(last_modified[3])
             last_modified = int(str_last_mod.replace(":", ""))
 
-            # if current checkpoint is older, set to oldest file
-            if last_modified > oldest:
-                oldest_file = file
-                oldest = last_modified
-    return oldest_file
+            # if current checkpoint is older, set to newest file
+            if last_modified > newest:
+                newest_file = file
+                newest = last_modified
+    return newest_file
 
 
 ############################ GET CHECKPOINT INT ###############################
@@ -289,10 +289,13 @@ def get_oldest_checkpoint(checkpoint_path):
 #                       output = 23
 # Parameters: file - String - checkpoint file
 # Return: integer value within the checkpoint name
-def get_checkpoint_int(file):
+def get_checkpoint_int(file, checkpoint_path):
     try:
-        file_name = file.split(".")[0]
-        return file_name - CHECKPOINT_KEYWORD
+        file = file.replace(checkpoint_path, "")
+        file = file.replace(CHECKPOINT_KEYWORD, "").split(".")[0]
+        if not file.isnumeric() and "/" in file:
+            file = file.split("/")[:-1]
+        return int(file)
     except:
         return 0
 
@@ -397,19 +400,17 @@ def get_input_var(input, split_char):
 def get_last_checkpoint(checkpoint_path):
     last_checkpoint_num = -1
     last_checkpoint = ""
-    if checkpoint_path[:-1] != "/":
-        checkpoint_path += ""
     if os.path.exists(checkpoint_path):
         for filename in os.listdir(checkpoint_path):
             if os.path.isdir(filename):
                 temp_check = get_last_checkpoint(filename)
-                if  last_checkpoint_num < get_checkpoint_int(temp_check):
+                if  last_checkpoint_num < get_checkpoint_int(temp_check, checkpoint_path):
                     last_checkpoint = checkpoint_path + temp_check
 
             # if filename is a checkpoint, check to see it is the highest value
             if CHECKPOINT_KEYWORD and '.tf.index' in filename:
-               if last_checkpoint_num < get_checkpoint_int(filename):
-                   last_checkpoint_num = get_checkpoint_int(filename)
+               if last_checkpoint_num < get_checkpoint_int(filename, checkpoint_path):
+                   last_checkpoint_num = get_checkpoint_int(filename, checkpoint_path)
                    last_checkpoint = checkpoint_path + filename
 
     # return checkpoint if valid
@@ -417,6 +418,33 @@ def get_last_checkpoint(checkpoint_path):
         last_checkpoint = ERROR
     return last_checkpoint
 
+########################## GET LOWEST CHECKPOINT #############################
+# Description: gets checkpoint with the highest number
+# Parameters: checkpoint_path - String - path of the checkpoints
+# Return: loest_checkpoint - String - checkpoint with the lowestest number
+#         returns ERROR message if bad input was given
+def get_lowest_checkpoint(checkpoint_path, counter):
+    lowest_checkpoint_num = 999999
+    lowest_checkpoint = ""
+    if os.path.exists(checkpoint_path):
+        for filename in os.listdir(checkpoint_path):
+            if os.path.isdir(filename):
+                temp_check = get_lowest_checkpoint(filename, counter)
+                temp_check_int = get_checkpoint_int(temp_check, checkpoint_path)
+                if  lowest_checkpoint_num > temp_check_int and temp_check_int >= counter:
+                    lowest_checkpoint = checkpoint_path + temp_check
+
+            # if filename is a checkpoint, check to see it is the highest value
+            if CHECKPOINT_KEYWORD and '.tf.index' in filename:
+               cur_check_int = get_checkpoint_int(filename, checkpoint_path)
+               if lowest_checkpoint_num > cur_check_int and cur_check_int >= counter:
+                   lowest_checkpoint_num = get_checkpoint_int(filename, checkpoint_path)
+                   lowest_checkpoint = checkpoint_path + filename
+
+    # return checkpoint if valid
+    if lowest_checkpoint_num == 999999:
+        lowest_checkpoint = ERROR
+    return lowest_checkpoint_num
 
 ############################ GET MONTH ###############################
 # Description: converts month abreviation into int
@@ -497,7 +525,7 @@ def is_valid(file):
     return os.path.exists(file) and os.stat(file).st_size != 0
 
 
-########################## REMOVE EMPTYFOLDERS #############################
+########################## REMOVE EMPTY FOLDERS #############################
 # recursivly checks driectory for images
 def remove_empty_folders(path):
     for file in os.listdir(path):
@@ -536,27 +564,13 @@ def remove_smallest_sess(save_sess_path, max_saved_sess, keyword):
     else:
         return 0
 
-
-def remove_temp(new_path, temp_path):
-    new_path = (new_path + "/").replace("//", "/")
-    temp_path = (temp_path + "/").replace("//", "/")
-    shutil.rmtree(new_path + "assets")
-    shutil.rmtree(new_path + "variables")
-    for file in os.listdir(temp_path):
-        if ".pb" not in file:
-            if os.path.exists(new_path + file):
-                os.remove(new_path + file)
-            shutil.move(temp_path + file, new_path + file)
-    shutil.rmtree(temp_path)
-
-
 def find_max_checkpoint(path):
     max_checkpoint = 0
     for file in os.listdir(path):
-        temp = get_checkpoint_int(file)
-        if temp > max_checkpoint:
-            max_checkpoint = temp
+        if CHECKPOINT_KEYWORD in file and ".tf.index" in file:
+            max_checkpoint += 1
     return max_checkpoint
+
 
 def get_checkpoint_suffix(file):
     if ".tf" in file:
@@ -569,53 +583,34 @@ def get_checkpoint_suffix(file):
 # returns: .tf.index
 def rename_checkpoints(checkpoint_path):
     max_checkpoints = find_max_checkpoint(checkpoint_path) # max checkpoints
-    oldest_file = get_oldest_checkpoint(checkpoint_path)   # path of the checkpoint
-    oldest_file_int = get_checkpoint_int(oldest_file)      # value of the checkpoint
-    oldest_file_diff = max_checkpoints - oldest_file_int   # difference between max_checkpoint and oldest file
+    newest_file = get_newest_checkpoint(checkpoint_path)   # path of the checkpoint
+    newest_file_int = get_checkpoint_int(newest_file, checkpoint_path)      # value of the checkpoint
+    highest_check_int = get_checkpoint_int(get_last_checkpoint(checkpoint_path), checkpoint_path)
 
-    temp_file_int =  oldest_file_int
-    files_renamed = max_checkpoints + 1
-    max_files = max_checkpoints * 2
-
-
-    if oldest_file_diff != 0:
+    counter = 1
+    if highest_check_int != newest_file_int:
 
         # rename all the older files
-        while oldest_file_diff != 0:
-            temp_file_int += 1
+        while counter <= newest_file_int:
             for file in os.listdir(checkpoint_path):
-                if CHECKPOINT_KEYWORD in file:
-                    if CHECKPOINT_KEYWORD + str(temp_file_int) in file:
-                        old_file = checkpoint_path + file
-                        new_file = checkpoint_path + CHECKPOINT_KEYWORD + str(files_renamed) + get_checkpoint_suffix(file)
-                        os.rename(old_file, new_file)
-            files_renamed += 1
-            oldest_file_diff -= 1
-
-        # rename all the newer fiels
-        while files_renamed > 0:
-            for file in os.listdir(checkpoint_path):
-                if CHECKPOINT_KEYWORD in file:
-                    if CHECKPOINT_KEYWORD + str(oldest_file_int) in file:
-                        old_file = checkpoint_path + file
-                        new_file = checkpoint_path + CHECKPOINT_KEYWORD + str(files_renamed) + get_checkpoint_suffix(file)
-                        os.rename(old_file, new_file)
-            files_renamed -= 1
-            oldest_file_int -= 1
-
-        current_checkpoint = max_checkpoints + files_renamed
-
-        highest_checkpoint = find_max_checkpoint(checkpoint_path)
-
-        # rename all files
-        while max_checkpoints > 0:
-            for file in os.listdir(checkpoint_path):
-                if CHECKPOINT_KEYWORD + str(highest_checkpoint) in file:
+                if CHECKPOINT_KEYWORD + str(counter) + ".tf" in file and not os.path.isdir(file):
                     old_file = checkpoint_path + file
-                    new_file = checkpoint_path + get_checkpoint_name(file) + str(max_checkpoints) + get_checkpoint_suffix(file)
+                    new_file = checkpoint_path + CHECKPOINT_KEYWORD + str(counter + highest_check_int) + get_checkpoint_suffix(file)
+
                     os.rename(old_file, new_file)
-            max_checkpoints -= 1
-            highest_checkpoint -= 1
+            counter += 1
+
+    # while the highest checkpoint doesnt equal max_checkpoints
+    counter = 1
+    if max_checkpoints !=  highest_check_int:
+        while counter <= max_checkpoints:
+            lowest_check = get_lowest_checkpoint(checkpoint_path, counter)
+            for file in os.listdir(checkpoint_path):
+                if CHECKPOINT_KEYWORD + str(lowest_check) in file:
+                    old_file = checkpoint_path + file
+                    new_file = checkpoint_path + CHECKPOINT_KEYWORD + str(counter) + get_checkpoint_suffix(file)
+                    os.rename(old_file, new_file)
+            counter += 1
 
 
 ########################## SAVE CHECKPOINTS ##########################
@@ -711,9 +706,10 @@ def sort_images(num_validate, image_path, test_image_path, train_image_path, val
 def write_to_checkpoint(checkpoint_name, filename):
     quote = '"'
     if CHECKPOINT_KEYWORD in checkpoint_name:
-        checkpoint_name = CHECKPOINT_KEYWORD + checkpoint_name.split(CHECKPOINT_KEYWORD)[1]
+        checkpoint_name = CHECKPOINT_KEYWORD + str(checkpoint_name.split(CHECKPOINT_KEYWORD)[1])
         models = "model_checkpoint_path: "
         all_models = "all_model_checkpoint_paths: "
+        print(checkpoint_name)
         with open(filename, "w") as f:
             f.write(models + quote + checkpoint_name + quote)
             f.write("\n")
