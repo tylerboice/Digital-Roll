@@ -144,6 +144,8 @@ def check_input(value, type):
     # string/file variable
     elif type == defaults.FILE:
         if path.exists(value):
+            if os.path.isdir(value):
+                value = (value + "/").replace("//", "/")
             return value
         err_message( value + " does not exist")
 
@@ -280,8 +282,7 @@ def modify(user_var, user_input):
 
         # output - File(string)
         elif user_var == defaults.OUTPUT_VAR:
-            if user_input[:-1] != "/":
-                user_input = user_input + "/"
+            user_input = (user_input + "/").replace("//", "/")
             preferences.output = user_input
 
         # sessions - INT

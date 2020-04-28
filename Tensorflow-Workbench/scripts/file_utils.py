@@ -586,9 +586,7 @@ def rename_checkpoints(checkpoint_path):
     newest_file = get_newest_checkpoint(checkpoint_path)   # path of the checkpoint
     newest_file_int = get_checkpoint_int(newest_file, checkpoint_path)      # value of the checkpoint
     highest_check_int = get_checkpoint_int(get_last_checkpoint(checkpoint_path), checkpoint_path)
-    print("max:" + str(max_checkpoints))
-    print("new:" + str(newest_file_int))
-    print("high:" + str(highest_check_int))
+
     counter = 1
     if highest_check_int != newest_file_int:
 
@@ -598,8 +596,7 @@ def rename_checkpoints(checkpoint_path):
                 if CHECKPOINT_KEYWORD + str(counter) + ".tf" in file and not os.path.isdir(file):
                     old_file = checkpoint_path + file
                     new_file = checkpoint_path + CHECKPOINT_KEYWORD + str(counter + highest_check_int) + get_checkpoint_suffix(file)
-                    print("old_file:" + str(old_file))
-                    print("new_file:" + str(new_file))
+
                     os.rename(old_file, new_file)
             counter += 1
 
