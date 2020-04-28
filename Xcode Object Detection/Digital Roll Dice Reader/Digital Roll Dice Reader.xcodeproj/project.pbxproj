@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		261A90952451662A0034C884 /* core_ml.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 261A90942451662A0034C884 /* core_ml.mlmodel */; };
+		261A909724581FA40034C884 /* MyImageClassifier 1.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 261A909624581FA40034C884 /* MyImageClassifier 1.mlmodel */; };
 		26B6CCB2243FD9AE007D6C3D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B6CCB1243FD9AE007D6C3D /* AppDelegate.swift */; };
 		26B6CCB4243FD9AE007D6C3D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B6CCB3243FD9AE007D6C3D /* SceneDelegate.swift */; };
 		26B6CCB6243FD9AE007D6C3D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B6CCB5243FD9AE007D6C3D /* ViewController.swift */; };
@@ -38,6 +39,7 @@
 
 /* Begin PBXFileReference section */
 		261A90942451662A0034C884 /* core_ml.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; name = core_ml.mlmodel; path = ../../../../../Downloads/core_ml.mlmodel; sourceTree = "<group>"; };
+		261A909624581FA40034C884 /* MyImageClassifier 1.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; name = "MyImageClassifier 1.mlmodel"; path = "../../../../MyImageClassifier 1.mlmodel"; sourceTree = "<group>"; };
 		26B6CCAE243FD9AE007D6C3D /* Digital Roll Dice Reader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Digital Roll Dice Reader.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		26B6CCB1243FD9AE007D6C3D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		26B6CCB3243FD9AE007D6C3D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 				26B6CCBF243FD9B0007D6C3D /* Info.plist */,
 				261A90942451662A0034C884 /* core_ml.mlmodel */,
 				26B6CCE3243FDB52007D6C3D /* Resnet50.mlmodel */,
+				261A909624581FA40034C884 /* MyImageClassifier 1.mlmodel */,
 			);
 			path = "Digital Roll Dice Reader";
 			sourceTree = "<group>";
@@ -267,6 +270,7 @@
 			files = (
 				26B6CCE4243FDB52007D6C3D /* Resnet50.mlmodel in Sources */,
 				26B6CCB6243FD9AE007D6C3D /* ViewController.swift in Sources */,
+				261A909724581FA40034C884 /* MyImageClassifier 1.mlmodel in Sources */,
 				26B6CCB2243FD9AE007D6C3D /* AppDelegate.swift in Sources */,
 				261A90952451662A0034C884 /* core_ml.mlmodel in Sources */,
 				26B6CCB4243FD9AE007D6C3D /* SceneDelegate.swift in Sources */,

@@ -62,7 +62,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection){
         guard let pixelBuffer: CVPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {self.quickErr(myLine: #line, inputStr: ""); return}
-        guard let model = try? VNCoreMLModel(for: core_ml().model) else {self.quickErr(myLine: #line, inputStr: ""); return}
+        guard let model = try? VNCoreMLModel(for: MyImageClassifier_1().model) else {self.quickErr(myLine: #line, inputStr: ""); return}
         let request = VNCoreMLRequest(model: model) {(finishedReq, err) in
             guard let results = finishedReq.results as? [VNClassificationObservation] else {return}
             guard let firstObservation = results.first else {return}
@@ -70,7 +70,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             var myMessage = ""
             var myConfidence = 0
             
-            if (firstObservation.confidence > 0) {
+            if (firstObservation.confidence > 0.5) {
                 myConfidence = Int(firstObservation.confidence * 100)
                 let myIdentifier = firstObservation.identifier.split(separator: ",")
                 myMessage = "The model is \(myConfidence)% confident this object is: \(myIdentifier[0])."
