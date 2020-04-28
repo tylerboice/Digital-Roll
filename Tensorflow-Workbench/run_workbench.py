@@ -282,7 +282,7 @@ def modify(user_var, user_input):
         elif user_var == defaults.OUTPUT_VAR:
             if user_input[:-1] != "/":
                 user_input = user_input + "/"
-            preferences.output = user_input
+            preferences.output = user_input.replace("//", "/")
 
         # sessions - INT
         elif user_var == defaults.SAVED_SESS_VAR:
