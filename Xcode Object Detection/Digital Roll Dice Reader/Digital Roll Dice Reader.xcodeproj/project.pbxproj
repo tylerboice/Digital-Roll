@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		261A90952451662A0034C884 /* core_ml.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 261A90942451662A0034C884 /* core_ml.mlmodel */; };
 		26B6CCB2243FD9AE007D6C3D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B6CCB1243FD9AE007D6C3D /* AppDelegate.swift */; };
 		26B6CCB4243FD9AE007D6C3D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B6CCB3243FD9AE007D6C3D /* SceneDelegate.swift */; };
 		26B6CCB6243FD9AE007D6C3D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B6CCB5243FD9AE007D6C3D /* ViewController.swift */; };
@@ -15,7 +16,6 @@
 		26B6CCBE243FD9B0007D6C3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26B6CCBC243FD9B0007D6C3D /* LaunchScreen.storyboard */; };
 		26B6CCC9243FD9B0007D6C3D /* Digital_Roll_Dice_ReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B6CCC8243FD9B0007D6C3D /* Digital_Roll_Dice_ReaderTests.swift */; };
 		26B6CCD4243FD9B0007D6C3D /* Digital_Roll_Dice_ReaderUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B6CCD3243FD9B0007D6C3D /* Digital_Roll_Dice_ReaderUITests.swift */; };
-		26B6CCE2243FDB41007D6C3D /* dicemodel.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 26B6CCE1243FDB41007D6C3D /* dicemodel.mlmodel */; };
 		26B6CCE4243FDB52007D6C3D /* Resnet50.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 26B6CCE3243FDB52007D6C3D /* Resnet50.mlmodel */; };
 /* End PBXBuildFile section */
 
@@ -37,6 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		261A90942451662A0034C884 /* core_ml.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; name = core_ml.mlmodel; path = ../../../../../Downloads/core_ml.mlmodel; sourceTree = "<group>"; };
 		26B6CCAE243FD9AE007D6C3D /* Digital Roll Dice Reader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Digital Roll Dice Reader.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		26B6CCB1243FD9AE007D6C3D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		26B6CCB3243FD9AE007D6C3D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -51,7 +52,6 @@
 		26B6CCCF243FD9B0007D6C3D /* Digital Roll Dice ReaderUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Digital Roll Dice ReaderUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		26B6CCD3243FD9B0007D6C3D /* Digital_Roll_Dice_ReaderUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Digital_Roll_Dice_ReaderUITests.swift; sourceTree = "<group>"; };
 		26B6CCD5243FD9B0007D6C3D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		26B6CCE1243FDB41007D6C3D /* dicemodel.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; name = dicemodel.mlmodel; path = "../../../Tensorflow2.0-Workbench/conversion/dicemodel.mlmodel"; sourceTree = "<group>"; };
 		26B6CCE3243FDB52007D6C3D /* Resnet50.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; name = Resnet50.mlmodel; path = ../../../../../Downloads/Resnet50.mlmodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -110,7 +110,7 @@
 				26B6CCBA243FD9B0007D6C3D /* Assets.xcassets */,
 				26B6CCBC243FD9B0007D6C3D /* LaunchScreen.storyboard */,
 				26B6CCBF243FD9B0007D6C3D /* Info.plist */,
-				26B6CCE1243FDB41007D6C3D /* dicemodel.mlmodel */,
+				261A90942451662A0034C884 /* core_ml.mlmodel */,
 				26B6CCE3243FDB52007D6C3D /* Resnet50.mlmodel */,
 			);
 			path = "Digital Roll Dice Reader";
@@ -268,8 +268,8 @@
 				26B6CCE4243FDB52007D6C3D /* Resnet50.mlmodel in Sources */,
 				26B6CCB6243FD9AE007D6C3D /* ViewController.swift in Sources */,
 				26B6CCB2243FD9AE007D6C3D /* AppDelegate.swift in Sources */,
+				261A90952451662A0034C884 /* core_ml.mlmodel in Sources */,
 				26B6CCB4243FD9AE007D6C3D /* SceneDelegate.swift in Sources */,
-				26B6CCE2243FDB41007D6C3D /* dicemodel.mlmodel in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -62,7 +62,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection){
         guard let pixelBuffer: CVPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {self.quickErr(myLine: #line, inputStr: ""); return}
-        guard let model = try? VNCoreMLModel(for: Resnet50().model) else {self.quickErr(myLine: #line, inputStr: ""); return}
+        guard let model = try? VNCoreMLModel(for: core_ml().model) else {self.quickErr(myLine: #line, inputStr: ""); return}
         let request = VNCoreMLRequest(model: model) {(finishedReq, err) in
             guard let results = finishedReq.results as? [VNClassificationObservation] else {return}
             guard let firstObservation = results.first else {return}
