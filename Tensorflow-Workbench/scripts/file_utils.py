@@ -709,7 +709,6 @@ def write_to_checkpoint(checkpoint_name, filename):
         checkpoint_name = CHECKPOINT_KEYWORD + str(checkpoint_name.split(CHECKPOINT_KEYWORD)[1])
         models = "model_checkpoint_path: "
         all_models = "all_model_checkpoint_paths: "
-        print(checkpoint_name)
         with open(filename, "w") as f:
             f.write(models + quote + checkpoint_name + quote)
             f.write("\n")
