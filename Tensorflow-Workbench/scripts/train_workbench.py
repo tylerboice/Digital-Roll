@@ -168,9 +168,9 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
         ]
         total_runs = math.floor(epochs/total_checkpoints)
         runs_remainder = epochs % total_checkpoints
-        epochs_performed = 0
         run = 1
         extra_run = 0
+        early_stop = False
         train_data = []
         test_data = []
         print("\n===================================================================================================\n")
@@ -179,7 +179,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
 
         if total_checkpoints > 0 and total_checkpoints < epochs:
             print("\tTraining in runs to save memory")
-            while run <= total_runs:
+            while run <= total_runs and early_stop is False:
                 print("\n=======================================")
                 print("             Training Run " + str(run) + "/" + str(total_runs + extra_run))
                 print("=======================================\n")
@@ -191,10 +191,12 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
 
                 # Increment the run
                 run += 1
-                epochs_performed += 1
                 # add data for later plotting
                 train_data.extend(history.history['loss'])
                 test_data.extend(history.history['val_loss'])
+                epochs_performed = len(train_data)
+                if total_checkpoints is not epochs_performed:
+                    early_stop = True
 
             if runs_remainder != 0:
                 print("\n=======================================")
