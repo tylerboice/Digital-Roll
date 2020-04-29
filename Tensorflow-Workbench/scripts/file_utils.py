@@ -655,7 +655,7 @@ def sort_images(num_validate, image_path, test_image_path, train_image_path, val
             current_image += 1
 
             # move to test
-            if (current_image % 10 == 0) or (total_images < 10 and current_image == total_images):
+            if (current_image % 5 == 0) or (total_images < 10 and current_image == total_images):
                 if path.exists(image_path + xml_version):
                     if not path.exists(test_image_path + filename) and not path.exists(test_image_path + xml_version):
                         shutil.move(image_path + filename, test_image_path)
