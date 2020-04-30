@@ -468,7 +468,7 @@ def main():
             print("\n\t" + userInput)
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
-                preferences.transfer = userInput
+                preferences.mode = userInput
                 not_answered = False
             else:
                 not_answered = True
