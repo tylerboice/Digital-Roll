@@ -1,6 +1,12 @@
-from scripts import preferences
-from scripts import defaults
+try:
+    from scripts import preferences
+    from scripts import defaults
+except:
+    print("Please make sure you are running the proper conda environment")
+    exit()
 import os
+from os import path
+from os.path import dirname
 
 
 def save(save_path):
@@ -75,11 +81,19 @@ def main():
         print("\n\tDefault")
         print("\n\t\tThe default location is: " + preferences.output)
         userInput = input("\n<WIZARD>: ")
-        userInput = str(userInput).lower()
+        userInput = str(userInput).lower().strip()
         if userInput == "custom":
             pathInput = input("\nPlease provide a system path: ")
-            preferences.output = pathInput
             print("\nYou have given the path: ")
+            print("\n\t" + pathInput)
+            verify = input("\nIs this correct? (y/n): ")
+            if verify == "y":
+                preferences.output = pathInput
+                not_answered = False
+            else:
+                not_answered = True
+        elif userInput == "default":
+            print("\nThe system will use this default:")
             print("\n\t" + preferences.output)
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
@@ -99,11 +113,19 @@ def main():
         print("\n\tDefault")
         print("\n\t\tThe default location is: " + preferences.sessions)
         userInput = input("\n<WIZARD>: ")
-        userInput = str(userInput).lower()
+        userInput = str(userInput).lower().strip()
         if userInput == "custom":
             pathInput = input("\nPlease provide a system path: ")
-            preferences.sessions = pathInput
             print("\nYou have given the path: ")
+            print("\n\t" + pathInput)
+            verify = input("\nIs this correct? (y/n): ")
+            if verify == "y":
+                preferences.sessions = pathInput
+                not_answered = False
+            else:
+                not_answered = True
+        elif userInput == "default":
+            print("\nThe system will use this default:")
             print("\n\t" + preferences.sessions)
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
@@ -118,18 +140,23 @@ def main():
     not_answered = True
     while not_answered:
         print("\nWhat is the maximum number of saved sessions you want the system to keep before deleting old ones?")
-        print("\n\t\tThe default is: " + preferences.max_saved_sess)
+        print("\n\t\tThe default is: " + str(preferences.max_saved_sess))
         userInput = input("\n<WIZARD>: ")
         try:
             userInput = int(userInput)
         except:
             print("\nPlease give an integer value.")
-            pass
-        preferences.max_saved_sess = userInput
+            not_answered = True
+            continue
+        if userInput <= 0:
+            print("Please provide a value greater than 0.")
+            not_answered = True
+            continue
         print("\nYou have given: ")
-        print("\n\t" + preferences.max_saved_sess)
+        print("\n\t" + str(userInput))
         verify = input("\nIs this correct? (y/n): ")
         if verify == "y":
+            preferences.max_saved_sess = userInput
             not_answered = False
         else:
             not_answered = True
@@ -137,25 +164,29 @@ def main():
     # Question 4: Classifier path, the location of a .names file containing a list of the labels that will be used
     not_answered = True
     while not_answered:
-        print("\nWhere is the classifier .names file you plan to use located?")
+        print("\nWhere would you like the created .name classifier file to be saved?")
         print("\n\tType 'help' for more info")
+        print("\n\tType 'default' to use the default location")
         print("\n\t\tThe default location is: " + preferences.classifier_file)
         userInput = input("\n<WIZARD>: ")
-        userInput = str(userInput).lower()
+        userInput = str(userInput).lower().strip()
         if userInput != "help":
-            pathInput = userInput
-            preferences.classifier_file = pathInput
+            if userInput == 'default':
+                pathInput = preferences.classifier_file
+            else:
+                pathInput = userInput
             print("\nYou have given the path: ")
-            print("\n\t" + preferences.classifier_file)
+            print("\n\t" + pathInput)
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
+                preferences.classifier_file = pathInput
                 not_answered = False
             else:
                 not_answered = True
         else:
             print("\nThe classifier file which has the file type '.names' is a file containing a list of the labels")
             print("\nthat will be used by the AI to identify the data.")
-            print("\n\n\tThis label list should include every label that will be present in the datasets you use")
+            print("\n\n\tThis file is generated automatically from the labels within the data provided to the system.")
             not_answered = True
 
     # Question 5: Training data location, this should be in the form a .tfrecords
@@ -163,16 +194,20 @@ def main():
     while not_answered:
         print("\nWhere do you want the .tfrecord created from the data in the images folder to be saved?")
         print("\n\tType 'help' for more info")
+        print("\n\tType 'default' to use the default location")
         print("\n\t\tThe default location is: " + preferences.dataset_train)
         userInput = input("\n<WIZARD>: ")
-        userInput = str(userInput).lower()
+        userInput = str(userInput).lower().strip()
         if userInput != "help":
-            pathInput = userInput
-            preferences.dataset_train = pathInput
+            if userInput == 'default':
+                pathInput = preferences.dataset_train
+            else:
+                pathInput = userInput
             print("\nYou have given the path: ")
-            print("\n\t" + preferences.dataset_train)
+            print("\n\t" + pathInput)
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
+                preferences.dataset_train = pathInput
                 not_answered = False
             else:
                 not_answered = True
@@ -188,16 +223,20 @@ def main():
     while not_answered:
         print("\nWhere do you want the .tfrecord created from the data in the images folder to be saved?")
         print("\n\tType 'help' for more info")
+        print("\n\tType 'default' to use the default location")
         print("\n\t\tThe default location is: " + preferences.dataset_test)
         userInput = input("\n<WIZARD>: ")
-        userInput = str(userInput).lower()
+        userInput = str(userInput).lower().strip()
         if userInput != "help":
-            pathInput = userInput
-            preferences.dataset_test = pathInput
+            if userInput == 'default':
+                pathInput = preferences.dataset_test
+            else:
+                pathInput = userInput
             print("\nYou have given the path: ")
-            print("\n\t" + preferences.dataset_test)
+            print("\n\t" + pathInput)
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
+                preferences.dataset_test = pathInput
                 not_answered = False
             else:
                 not_answered = True
@@ -213,16 +252,20 @@ def main():
     while not_answered:
         print("\nWhere do you want the .tfrecord created from the data in the images folder to be saved?")
         print("\n\tType 'help' for more info")
+        print("\n\tType 'default' to use the default location")
         print("\n\t\tThe default location is: " + preferences.validate_input)
         userInput = input("\n<WIZARD>: ")
-        userInput = str(userInput).lower()
+        userInput = str(userInput).lower().strip()
         if userInput != "help":
-            pathInput = userInput
-            preferences.validate_input = pathInput
+            if userInput == 'default':
+                pathInput = preferences.validate_input
+            else:
+                pathInput = userInput
             print("\nYou have given the path: ")
-            print("\n\t" + preferences.validate_input)
+            print("\n\t" + pathInput)
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
+                preferences.validate_input = pathInput
                 not_answered = False
             else:
                 not_answered = True
@@ -235,18 +278,23 @@ def main():
     not_answered = True
     while not_answered:
         print("\nWhat is the number of images you want the system to randomly select for validation?")
-        print("\n\t\tThe default is: " + preferences.validate_img_num)
+        print("\n\t\tThe default is: " + str(preferences.validate_img_num))
         userInput = input("\n<WIZARD>: ")
         try:
             userInput = int(userInput)
         except:
             print("\nPlease give an integer value.")
-            pass
-        preferences.validate_img_num = userInput
+            not_answered = True
+            continue
+        if userInput <= 0:
+            print("Please provide a value greater than 0.")
+            not_answered = True
+            continue
         print("\nYou have given: ")
-        print("\n\t" + preferences.validate_img_num)
+        print("\n\t" + str(userInput))
         verify = input("\nIs this correct? (y/n): ")
         if verify == "y":
+            preferences.validate_img_num = userInput
             not_answered = False
         else:
             not_answered = True
@@ -255,18 +303,27 @@ def main():
     not_answered = True
     while not_answered:
         print("\nWhat is the size of the images you are using to create the AI?")
-        print("\n\t\tThe default is: " + preferences.image_size)
+        print("\n\t\tThe default is: " + str(preferences.image_size))
         userInput = input("\n<WIZARD>: ")
         try:
             userInput = int(userInput)
         except:
             print("\nPlease give an integer value.")
-            pass
-        preferences.image_size = userInput
+            not_answered = True
+            continue
+        if userInput <= 0:
+            print("Please provide a value greater than 0")
+            not_answered = True
+            continue
+        if userInput != 224 or userInput != 256 or userInput != 416:
+            print("The workbench only supports 224, 256, and 416 sizes at this time")
+            not_answered = True
+            continue
         print("\nYou have given: ")
-        print("\n\t" + preferences.image_size)
+        print("\n\t" + str(userInput))
         verify = input("\nIs this correct? (y/n): ")
         if verify == "y":
+            preferences.image_size = userInput
             not_answered = False
         else:
             not_answered = True
@@ -285,20 +342,20 @@ def main():
         else:
             print("\n The default is regular Yolo")
         userInput = input("\n<WIZARD>: ")
-        userInput = str(userInput).lower()
+        userInput = str(userInput).lower().strip()
         if userInput == "tiny":
-            preferences.tiny = True
             print("\nYou have set the system for Tiny-Yolo.")
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
+                preferences.tiny = True
                 not_answered = False
             else:
                 not_answered = True
         elif userInput == "regular":
-            preferences.tiny = False
             print("\nYou have set the system for regular Yolo.")
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
+                preferences.tiny = False
                 not_answered = False
             else:
                 not_answered = True
@@ -328,18 +385,20 @@ def main():
         print("\n")
         print("The default is: " + preferences.transfer)
         userInput = input("\n<WIZARD>: ")
-        userInput = str(userInput).lower()
+        userInput = str(userInput).lower().strip()
         if userInput != "help":
-            preferences.transfer = userInput
-            if userInput is not "darknet" or "fine_tune" or "none" or "frozen":
+            if userInput != "darknet" \
+                    and userInput != "fine_tune" \
+                    and userInput != "none" \
+                    and userInput != "frozen":
                 print("\n Please select one of the given options.")
                 not_answered = True
-                pass
-
+                continue
             print("\nYou have set the system for:")
-            print("\n\t" + preferences.transfer)
+            print("\n\t" + userInput)
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
+                preferences.transfer = userInput
                 not_answered = False
             else:
                 not_answered = True
@@ -352,21 +411,26 @@ def main():
             not_answered = True
 
     # Question 12: Weights location: Not asked if transfer is set to none, sets Tiny weights instead if Tiny is set
-    if preferences.transfer is not "none":
+    if preferences.transfer != "none":
         not_answered = True
         while not_answered:
             print("\nWhere is the data you want to transfer for AI use?")
             print("\n\tType 'help' for more info")
+            print("\n\tType 'default' to use the default location")
             print("\n\t\tThe default location is: " + preferences.weights)
+            print("\n\tNOTICE: This default is intended for 'darknet' transfer")
             userInput = input("\n<WIZARD>: ")
-            userInput = str(userInput).lower()
+            userInput = str(userInput).lower().strip()
             if userInput != "help":
-                pathInput = userInput
-                preferences.validate_input = pathInput
+                if userInput == 'default':
+                    pathInput = preferences.weights
+                else:
+                    pathInput = userInput
                 print("\nYou have given the path: ")
-                print("\n\t" + preferences.validate_input)
+                print("\n\t" + pathInput)
                 verify = input("\nIs this correct? (y/n): ")
                 if verify == "y":
+                    preferences.weights = pathInput
                     not_answered = False
                 else:
                     not_answered = True
@@ -391,18 +455,20 @@ def main():
         print("\n")
         print("The default is: " + preferences.mode)
         userInput = input("\n<WIZARD>: ")
-        userInput = str(userInput).lower()
+        userInput = str(userInput).lower().strip()
         if userInput != "help":
-            preferences.transfer = userInput
-            if userInput is not "fit" or "eager_fit" or "eager_tf":
+            if userInput != "fit" \
+                    and userInput != "eager_fit" \
+                    and userInput != "eager_tf":
                 print("\n Please select one of the given options.")
                 not_answered = True
-                pass
+                continue
 
             print("\nYou have set the system for:")
-            print("\n\t" + preferences.mode)
+            print("\n\t" + userInput)
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
+                preferences.transfer = userInput
                 not_answered = False
             else:
                 not_answered = True
@@ -422,18 +488,23 @@ def main():
     while not_answered:
         print("\nHow many iterations of training, known as epochs, do you want?")
         print("\nNOTE: The system may stop training early based on the mode you've previously selected.")
-        print("\n\t\tThe default is: " + preferences.epochs)
+        print("\n\t\tThe default is: " + str(preferences.epochs))
         userInput = input("\n<WIZARD>: ")
         try:
             userInput = int(userInput)
         except:
             print("\nPlease give an integer value.")
-            pass
-        preferences.epochs = userInput
+            not_answered = True
+            continue
+        if userInput <= 0:
+            print("Please provide a value greater than 0")
+            not_answered = True
+            continue
         print("\nYou have given: ")
-        print("\n\t" + preferences.epochs)
+        print("\n\t" + str(userInput))
         verify = input("\nIs this correct? (y/n): ")
         if verify == "y":
+            preferences.epochs = userInput
             not_answered = False
         else:
             not_answered = True
@@ -443,18 +514,23 @@ def main():
     while not_answered:
         print("\nEach epoch saves a checkpoint to shows its training, what is the max amount you want saved?")
         print("\nNOTE: Each checkpoint is about 1 gigabyte of memory.")
-        print("\n\t\tThe default is: " + preferences.max_checkpoints)
+        print("\n\t\tThe default is: " + str(preferences.max_checkpoints))
         userInput = input("\n<WIZARD>: ")
         try:
             userInput = int(userInput)
         except:
             print("\nPlease give an integer value.")
-            pass
-        preferences.max_checkpoints = userInput
+            not_answered = True
+            continue
+        if userInput <= 0:
+            print("Please provide a value greater than 0")
+            not_answered = True
+            continue
         print("\nYou have given: ")
-        print("\n\t" + preferences.max_checkpoints)
+        print("\n\t" + str(userInput))
         verify = input("\nIs this correct? (y/n): ")
         if verify == "y":
+            preferences.max_checkpoints = userInput
             not_answered = False
         else:
             not_answered = True
@@ -465,22 +541,29 @@ def main():
     while not_answered:
         print("\nWhat is the batch size of images you would lke to load for each training?")
         print("\nNOTE: Batch size consumes a lot of RAM, but the higher the better.")
-        print("\n\t\tThe default is: " + preferences.batch_size)
+        print("\n\t\tThe default is: " + str(preferences.batch_size))
         userInput = input("\n<WIZARD>: ")
         try:
             userInput = int(userInput)
         except:
             print("\nPlease give an integer value.")
-            pass
-        preferences.batch_size = userInput
+            not_answered = True
+            continue
+
+        if userInput <= 0:
+            print("Please provide a value greater than 0")
+            not_answered = True
+            continue
+
         print("\nYou have given: ")
-        print("\n\t" + preferences.batch_size)
-        if(preferences.batch_size > 16):
+        print("\n\t" + str(userInput))
+        if userInput > 16 :
             print("\nWARNING: This is a fairly high batch_size for an average computer.")
             print("\n If you do not have enough RAM the system may crash.")
 
         verify = input("\nIs this batch size correct? (y/n): ")
         if verify == "y":
+            preferences.batch_size = userInput
             not_answered = False
         else:
             not_answered = True
@@ -509,14 +592,24 @@ def main():
         print("\n\tDefault")
         print("\n\t\tThe default location is: " + os.getcwd())
         userInput = input("\n<WIZARD>: ")
-        userInput = str(userInput).lower()
+        userInput = str(userInput).lower().strip()
         if userInput == "custom":
             pathInput = input("\nPlease provide a system path: ")
-            save_path = pathInput + save_path
             print("\nThe file and save location is: ")
-            print("\n\t" + save_path)
+            print("\n\t" + pathInput + save_path)
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
+                save_path = pathInput + save_path
+                not_answered = False
+            else:
+                not_answered = True
+        elif userInput == "default":
+            print("\nThe system will use this default:")
+            print("\n\t" + os.getcwd())
+            verify = input("\nIs this correct? (y/n): ")
+            if verify == "y":
+                pathInput = os.getcwd()
+                save_path = pathInput + save_path
                 not_answered = False
             else:
                 not_answered = True
