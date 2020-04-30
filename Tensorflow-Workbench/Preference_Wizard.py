@@ -186,7 +186,7 @@ def main():
         else:
             print("\nThe classifier file which has the file type '.names' is a file containing a list of the labels")
             print("\nthat will be used by the AI to identify the data.")
-            print("\n\n\tThis file is generated automatically from the labels within the data provided to the system.")
+            print("\nThis file is generated automatically from the labels within the data provided to the system.")
             not_answered = True
 
     # Question 5: Training data location, this should be in the form a .tfrecords
@@ -487,9 +487,14 @@ def main():
     not_answered = True
     while not_answered:
         print("\nHow many iterations of training, known as epochs, do you want?")
+        print("\n\tType 'Help' for more info")
         print("\nNOTE: The system may stop training early based on the mode you've previously selected.")
         print("\n\t\tThe default is: " + str(preferences.epochs))
         userInput = input("\n<WIZARD>: ")
+        if userInput == 'help':
+            print("\nThe number of epochs dictates how many times the model will be trained.")
+            print("\nA higher value is a good start unless you are worried that the early stopping will not catch overfitting.")
+            continue
         try:
             userInput = int(userInput)
         except:
@@ -543,6 +548,11 @@ def main():
         print("\nNOTE: Batch size consumes a lot of RAM, but the higher the better.")
         print("\n\t\tThe default is: " + str(preferences.batch_size))
         userInput = input("\n<WIZARD>: ")
+        if userInput == 'help':
+            print("\nBatch size dictates the number of images loaded into your system RAM for an epoch of training.")
+            print("\nSince the system will go through all images provided an increase in batch size will lower the")
+            print("\namount of times the system will ned to load new images in and thus speed up the training")
+            continue
         try:
             userInput = int(userInput)
         except:
