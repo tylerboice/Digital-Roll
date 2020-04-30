@@ -5,6 +5,8 @@ import tfcoreml
 import tensorflow as tf
 import coremltools
 import coremltools.proto.FeatureTypes_pb2 as ft
+import numpy as np
+from yolov3_tf2.dataset import transform_images
 
 
 from scripts import preferences
@@ -45,7 +47,7 @@ def export_coreml(output, weights):
     graph_output_node_name = keras_output_node_name.split('/')[-1]
 
     model = tfcoreml.convert(output + keras_model_name + ".h5",
-                             image_input_names="image",
+                             image_input_names=input_name,
                              input_name_shape_dict={input_name: (1, 224, 224, 3)},
                              output_feature_names=[graph_output_node_name],
                              minimum_ios_deployment_target='13')
@@ -60,6 +62,23 @@ def export_coreml(output, weights):
 
     model.save(output + coreml_model_name + '.mlmodel')
     print("\n\tCoreML saved at " + output + coreml_model_name + ".mlmodel\n")
+    spec = coremltools.utils.load_spec(output + coreml_model_name + '.mlmodel')
+    print(spec.description)
+
+
+
+
+    # This code apparently will only work if you have a Mac
+    try:
+        img = tf.image.decode_image(open('./data/d4-1 (18).jpg', 'rb').read(), channels=3)
+        img = tf.expand_dims(img, 0)
+        img = transform_images(img, 224)
+        out_dict = model.predict({'image': img})
+        print(str(out_dict))
+    except Exception as e:
+        print("Cannot test coreml models without a Mac device: " + str(e))
+
+
 
     EXTRA = False
     if EXTRA is True:
@@ -86,7 +105,7 @@ def export_coreml(output, weights):
 
         # add the post-processing layer
         new_layer = spec_layers.add()
-        new_layer.name = 'classLabel'
+        new_layer.name = 'output'
 
         # Configure it as an activation layer
         new_layer.activation.linear.alpha = 255
@@ -97,7 +116,7 @@ def export_coreml(output, weights):
         new_layer.input.append(last_layer.output[0])
 
         # Name the output for later reference when saving the model
-        new_layer.output.append('label_output')
+        new_layer.output.append('classLabel')
 
         # Find the original model's output description
         output_description = next(x for x in spec.description.output if x.name == last_layer.output[0])
