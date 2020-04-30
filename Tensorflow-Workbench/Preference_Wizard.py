@@ -315,7 +315,7 @@ def main():
             print("Please provide a value greater than 0")
             not_answered = True
             continue
-        if userInput != 224 or userInput != 256 or userInput != 416:
+        if userInput != 224 and userInput != 256 and userInput != 416:
             print("The workbench only supports 224, 256, and 416 sizes at this time")
             not_answered = True
             continue
