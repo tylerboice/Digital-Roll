@@ -605,11 +605,11 @@ def main():
                 not_answered = True
         elif userInput == "default":
             print("\nThe system will use this default:")
-            print("\n\t" + os.getcwd())
+            print("\n\t" + os.getcwd() + "/" + save_path)
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
                 pathInput = os.getcwd()
-                save_path = pathInput + save_path
+                save_path = pathInput + "/" + save_path
                 not_answered = False
             else:
                 not_answered = True
