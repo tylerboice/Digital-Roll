@@ -250,7 +250,7 @@ def main():
     # Question 7: Validation images location, used to showcase the model at the end of the full process
     not_answered = True
     while not_answered:
-        print("\nWhere do you want the .tfrecord created from the data in the images folder to be saved?")
+        print("\nWhere do you want the images used for validation from the data in the images folder to be saved?")
         print("\n\tType 'help' for more info")
         print("\n\tType 'default' to use the default location")
         print("\n\t\tThe default location is: " + preferences.validate_input)
