@@ -192,7 +192,7 @@ def main():
     # Question 5: Training data location, this should be in the form a .tfrecords
     not_answered = True
     while not_answered:
-        print("\nWhere do you want the .tfrecord created from the data in the images folder to be saved?")
+        print("\nWhere do you want the .tfrecord created from the training data in the images folder to be saved?")
         print("\n\tType 'help' for more info")
         print("\n\tType 'default' to use the default location")
         print("\n\t\tThe default location is: " + preferences.dataset_train)
@@ -221,7 +221,7 @@ def main():
     # Question 6: Testing data location, this should be in the form a .tfrecords
     not_answered = True
     while not_answered:
-        print("\nWhere do you want the .tfrecord created from the data in the images folder to be saved?")
+        print("\nWhere do you want the .tfrecord created from the testing data in the images folder to be saved?")
         print("\n\tType 'help' for more info")
         print("\n\tType 'default' to use the default location")
         print("\n\t\tThe default location is: " + preferences.dataset_test)
@@ -605,11 +605,11 @@ def main():
                 not_answered = True
         elif userInput == "default":
             print("\nThe system will use this default:")
-            print("\n\t" + os.getcwd() + "/" + save_path)
+            print("\n\t" + os.getcwd() + "\\" + save_path)
             verify = input("\nIs this correct? (y/n): ")
             if verify == "y":
                 pathInput = os.getcwd()
-                save_path = pathInput + "/" + save_path
+                save_path = pathInput + "\\" + save_path
                 not_answered = False
             else:
                 not_answered = True
