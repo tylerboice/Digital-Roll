@@ -187,6 +187,7 @@ def main():
             print("\nThe classifier file which has the file type '.names' is a file containing a list of the labels")
             print("\nthat will be used by the AI to identify the data.")
             print("\nThis file is generated automatically from the labels within the data provided to the system.")
+            print("\n===============================================================================================")
             not_answered = True
 
     # Question 5: Training data location, this should be in the form a .tfrecords
@@ -216,6 +217,7 @@ def main():
             print("\nThis is a binary based file that greatly speeds up the training when compared to training")
             print("\non a raw image set. This is because Tensorflow must serialize each image for the AI and by doing")
             print("\nit before training starts the system will never need to re-serialize any images it might use again")
+            print("\n===============================================================================================")
             not_answered = True
 
     # Question 6: Testing data location, this should be in the form a .tfrecords
@@ -245,6 +247,7 @@ def main():
             print("\nThis is a binary based file that greatly speeds up the training when compared to training")
             print("\non a raw image set. This is because Tensorflow must serialize each image for the AI and by doing")
             print("\nit before training starts the system will never need to re-serialize any images it might use again")
+            print("\n===============================================================================================")
             not_answered = True
 
     # Question 7: Validation images location, used to showcase the model at the end of the full process
@@ -272,6 +275,7 @@ def main():
         else:
             print("\nThis folder is used to store the randomly selected files used to validate the models training.")
             print("\nThis validation is used to re-test the model at the end and show you some example results.")
+            print("\n===============================================================================================")
             not_answered = True
 
     # Question 8: Number of images to validate, the amount of random images pulled and used to showcase
@@ -303,6 +307,7 @@ def main():
     not_answered = True
     while not_answered:
         print("\nWhat is the size of the images you are using to create the AI?")
+        print("\nThe workbench only supports 224, 256, and 416 sizes at this time")
         print("\n\t\tThe default is: " + str(preferences.image_size))
         userInput = input("\n<WIZARD>: ")
         try:
@@ -312,11 +317,11 @@ def main():
             not_answered = True
             continue
         if userInput <= 0:
-            print("Please provide a value greater than 0")
+            print("\nPlease provide a value greater than 0")
             not_answered = True
             continue
         if userInput != 224 and userInput != 256 and userInput != 416:
-            print("The workbench only supports 224, 256, and 416 sizes at this time")
+            print("\nThe workbench only supports 224, 256, and 416 sizes at this time")
             not_answered = True
             continue
         print("\nYou have given: ")
@@ -364,6 +369,7 @@ def main():
             print("\nYolo is able to be created in 2 forms: regular and tiny.")
             print("\nTiny Yolo is designed to consume less memory space making it better for direct use in android devices")
             print("\nAt the moment Tiny is experimental within the workbench and is not as well tested as the regular Yolo")
+            print("\n==========================================================================================")
             not_answered = True
         else:
             print("\nPlease select tiny, regular, or help")
@@ -404,10 +410,12 @@ def main():
                 not_answered = True
         else:
             print("\nTransfer modes are based on what type of previous AI you are trying to start from.")
+            print("\n")
             print("\nNone is for when you want to train from scratch and are not using any previous AI.")
-            print("\nDarknet is for the use of yolo weights files.")
+            print("\nDarknet is for the use of YOLO .weights files.")
             print("\nFine_tune is for previous AI checkpoints such as the ones made in the workbench saved as yolov3_train_X.tf")
             print("\nFrozen is for previous Tensorflow 1 models, this mode is very experimental and may not function")
+            print("\n==========================================================================================")
             not_answered = True
 
     # Question 12: Weights location: Not asked if transfer is set to none, sets Tiny weights instead if Tiny is set
@@ -436,9 +444,11 @@ def main():
                     not_answered = True
             else:
                 print("\nThis should be the exact location of what you wish to transfer.")
+                print("\n")
                 print("\nIf the transfer type is darknet it should be a .weights file.")
                 print("\nIf the transfer type is fine_tune it should be a .tf file.")
                 print("\nIf the transfer type is frozen it should be a frozen tensorflow model.")
+                print("\n==========================================================================================")
                 not_answered = True
 
     # Question 13: Mode, the mode for training the model, determines early stopping
@@ -478,10 +488,14 @@ def main():
             print("\nOverfitting is when the AI begins to assume that all aspects of an image are necessary.")
             print("\nThis results in an AI that is not very accurate and that is unable to generalize,")
             print("\nthus preventing it from being able to read unknown data.")
+            print("\n")
             print("\nFit is the most strict from and will cause the training to stop the moment improvement falters too much.")
+            print("\n")
             print("\nEager_fit is more lenient and will allow the AI to train a little more, this is useful as ")
-            print("\nsometimes AI will have pateaus before improving or may get worse before getting much better ")
+            print("\n\tsometimes AI will have pateaus before improving or may get worse before getting much better ")
+            print("\n")
             print("\nEager_tf is for system testing purposes only, it is not at all useful for proper AI training")
+            print("\n=================================================================================================")
             not_answered = True
     # Question 14: Epochs, number of times training occurs
     not_answered = True
@@ -491,9 +505,10 @@ def main():
         print("\nNOTE: The system may stop training early based on the mode you've previously selected.")
         print("\n\t\tThe default is: " + str(preferences.epochs))
         userInput = input("\n<WIZARD>: ")
-        if userInput == 'help':
+        if str(userInput).lower().strip() == 'help':
             print("\nThe number of epochs dictates how many times the model will be trained.")
             print("\nA higher value is a good start unless you are worried that the early stopping will not catch overfitting.")
+            print("\n=================================================================================================")
             continue
         try:
             userInput = int(userInput)
@@ -519,8 +534,13 @@ def main():
     while not_answered:
         print("\nEach epoch saves a checkpoint to shows its training, what is the max amount you want saved?")
         print("\nNOTE: Each checkpoint is about 1 gigabyte of memory.")
+        print("\n\tType 'Help' for more info")
         print("\n\t\tThe default is: " + str(preferences.max_checkpoints))
         userInput = input("\n<WIZARD>: ")
+        if str(userInput).lower().strip() == 'help':
+            print("\nEvery epoch of training saves a file which represents the training progress.")
+            print("\n=================================================================================================")
+            continue
         try:
             userInput = int(userInput)
         except:
@@ -546,12 +566,14 @@ def main():
     while not_answered:
         print("\nWhat is the batch size of images you would lke to load for each training?")
         print("\nNOTE: Batch size consumes a lot of RAM, but the higher the better.")
+        print("\n\tType 'Help' for more info")
         print("\n\t\tThe default is: " + str(preferences.batch_size))
         userInput = input("\n<WIZARD>: ")
-        if userInput == 'help':
-            print("\nBatch size dictates the number of images loaded into your system RAM for an epoch of training.")
+        if str(userInput).lower().strip() == 'help':
+            print("\nBatch size dictates the number of images loaded into your system's RAM for an epoch of training.")
             print("\nSince the system will go through all images provided an increase in batch size will lower the")
-            print("\namount of times the system will ned to load new images in and thus speed up the training")
+            print("\namount of times the system will need to load new images in and thus speed up the training")
+            print("\n=================================================================================================")
             continue
         try:
             userInput = int(userInput)
