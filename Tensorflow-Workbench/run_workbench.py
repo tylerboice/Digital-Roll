@@ -583,7 +583,7 @@ def run(start_from, start_path):
             if preferences.transfer == "none":
                 print("\n\tTraining from scratch, this will take some time...\n")
             else:
-                print("\n\tTraining via " + preferences.transfer + "transfer, this will take some time...")
+                print("\n\tTraining via " + preferences.transfer + " transfer, this will take some time...")
             transfer_mode = preferences.transfer
 
         # TRAINING
