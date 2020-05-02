@@ -161,7 +161,7 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
                       run_eagerly=(mode == 'eager_fit'))
         callbacks = [
             ReduceLROnPlateau(verbose=1),
-            EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=3),
+            EarlyStopping(monitor='val_loss', verbose=1, patience=3),
             ModelCheckpoint(checkpoint_path + 'yolov3_train_{epoch}.tf',
                             verbose=1, save_weights_only=True),
             TensorBoard(log_dir='logs')
