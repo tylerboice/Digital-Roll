@@ -42,7 +42,7 @@ def modify_commands():
 def help():
     print("\n COMMANDS")
     print("\n continue or c                  ==> Continue workbench from a checkpoint or session")
-    print("\n                                        example continue   (this uses the most recent check in your output folder")
+    print("\n                                        example continue   (this uses the most recent check in your output folder)")
     print("\n                                        example: continue ./output/yolov3_train_5.tf")
     print("\n                                        example: continue ./saved_session/session_1")
     print("\n display or d                   ==> Displays current settings")
@@ -61,7 +61,7 @@ def help():
     print("\n                                        example: save new_pref.txt")
     print("\n                                        if no argument given, saves in current working directory as preferences_<number>")
     print("\n test or t <path to image>      ==> Tests a given image using the last checkpoint")
-    print("\n tflite or l                    ==> Converts the current model in at the current output into a tflite model")
+    print("\n tflite or tf                    ==> Converts the current model in at the current output into a tflite model")
 
 def info():
     print("\n\t\t\t////////////////////////////////")
@@ -106,24 +106,24 @@ def info():
 def current_pref():
     string = ""
     string += "\tBatch Size............. " + str(preferences.batch_size) + "\n"
-    string += "\tClassifier file........ " + preferences.classifier_file + "\n"
+    string += "\tClassifier file........ " + str(preferences.classifier_file) + "\n"
     string += "\tNumber of Classes...... " + str(preferences.num_classes) + "\n"
-    string += "\tDataset test........... " + preferences.dataset_test + "\n"
-    string += "\tDataset train.......... " + preferences.dataset_train + "\n"
+    string += "\tDataset test........... " + str(preferences.dataset_test) + "\n"
+    string += "\tDataset train.......... " + str(preferences.dataset_train) + "\n"
     string += "\tEpochs................. " + str(preferences.epochs) + "\n"
     string += "\tImage Size............. " + str(preferences.image_size) + "\n"
     string += "\tMax Checkpoints........ " + str(preferences.max_checkpoints) + "\n"
     string += "\tMax Saved Sessions..... " + str(preferences.max_saved_sess) + "\n"
-    string += "\tMode................... " + preferences.mode + "\n"
-    string += "\tOutput Model........... " + preferences.output + "\n"
-    string += "\tSave Sessions.......... " + preferences.sessions + "\n"
-    string += "\tPreference File........ " + preferences.pref_file + "\n"
+    string += "\tMode................... " + str(preferences.mode) + "\n"
+    string += "\tOutput Model........... " + str(preferences.output) + "\n"
+    string += "\tSave Sessions.......... " + str(preferences.sessions) + "\n"
+    string += "\tPreference File........ " + str(preferences.pref_file) + "\n"
     string += "\tTiny Weights........... " + str(preferences.tiny) + "\n"
-    string += "\tTransfer............... " + preferences.transfer + "\n"
+    string += "\tTransfer............... " + str(preferences.transfer) + "\n"
     string += "\tValidate Image Num..... " + str(preferences.validate_img_num) + "\n"
-    string += "\tValidate Image Input... " + preferences.validate_input + "\n"
+    string += "\tValidate Image Input... " + str(preferences.validate_input) + "\n"
     string += "\tWeighted Classes....... " + str(preferences.weight_num_classes) + "\n"
-    string += "\tWeights Path........... " + preferences.weights + "\n"
+    string += "\tWeights Path........... " + str(preferences.weights) + "\n"
     return string
 
 def print_both(string, file):

@@ -147,7 +147,8 @@ def check_input(value, type):
             if os.path.isdir(value):
                 value = (value + "/").replace("//", "/")
             return value
-        err_message( value + " does not exist")
+        elif value.lower().replace(" ", "") != "none":
+            err_message( value + " does not exist")
 
     # boolean variable
     elif type == defaults.BOOL:
@@ -201,6 +202,9 @@ def modify(user_var, user_input):
                 user_input = temp.lower()
              except:
                  user_input = INPUT_ERR
+         elif user_var == defaults.WEIGHTS_PATH_VAR and user_input.lower().replace(" ", "") == "none":
+            user_input = None
+
          else:
              user_input = INPUT_ERR
 
@@ -315,7 +319,7 @@ def modify(user_var, user_input):
 
         # weights_path
         elif user_var == defaults.WEIGHTS_PATH_VAR:
-            if ".tf" in user_input or ".weights" in user_input:
+            if user_input == None or ".tf" in user_input or ".weights" in user_input:
                 preferences.weights = user_input
             else:
                 err_message("Weights must be a .tf or .weights file")
@@ -540,13 +544,17 @@ def run(start_from, start_path):
 
         # convert to checkpoint if nessacary, if not train from scratch
         if preferences.transfer == "darknet":
-            print("\nConverting darknet records to checkpoint...\n")
-            convert_weights.run_weight_convert(preferences.weights,
-                                               preferences.output + "/yolov3.tf",
-                                               preferences.tiny,
-                                               preferences.weight_num_classes)
-            weights = (preferences.output + "/yolov3.tf").replace("\\", "/").replace("//", "/")
-            print("\tCheckpoint Converted!\n")
+            try:
+                print("\nConverting darknet records to checkpoint...\n")
+                convert_weights.run_weight_convert(preferences.weights,
+                                                   preferences.output + "/yolov3.tf",
+                                                   preferences.tiny,
+                                                   preferences.weight_num_classes)
+                weights = (preferences.output + "/yolov3.tf").replace("\\", "/").replace("//", "/")
+                print("\tCheckpoint Converted!\n")
+                
+            except Exception as e:
+                err_message("Conversion failed: " + str(e))
         else:
             weights = None
 
@@ -693,6 +701,9 @@ def run(start_from, start_path):
     if (start_from == TEST_IMAGE):
         test_img = start_path
 
+        chkpnt_weights = file_utils.get_last_checkpoint(preferences.output)
+        chkpnt_weights = (chkpnt_weights.split(".tf")[0] + ".tf").replace("//", "/")
+
         # Rename checkpoints to ensure the newest one has the greatest number
         try:
             file_utils.rename_checkpoints(preferences.output)
@@ -817,7 +828,7 @@ def main():
                     err_message(str(e))
 
             # CONTINUE from user given file
-            elif userInput[0:5] == "continue " or userInput[0:2] == "c ":
+            elif userInput[0:8] == "continue " or userInput[0:2] == "c ":
                 if userInput[0:2] == "c ":
                     prev_check = userInput[2:]
                 else:
@@ -840,6 +851,7 @@ def main():
             elif userInput == "display" or userInput == "d":
                 print(print_to_terminal.current_pref())
 
+
             # HELP
             elif userInput == "help" or userInput == "h":
                 print_to_terminal.help()
@@ -849,7 +861,7 @@ def main():
                 print_to_terminal.info()
 
             # LITE
-            elif userInput == "lite" or userInput == "l":
+            elif userInput == "lite" or userInput == "tf":
                 # convert model to tensorflow lite for android use
                 print("WARNING: This method is still untested and in development.")
                 try:
@@ -869,6 +881,9 @@ def main():
                     err_message("Failed to create TF lite model: " + str(e))
 
             # LOAD
+            elif userInput == "load" or userInput == "l":
+                err_message("Load requires an argument of the preference file")
+
             elif userInput[0:5] == "load " or userInput[0:2] == "l ":
                 if userInput[0:2] == "l ":
                     pref_path = userInput[2:]
@@ -920,6 +935,9 @@ def main():
                     err_message(str(e))
 
             # TEST
+            elif userInput == "test" or userInput == "t":
+                err_message("Test requires an argument of the image or image folder you want to test")
+
             elif userInput[0:5] == "test " or userInput[0:2] == "t ":
                 if userInput[0:2] == "t ":
                     img_path = userInput[2:]

@@ -80,11 +80,12 @@ def check_files_exist(image_path, data_path, min_images, output_path, save_sess,
             os.mkdir(val_image_path)
 
         ####### WEIGHTS PATH #######
-        if not os.path.exists(weights_path) and trans == "darknet":
-            print("\nERROR: The weights path does not exist")
-            print("\n\tWeights Path Location: " + weights_path)
-            print("\n\tDownload the yolo3_weight file at https://pjreddie.com/media/files/yolov3.weights")
-            return False
+        if weights_path != None:
+            if not os.path.exists(weights_path) and trans == "darknet":
+                print("\nERROR: The weights path does not exist")
+                print("\n\tWeights Path Location: " + weights_path)
+                print("\n\tDownload the yolo3_weight file at https://pjreddie.com/media/files/yolov3.weights")
+                return False
 
     return images_found
 

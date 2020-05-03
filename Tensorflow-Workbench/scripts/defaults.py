@@ -62,7 +62,7 @@ flags.DEFINE_string( DATASET_TRAIN_VAR, TRAIN_TF_RECORD_PATH, 'path to training 
 
 ################################# EPOCHS ########################################
 EPOCH_NUM_VAR = "epochs"
-DEFAULT_EPOCH_NUM = 10
+DEFAULT_EPOCH_NUM = 50
 flags.DEFINE_integer( EPOCH_NUM_VAR, DEFAULT_EPOCH_NUM, 'number of epochs')
 
 
