@@ -89,7 +89,7 @@ def info():
     print("\t--" + defaults.TINY_WEIGHTS_VAR + ": training with the tiny weights or not..........................(Default: " + split_path(defaults.DEFAULT_WEIGHT_TYPE) + ")")
     print("\t\tOptions:")
     print("\t\t\t(1) True: tiny_weights")
-    print("\t\t\t(2) False: yolov3_weights\n")
+    print("\t\t\t(2) False: not tiny_weights\n")
     print("\t--" + defaults.TRANSFER_VAR + " type of transfer used for training..................................(Default: " + split_path(defaults.DFEAULT_TRANSFER_TYPE) + ")")
     print("\t\tOptions:")
     print("\t\t\t(1) none: Training from scratch")
