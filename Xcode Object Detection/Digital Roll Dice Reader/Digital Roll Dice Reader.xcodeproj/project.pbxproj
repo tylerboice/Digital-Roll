@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		261A90952451662A0034C884 /* core_ml.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 261A90942451662A0034C884 /* core_ml.mlmodel */; };
+		2603DB7B245A466B00FE743E /* core_mlv2.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 2603DB7A245A466B00FE743E /* core_mlv2.mlmodel */; };
 		26B6CCB2243FD9AE007D6C3D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B6CCB1243FD9AE007D6C3D /* AppDelegate.swift */; };
 		26B6CCB4243FD9AE007D6C3D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B6CCB3243FD9AE007D6C3D /* SceneDelegate.swift */; };
 		26B6CCB6243FD9AE007D6C3D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B6CCB5243FD9AE007D6C3D /* ViewController.swift */; };
@@ -37,7 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		261A90942451662A0034C884 /* core_ml.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; name = core_ml.mlmodel; path = ../../../../../Downloads/core_ml.mlmodel; sourceTree = "<group>"; };
+		2603DB7A245A466B00FE743E /* core_mlv2.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; name = core_mlv2.mlmodel; path = ../../../../../Downloads/core_mlv2.mlmodel; sourceTree = "<group>"; };
 		26B6CCAE243FD9AE007D6C3D /* Digital Roll Dice Reader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Digital Roll Dice Reader.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		26B6CCB1243FD9AE007D6C3D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		26B6CCB3243FD9AE007D6C3D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -110,8 +110,8 @@
 				26B6CCBA243FD9B0007D6C3D /* Assets.xcassets */,
 				26B6CCBC243FD9B0007D6C3D /* LaunchScreen.storyboard */,
 				26B6CCBF243FD9B0007D6C3D /* Info.plist */,
-				261A90942451662A0034C884 /* core_ml.mlmodel */,
 				26B6CCE3243FDB52007D6C3D /* Resnet50.mlmodel */,
+				2603DB7A245A466B00FE743E /* core_mlv2.mlmodel */,
 			);
 			path = "Digital Roll Dice Reader";
 			sourceTree = "<group>";
@@ -267,8 +267,8 @@
 			files = (
 				26B6CCE4243FDB52007D6C3D /* Resnet50.mlmodel in Sources */,
 				26B6CCB6243FD9AE007D6C3D /* ViewController.swift in Sources */,
+				2603DB7B245A466B00FE743E /* core_mlv2.mlmodel in Sources */,
 				26B6CCB2243FD9AE007D6C3D /* AppDelegate.swift in Sources */,
-				261A90952451662A0034C884 /* core_ml.mlmodel in Sources */,
 				26B6CCB4243FD9AE007D6C3D /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

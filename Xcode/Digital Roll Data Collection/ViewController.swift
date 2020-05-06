@@ -12,6 +12,7 @@ import CoreMotion
 
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     
+    
     // Initalize variables used for capturing the image
     let captureSession = AVCaptureSession()
     var previewLayer:CALayer!
