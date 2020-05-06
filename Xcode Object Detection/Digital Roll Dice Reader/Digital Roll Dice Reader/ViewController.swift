@@ -62,18 +62,22 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection){
         guard let pixelBuffer: CVPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {self.quickErr(myLine: #line, inputStr: ""); return}
-        guard let model = try? VNCoreMLModel(for: core_ml().model) else {self.quickErr(myLine: #line, inputStr: ""); return}
-        let request = VNCoreMLRequest(model: model) {(finishedReq, err) in
-            guard let results = finishedReq.results as? [VNClassificationObservation] else {return}
-            guard let firstObservation = results.first else {return}
+        guard let model = try? VNCoreMLModel(for: core_mlv2().model) else {self.quickErr(myLine: #line, inputStr: "Model did not load"); return}
+        let request = VNCoreMLRequest(model: model)
+            {(finishedReq, err) in
+            guard let results = finishedReq.results as? [VNCoreMLFeatureValueObservation] else {self.quickErr(myLine: #line, inputStr: "Results could not be loaded"); return}
             
+            guard let firstObservation = results.first else {return}
             var myMessage = ""
             var myConfidence = 0
+                
+                print(firstObservation.featureValue
             
             if (firstObservation.confidence > 0) {
                 myConfidence = Int(firstObservation.confidence * 100)
-                let myIdentifier = firstObservation.identifier.split(separator: ",")
-                myMessage = "The model is \(myConfidence)% confident this object is: \(myIdentifier[0])."
+                let myIdentifier = firstObservation.featureValue.stringValue
+                //let myIdentifier = firstObservation.
+                myMessage = "The model is \(myConfidence)% confident this object is: \(myIdentifier)."
             }
             else {
                 myMessage = "The model is not confident enough to classify the object"
