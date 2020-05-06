@@ -13,3 +13,15 @@ Tensorflow2.0-Workbench/data/classifier.names
 *.tflite
 *.txt
 Tensorflow-Workbench/Anaconda Prompt (Anaconda).lnk
+*.xml
+*.jpg
+*.tfrecord
+*.names
+*.hdf5
+*.h5
+Tensorflow-Workbench/current_session/checkpoint
+*.weights
+*.v2
+*.trace
+*.pyc
+Tensorflow-Workbench/logs/train/events.out.tfevents.1588109444.DESKTOP-M6LR0H6.profile-empty
