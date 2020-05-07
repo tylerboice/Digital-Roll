@@ -244,6 +244,8 @@ def train_resnet(train_dataset_in, val_dataset_in, images,
             val_dataset_in, classifiers, size)
     val_dataset = val_dataset.batch(batch_size)
 
+    # Notice, Current Dataset variables do not conform to resnets desired conditions
+
     model = ResNet50(weights=None,
                      input_tensor=tf.keras.Input(shape=(224, 224, 3), name='image'),
                      classes=num_classes)
@@ -251,6 +253,7 @@ def train_resnet(train_dataset_in, val_dataset_in, images,
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate, amsgrad=True)
 
     model.compile(optimizer=optimizer,
+                  loss='categorical_crossentropy',
                   run_eagerly=(mode == 'eager_fit'))
     callbacks = [
         ReduceLROnPlateau(verbose=1),
