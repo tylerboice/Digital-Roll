@@ -25,11 +25,11 @@ class PhotoViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
     var motion = CMMotionManager()
     
     // Initalize Picker Views
-    @IBOutlet weak var diceShapePV: UIPickerView!
+    @IBOutlet var diceShapePV: UIPickerView!
     let diceShape = ["d4", "d6", "d8", "d10", "d%", "d12", "d20"]
     var diceShapeValue: String = ""
         
-    @IBOutlet weak var diceNumberPV: UIPickerView!
+    @IBOutlet var diceNumberPV: UIPickerView!
     let diceNumber = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"]
     var diceNumberValue: String = ""
     
@@ -103,7 +103,8 @@ class PhotoViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
     
     func convertXML(img: UIImage, xAccel: String, yAccel: String, zAccel: String){
         // Create file name
-        let file = diceShapeValue + "-" + diceNumberValue + ".xml"
+        //let file = diceShapeValue + "-" + diceNumberValue + ".xml"
+        let file = pickerView(diceShapePV, titleForRow: diceShapePV.selectedRow(inComponent: 0), forComponent: 0)! + "-" + pickerView(diceNumberPV, titleForRow: diceNumberPV.selectedRow(inComponent: 0), forComponent: 0)! + ".xml"
         
         // Get Image stats
         let heightInPixels = Int(takenPhoto!.size.height * takenPhoto!.scale)
@@ -134,12 +135,11 @@ class PhotoViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         if (pickerView == diceShapePV){
             diceShapeValue = diceShape[row] as String
-            print(diceShapeValue)
-            return diceShapeValue
+            return diceShape[row] as String
         }
         if (pickerView == diceNumberPV){
             diceNumberValue = diceNumber[row] as String
-            return diceNumberValue
+            return diceNumber[row] as String
         }
         return "Error"
     }
