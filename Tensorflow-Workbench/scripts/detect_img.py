@@ -64,7 +64,7 @@ def run_detect(classes, weights, tiny, size, image, output, num_classes):
     for i in range(nums[0]):
         object_name = class_names[int(classesArr[0][i])]
         object_acc = round(100 * np.array(scores[0][i]), 2)
-        object_loc =  np.array(boxes[0][i])
+        object_loc = np.array(boxes[0][i])
         print("\t\tObject " + str(i + 1) + ": " + str(object_name) + " with a " + str(object_acc) + "% accuracy\n")
         no_classifier = False
         logging.info('\t{}, {}, {}'.format(class_names[int(classesArr[0][i])],
