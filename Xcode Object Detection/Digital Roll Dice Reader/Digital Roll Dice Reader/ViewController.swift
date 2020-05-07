@@ -70,13 +70,10 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             guard let firstObservation = results.first else {return}
             var myMessage = ""
             var myConfidence = 0
-                
-                print(firstObservation.featureValue
             
             if (firstObservation.confidence > 0) {
                 myConfidence = Int(firstObservation.confidence * 100)
-                let myIdentifier = firstObservation.featureValue.stringValue
-                //let myIdentifier = firstObservation.
+                let myIdentifier = firstObservation.featureValue
                 myMessage = "The model is \(myConfidence)% confident this object is: \(myIdentifier)."
             }
             else {

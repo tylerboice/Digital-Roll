@@ -133,12 +133,13 @@ class PhotoViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
     // Function to return value in picker view
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         if (pickerView == diceShapePV){
-            diceShapeValue = diceShape[row]
-            return diceShape[row]
+            diceShapeValue = diceShape[row] as String
+            print(diceShapeValue)
+            return diceShapeValue
         }
         if (pickerView == diceNumberPV){
-            diceNumberValue = diceNumber[row]
-            return diceNumber[row]
+            diceNumberValue = diceNumber[row] as String
+            return diceNumberValue
         }
         return "Error"
     }
