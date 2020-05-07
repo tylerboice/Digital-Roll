@@ -103,19 +103,27 @@ class PhotoViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
     
     func convertXML(img: UIImage, xAccel: String, yAccel: String, zAccel: String){
         // Create file name
-        //let file = diceShapeValue + "-" + diceNumberValue + ".xml"
-        let file = pickerView(diceShapePV, titleForRow: diceShapePV.selectedRow(inComponent: 0), forComponent: 0)! + "-" + pickerView(diceNumberPV, titleForRow: diceNumberPV.selectedRow(inComponent: 0), forComponent: 0)! + ".xml"
+        diceShapeValue = pickerView(diceShapePV, titleForRow: diceShapePV.selectedRow(inComponent: 0), forComponent: 0)!
+        diceNumberValue = pickerView(diceNumberPV, titleForRow: diceNumberPV.selectedRow(inComponent: 0), forComponent: 0)!
+        
+        var timestamp: String {
+            return "\(Int(NSDate().timeIntervalSince1970))"
+        }
+        
+        print(timestamp)
+        
+        let file = diceShapeValue + "-" + diceNumberValue + timestamp
         
         // Get Image stats
         let heightInPixels = Int(takenPhoto!.size.height * takenPhoto!.scale)
         let widthInPixels = Int(takenPhoto!.size.width * takenPhoto!.scale)
         
         // Create xml formated code
-        let text = "<annotation>\n\t<filename>\(file)</filename>\n\n\t<size>\n\t\t<width>\(widthInPixels)</width>\n\t\t<height>\(heightInPixels)</height>\n\t\t<depth>3</depth>\n\t</size>\n\n\t<xAccel>\(xAccel)</xAccel>\n\t<yAccel>\(yAccel)</yAccel>\n\t<zAccel>\(zAccel)</zAccel>\n\n\t<object>\n\t\t<name>\(diceShapeValue)-\(diceNumberValue)</name>\n\t\t<pose>Unspecified</pose>\n\t\t<truncated>0</truncated>\n\t\t<difficult>0</difficult>\n\t\t<bndbox>\n\t\t\t<xmin>\(Int(touchArray[3] * takenPhoto!.scale))</xmin>\n\t\t\t<ymin>\(Int(touchArray[2] * takenPhoto!.scale))</ymin>\n\t\t\t<xmax>\(Int(touchArray[0] * takenPhoto!.scale))</xmax>\n\t\t\t<ymax>\(Int(touchArray[1] * takenPhoto!.scale))</ymax>\n\t\t</bndbox>\n\t</object>\n\n\t<img>\(img.toString())</img>\n</annotation>"
+        let text = "<annotation>\n\t<filename>\(file)\(timestamp).jpg</filename>\n\n\t<size>\n\t\t<width>\(widthInPixels)</width>\n\t\t<height>\(heightInPixels)</height>\n\t\t<depth>3</depth>\n\t</size>\n\n\t<xAccel>\(xAccel)</xAccel>\n\t<yAccel>\(yAccel)</yAccel>\n\t<zAccel>\(zAccel)</zAccel>\n\n\t<object>\n\t\t<name>\(diceShapeValue)-\(diceNumberValue)</name>\n\t\t<pose>Unspecified</pose>\n\t\t<truncated>0</truncated>\n\t\t<difficult>0</difficult>\n\t\t<bndbox>\n\t\t\t<xmin>\(Int(touchArray[3] * takenPhoto!.scale))</xmin>\n\t\t\t<ymin>\(Int(touchArray[2] * takenPhoto!.scale))</ymin>\n\t\t\t<xmax>\(Int(touchArray[0] * takenPhoto!.scale))</xmax>\n\t\t\t<ymax>\(Int(touchArray[1] * takenPhoto!.scale))</ymax>\n\t\t</bndbox>\n\t</object>\n\n\t<img>\(img.toString())</img>\n</annotation>"
 
         // Write file in phone directory
         if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let fileURL = dir.appendingPathComponent(file)
+            let fileURL = dir.appendingPathComponent(file + ".xml")
 
             // Write the XML if possible
             do {
