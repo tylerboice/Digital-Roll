@@ -595,35 +595,66 @@ def run(start_from, start_path):
             transfer_mode = preferences.transfer
 
         # TRAINING
-        try:
-            # start training counter
-            start_train_time = time.perf_counter()
-            # start training
-            train, test = train_workbench.run_train(preferences.dataset_train,
-                                                preferences.dataset_test,
-                                                preferences.tiny,
-                                                defaults.IMAGES_PATH,
-                                                weights,
-                                                preferences.classifier_file,
-                                                preferences.mode,
-                                                transfer_mode,
-                                                preferences.image_size,
-                                                preferences.epochs,
-                                                preferences.batch_size,
-                                                defaults.DEFAULT_LEARN_RATE,
-                                                preferences.num_classes,
-                                                preferences.weight_num_classes,
-                                                preferences.output,
-                                                preferences.max_checkpoints)
-            training_data.extend(train)
-            testing_data.extend(test)
-            training_time = time.perf_counter() - start_train_time
-            print("\n\n\tTraining Complete!\n")
+        type = 'yolo'
+        if(type == 'resnet'):
+            try:
+                print("\n\tTraining a ResNet50 Model...")
+                # start training counter
+                start_train_time = time.perf_counter()
+                # start training
+                train, test = train_workbench.train_resnet(preferences.dataset_train,
+                                                        preferences.dataset_test,
+                                                        defaults.IMAGES_PATH,
+                                                        preferences.classifier_file,
+                                                        preferences.mode,
+                                                        preferences.image_size,
+                                                        preferences.epochs,
+                                                        preferences.batch_size,
+                                                        defaults.DEFAULT_LEARN_RATE,
+                                                        preferences.num_classes,
+                                                        preferences.output)
+                training_data.extend(train)
+                testing_data.extend(test)
+                training_time = time.perf_counter() - start_train_time
+                print("\n\n\tTraining Complete!\n")
 
-        # Training Failed
-        except Exception as e:
-            err_message("Training Failed: " + str(e))
-            return
+            # Training Failed
+            except Exception as e:
+                err_message("Training Failed: " + str(e))
+                return
+        # YOLO Training method call
+        else:
+            try:
+                print("\n\tTraining a YOLO V3 Model...")
+                # start training counter
+                start_train_time = time.perf_counter()
+                # start training
+                train, test = train_workbench.run_train(preferences.dataset_train,
+                                                        preferences.dataset_test,
+                                                        preferences.tiny,
+                                                        defaults.IMAGES_PATH,
+                                                        weights,
+                                                        preferences.classifier_file,
+                                                        preferences.mode,
+                                                        transfer_mode,
+                                                        preferences.image_size,
+                                                        preferences.epochs,
+                                                        preferences.batch_size,
+                                                        defaults.DEFAULT_LEARN_RATE,
+                                                        preferences.num_classes,
+                                                        preferences.weight_num_classes,
+                                                        preferences.output,
+                                                        preferences.max_checkpoints)
+                training_data.extend(train)
+                testing_data.extend(test)
+                training_time = time.perf_counter() - start_train_time
+                print("\n\n\tTraining Complete!\n")
+
+            # Training Failed
+            except Exception as e:
+                err_message("Training Failed: " + str(e))
+                return
+
 
     # Create Models and test validate images
     if (start_from == CONTINUE or start_from == RUN):
@@ -739,7 +770,10 @@ def run(start_from, start_path):
     # test_img given was a signle file, test file
     if path.isfile(test_img):
         test_img = test_img.lower()
-        if test_img.endswith(tuple(file_utils.IMAGE_TYPES)):
+        if test_img.endswith(tuple(file_utils.IMAGE_TYPES)) or test_img.endswith(file_utils.XML_TYPE):
+            if test_img.endswith(file_utils.XML_TYPE):
+                extract_img_from_xml(test_img)
+                test_img = test_img.split(".")[0] + ".jpg"
             files_found = True
             file_type = file_utils.get_type(test_img)
             out_img = preferences.output + test_img.split(".")[0] + "-output" + file_type

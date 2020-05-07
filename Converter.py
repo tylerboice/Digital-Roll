@@ -1,5 +1,6 @@
 import base64
 import time
+import os
 from PIL import Image
 
 #tempfile: file
@@ -57,13 +58,21 @@ def importer(picture, xAccel, yAccel, zAccel, dshape, dvalue, bboxparams):
 
 def convert(image, xvec, yvec, zvec, dshape, dvalue, bboxminx, bboxminy, bboxmaxx, bboxmaxy):
     timestamp = str(time.time())
+    new_image_name = dshape + "-" + dvalue + "("  + timestamp + ").jpg"
+    try:
+        os.rename(image,new_image_name)
+    except:
+        print("file could not be renamed")
+    try:
+        converted_image_file = dshape + "-" + dvalue + "("  + timestamp + ").jpg"
+    except:
+        print("failed to open requested file")
     try:
         converted_file = open( dshape + "-" + dvalue + "("  + timestamp + ").xml", "w")
     except:
         print("failed to open requested file")
-
     try:
-        pilImage = Image.open(image)
+        pilImage = Image.open(new_image_name)
     except:
         print("image could not be opened properly")
     try:
@@ -80,7 +89,7 @@ def convert(image, xvec, yvec, zvec, dshape, dvalue, bboxminx, bboxminy, bboxmax
     except:
         print("could not convert height to string")
     try:
-        with open(image, "rb") as img_file:
+        with open(new_image_name, "rb") as img_file:
             imgHandler = img_file.read()
     except:
         print("image could not be read as bytes")
@@ -90,7 +99,7 @@ def convert(image, xvec, yvec, zvec, dshape, dvalue, bboxminx, bboxminy, bboxmax
         print("the image could not be converted to base 64")
     #file_text = "<annotation>\n <filename>\ " converted_file.filename \ "</filename>\n <img>\ " converted_string \ "</img>\n <xAccel>\ " xvec \ "</xAccel>\n <yAccel>\ " yvec \ "</yAccel>\n <zAccel>\ " zvec \ "</zAccel>\n</annotation>"
     try:
-        converted_file.write("<annotation>\n <filename>" + converted_file.name + "</filename>\n <img>" + str(converted_string) + "</img>\n " +
+        converted_file.write("<annotation>\n <filename>" + new_image_name + "</filename>\n <img>" + str(converted_string) + "</img>\n " +
         " <xAccel>" + xvec + "</xAccel>\n <yAccel>" + yvec + "</yAccel>\n <zAccel>" + zvec + "</zAccel>\n" +
         " <size>\n \t<width>" + widthstr + "</width> \n <height>" + heightstr + "</height> \n<depth>3</depth> \n</size> <object> \n \t <name>" + dshape + "-" + dvalue + "</name>\n <pose>Unspecified</pose> \n <truncated>0</truncated>\n <difficult>0</difficult>\n "
             + "<bndbox> \n \t <xmin>" + str(bboxminx) + "</xmin>\n <ymin>" + str(bboxminy) + "</ymin> \n <xmax>" + str(bboxmaxx) + "</xmax> \n <ymax>" + str(bboxmaxy) + " </ymax> \n </bndbox> \n </object>"
@@ -104,7 +113,7 @@ def convert(image, xvec, yvec, zvec, dshape, dvalue, bboxminx, bboxminy, bboxmax
 
 def output(output_file):
     #tempfile = output_file
-    print(output_file)
+    #print(output_file)
     return output_file
 
 def addbbox(bboxparams, dshape, dvalue, file):

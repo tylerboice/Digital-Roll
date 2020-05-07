@@ -21,6 +21,8 @@ from yolov3_tf2.models import (
 from yolov3_tf2.utils import freeze_all
 import yolov3_tf2.dataset as dataset
 
+from tensorflow.keras.applications import ResNet50
+
 
 def run_train(train_dataset_in, val_dataset_in, tiny, images,
               weights, classifiers, mode, transfer, size, epochs, batch_size,
@@ -220,6 +222,57 @@ def run_train(train_dataset_in, val_dataset_in, tiny, images,
             # add data for later plotting
             train_data.extend(history.history['loss'])
             test_data.extend(history.history['val_loss'])
+
+    return train_data, test_data
+
+# Experimental ResNet Training Function WORK IN PROGRESS
+def train_resnet(train_dataset_in, val_dataset_in, images,
+                 classifiers, mode, size, epochs, batch_size,
+                 learning_rate, num_classes, checkpoint_path):
+    global test_data, train_data
+    checkpoint_path = checkpoint_path.replace("\\", "/")
+
+    if train_dataset_in:
+        train_dataset = dataset.load_tfrecord_dataset(
+            train_dataset_in, classifiers, size)
+    train_dataset = train_dataset.shuffle(buffer_size=512)
+    train_dataset = train_dataset.batch(batch_size)
+
+    val_dataset = dataset.load_fake_dataset(images)
+    if val_dataset_in:
+        val_dataset = dataset.load_tfrecord_dataset(
+            val_dataset_in, classifiers, size)
+    val_dataset = val_dataset.batch(batch_size)
+
+    # Notice, Current Dataset variables do not conform to resnets desired conditions
+
+    model = ResNet50(weights=None,
+                     input_tensor=tf.keras.Input(shape=(224, 224, 3), name='image'),
+                     classes=num_classes)
+
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate, amsgrad=True)
+
+    model.compile(optimizer=optimizer,
+                  loss='categorical_crossentropy',
+                  run_eagerly=(mode == 'eager_fit'))
+    callbacks = [
+        ReduceLROnPlateau(verbose=1),
+        EarlyStopping(monitor='val_loss', verbose=1, patience=3),
+        ModelCheckpoint(checkpoint_path + 'yolov3_train_{epoch}.tf',
+                        verbose=1, save_weights_only=True),
+        TensorBoard(log_dir='logs')
+    ]
+
+    history = model.fit(train_dataset,
+                        epochs=epochs,
+                        callbacks=callbacks,
+                        validation_data=val_dataset)
+    # plot training history
+    # add data for later plotting
+    train_data.extend(history.history['loss'])
+    test_data.extend(history.history['val_loss'])
+
+    model.save(checkpoint_path + "resnet50.h5")
 
     return train_data, test_data
 
