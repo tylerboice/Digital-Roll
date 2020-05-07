@@ -598,6 +598,7 @@ def run(start_from, start_path):
         type = 'yolo'
         if(type == 'resnet'):
             try:
+                print("\n\tTraining a ResNet50 Model...")
                 # start training counter
                 start_train_time = time.perf_counter()
                 # start training
@@ -624,6 +625,7 @@ def run(start_from, start_path):
         # YOLO Training method call
         else:
             try:
+                print("\n\tTraining a YOLO V3 Model...")
                 # start training counter
                 start_train_time = time.perf_counter()
                 # start training
