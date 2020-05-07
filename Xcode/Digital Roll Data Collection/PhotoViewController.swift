@@ -106,11 +106,7 @@ class PhotoViewController: UIViewController, UIPickerViewDataSource, UIPickerVie
         diceShapeValue = pickerView(diceShapePV, titleForRow: diceShapePV.selectedRow(inComponent: 0), forComponent: 0)!
         diceNumberValue = pickerView(diceNumberPV, titleForRow: diceNumberPV.selectedRow(inComponent: 0), forComponent: 0)!
         
-        var timestamp: String {
-            return "\(Int(NSDate().timeIntervalSince1970))"
-        }
-        
-        print(timestamp)
+        let timestamp = "-\(Int(NSDate().timeIntervalSince1970))"
         
         let file = diceShapeValue + "-" + diceNumberValue + timestamp
         
