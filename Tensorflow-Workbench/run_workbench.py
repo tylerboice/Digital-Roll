@@ -768,7 +768,10 @@ def run(start_from, start_path):
     # test_img given was a signle file, test file
     if path.isfile(test_img):
         test_img = test_img.lower()
-        if test_img.endswith(tuple(file_utils.IMAGE_TYPES)):
+        if test_img.endswith(tuple(file_utils.IMAGE_TYPES)) or test_img.endswith(file_utils.XML_TYPE):
+            if test_img.endswith(file_utils.XML_TYPE):
+                extract_img_from_xml(test_img)
+                test_img = test_img.split(".")[0] + ".jpg"
             files_found = True
             file_type = file_utils.get_type(test_img)
             out_img = preferences.output + test_img.split(".")[0] + "-output" + file_type
